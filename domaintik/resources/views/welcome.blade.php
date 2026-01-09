@@ -8,7 +8,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
         
-        <h1 class="text-3xl font-bold text-green-600 mb-4">
+        <h1 class="text-3xl font-bold text-red-600 mb-4">
             Halo, rayhan! selamat datang di laravel yaaaa
         </h1>
 
