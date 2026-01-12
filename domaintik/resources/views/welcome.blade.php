@@ -16,7 +16,7 @@
             
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
                 
-                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white text-center">
+                <div class="bg-linear-to-r from-blue-600 to-indigo-700 p-8 text-white text-center">
                     <h1 class="text-4xl font-extrabold tracking-tight mb-2">
                         Domain TIK Project
                     </h1>
@@ -28,7 +28,7 @@
                 <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                     
                     <div class="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50 transition duration-300">
-                        <div class="flex-shrink-0">
+                        <div class="shrink-0">
                             <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold text-xl">
                                 ✓
                             </div>
@@ -42,7 +42,7 @@
                     </div>
 
                     <div class="flex items-start space-x-4 p-4 rounded-lg hover:bg-gray-50 transition duration-300">
-                        <div class="flex-shrink-0">
+                        <div class="shrink-0">
                             <div class="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xl">
                                 ⚙
                             </div>

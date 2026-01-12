@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <title>@yield('title', 'Domaintik') - Layanan Domain & Hosting TIK Unila</title>
+    
+    {{-- Favicon --}}
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>">
+    
+    {{-- Fonts --}}
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700&display=swap" rel="stylesheet" />
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    @stack('styles')
+</head>
+<body class="min-h-screen bg-linear-to-br from-gray-50 to-myunila-50 font-sans antialiased">
+    
+    {{-- Navigation --}}
+    <nav class="sticky top-0 z-50 border-b border-myunila-100 bg-white/90 backdrop-blur-lg">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                {{-- Logo --}}
+                <a href="{{ url('/') }}" class="flex items-center gap-3 transition hover:opacity-80">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-unila text-white shadow-lg shadow-myunila/30">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-xl font-bold text-gray-900">Domain<span class="text-myunila">TIK</span></span>
+                        <p class="text-xs text-gray-500">Universitas Lampung</p>
+                    </div>
+                </a>
+                
+                {{-- Navigation Links --}}
+                <div class="hidden items-center gap-6 md:flex">
+                    <a href="{{ url('/') }}" class="text-sm font-medium text-gray-600 transition hover:text-myunila">Beranda</a>
+                    <a href="#layanan" class="text-sm font-medium text-gray-600 transition hover:text-myunila">Layanan</a>
+                    <a href="#alur" class="text-sm font-medium text-gray-600 transition hover:text-myunila">Alur Pengajuan</a>
+                </div>
+                
+                {{-- Auth Section --}}
+                <div class="flex items-center gap-3">
+                    @auth
+                        <div class="hidden items-center gap-3 sm:flex">
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</p>
+                                <p class="text-xs text-gray-500">{{ ucfirst(Auth::user()->role) }}</p>
+                            </div>
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-ocean text-sm font-bold text-white">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            </div>
+                        </div>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 hover:text-error">
+                                Keluar
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('dev.login', 1) }}" class="rounded-lg bg-myunila px-4 py-2 text-sm font-medium text-white transition hover:bg-myunila-700">
+                            Masuk (Dev)
+                        </a>
+                    @endauth
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    {{-- Flash Messages --}}
+    @if(session('success'))
+        <div class="mx-auto mt-4 max-w-7xl px-4">
+            <div class="rounded-lg border border-success/30 bg-success-light p-4 text-success">
+                <div class="flex items-center gap-2">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    {{ session('success') }}
+                </div>
+            </div>
+        </div>
+    @endif
+    
+    @if(session('error'))
+        <div class="mx-auto mt-4 max-w-7xl px-4">
+            <div class="rounded-lg border border-error/30 bg-error-light p-4 text-error">
+                <div class="flex items-center gap-2">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    {{ session('error') }}
+                </div>
+            </div>
+        </div>
+    @endif
+    
+    {{-- Main Content --}}
+    <main>
+        @yield('content')
+    </main>
+    
+    {{-- Footer --}}
+    <footer class="mt-auto border-t border-gray-200 bg-white">
+        <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
+                <div class="flex items-center gap-2 text-gray-500">
+                    <svg class="h-5 w-5 text-myunila" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                    </svg>
+                    <span class="text-sm font-medium">DomainTIK</span>
+                </div>
+                <p class="text-center text-sm text-gray-500">
+                    &copy; {{ date('Y') }} UPA TIK Universitas Lampung. Sistem Layanan Domain & Hosting.
+                </p>
+                <div class="flex items-center gap-4 text-sm text-gray-500">
+                    <a href="https://tik.unila.ac.id" target="_blank" class="transition hover:text-myunila">tik.unila.ac.id</a>
+                    <span>•</span>
+                    <a href="mailto:helpdesk@tik.unila.ac.id" class="transition hover:text-myunila">helpdesk@tik.unila.ac.id</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    @stack('scripts')
+</body>
+</html>
