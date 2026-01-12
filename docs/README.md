@@ -1,11 +1,45 @@
-### Use Case
-![WhatsApp Image 2026-01-06 at 14 33 13](https://github.com/user-attachments/assets/c8fcb024-f5db-4fe4-a3bf-db9ffb9a602e)
+# 🚀 Domain TIK - Dockerized Development Environment
 
-### Activity Diagram
-![WhatsApp Image 2026-01-07 at 15 28 40](https://github.com/user-attachments/assets/c6a5da3c-eadb-4a82-836e-2378075bc42d)
-![WhatsApp Image 2026-01-07 at 15 28 31](https://github.com/user-attachments/assets/a31ad9e5-82bb-45ac-916c-356db139d9f0)
-![WhatsApp Image 2026-01-07 at 15 28 21](https://github.com/user-attachments/assets/20eb89c0-f825-4e58-88c6-f5f89e1a6711)
-![WhatsApp Image 2026-01-07 at 15 28 04](https://github.com/user-attachments/assets/da262e20-866e-450d-9fb9-df78adc64b84)
+Dokumentasi teknis untuk setup dan workflow pengembangan proyek Domain TIK menggunakan Docker.
 
+## 🛠️ Tech Stack
+* **Framework:** Laravel 12 (Bleeding Edge)
+* **Language:** PHP 8.2 & Node.js 20
+* **Database:** PostgreSQL 15
+* **Frontend:** Tailwind CSS + Vite
+* **Container:** Docker & Docker Compose V2
 
+---
 
+## ⚡ Quick Start (Instalasi 1x Jalan)
+
+Proyek ini menggunakan **Automated Entrypoint**. Anda tidak perlu menginstall dependensi manual.
+
+1.  **Clone & Masuk Direktori**
+    ```bash
+    git clone <repo_url>
+    cd domaintik
+    ```
+
+2.  **Jalankan Docker**
+    ```bash
+    docker compose up -d --build
+    ```
+    > **Catatan:** Saat pertama kali dijalankan, container akan memproses `composer install`, `npm install`, `key:generate`, dan `migrate` secara otomatis. Tunggu 1-2 menit hingga log menunjukkan "Starting Apache".
+
+3.  **Akses Aplikasi**
+    * **Web App:** [http://localhost:8080](http://localhost:8080)
+    * **Database Manager (Adminer):** [http://localhost:8081](http://localhost:8081)
+        * *System:* PostgreSQL
+        * *Server:* `db`
+        * *User/Pass:* Sesuai file `.env` (Default: `postgres`/`postgres`)
+
+---
+
+## 👨‍💻 Development Workflow (Cara Kerja)
+
+### 1. Mode Frontend Development (Hot Reload)
+Gunakan mode ini saat Anda sedang **aktif mengedit** tampilan (Blade/Tailwind/JS) agar perubahan terlihat instan.
+```bash
+docker compose exec app npm run dev
+```
