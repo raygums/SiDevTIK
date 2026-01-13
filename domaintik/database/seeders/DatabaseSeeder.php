@@ -10,49 +10,61 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // User biasa (Mahasiswa)
-        DB::table('users')->insert([
+        $roles = [
+            ['id' => 1, 'name' => 'Pemohon', 'code' => 'user'],
+            ['id' => 2, 'name' => 'Verifikator', 'code' => 'verifikator'],
+            ['id' => 3, 'name' => 'Eksekutor', 'code' => 'eksekutor'],
+            ['id' => 4, 'name' => 'Super Admin', 'code' => 'admin'],
+        ];
+        
+        DB::table('referensi.roles')->upsert($roles, ['id'], ['name', 'code']);
+
+        DB::table('referensi.sso_role_mappings')->insert([
+            ['sso_group_name' => 'mahasiswa', 'target_role_id' => 1], 
+            ['sso_group_name' => 'dosen', 'target_role_id' => 1],     
+            ['sso_group_name' => 'tendik', 'target_role_id' => 1],    
+      
+        ]);
+
+        DB::table('users')->insertOrIgnore([
             'name' => 'Budi Mahasiswa',
-            'email' => 'budi.mahasiswa@students.unila.ac.id',
+            'email' => 'budi.mhs@unila.ac.id',
             'nomor_identitas' => '2215061001',
-            'role' => 'user',
+            'role_id' => 1,
             'password' => Hash::make('password'),
             'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
-        // Admin TIK (Verifikator + Admin)
-        DB::table('users')->insert([
-            'name' => 'Admin TIK',
-            'email' => 'helpdesk@tik.unila.ac.id',
-            'nomor_identitas' => '198501012010011001',
-            'role' => 'admin',
-            'password' => Hash::make('password'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        // Verifikator
-        DB::table('users')->insert([
+        // Siti (Verifikator) -> Role 2
+        DB::table('users')->insertOrIgnore([
             'name' => 'Siti Verifikator',
-            'email' => 'siti.verifikator@unila.ac.id',
+            'email' => 'siti.verif@tik.unila.ac.id',
             'nomor_identitas' => '198702152011012002',
-            'role' => 'verifikator',
+            'role_id' => 2,
             'password' => Hash::make('password'),
             'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
-        // Eksekutor (Teknisi)
-        DB::table('users')->insert([
+        // Andi (Eksekutor) -> Role 3
+        DB::table('users')->insertOrIgnore([
             'name' => 'Andi Eksekutor',
-            'email' => 'andi.teknisi@tik.unila.ac.id',
+            'email' => 'andi.eksekutor@tik.unila.ac.id',
             'nomor_identitas' => '199003202015011003',
-            'role' => 'eksekutor',
+            'role_id' => 3, 
             'password' => Hash::make('password'),
             'created_at' => now(),
-            'updated_at' => now(),
         ]);
+
+        // Admin TIK -> Role 4
+        DB::table('users')->insertOrIgnore([
+            'name' => 'Super Admin TIK',
+            'email' => 'admin@tik.unila.ac.id',
+            'nomor_identitas' => '198501012010011001',
+            'role_id' => 4, 
+            'password' => Hash::make('password'),
+            'created_at' => now(),
+        ]);
+        
 
         $catFakultas = DB::table('referensi.unit_categories')->insertGetId(['name' => 'Fakultas']);
         $catLembaga  = DB::table('referensi.unit_categories')->insertGetId(['name' => 'Lembaga/UPT']);
