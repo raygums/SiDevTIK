@@ -5,96 +5,80 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $roles = [
-            ['id' => 1, 'name' => 'Pemohon', 'code' => 'user'],
-            ['id' => 2, 'name' => 'Verifikator', 'code' => 'verifikator'],
-            ['id' => 3, 'name' => 'Eksekutor', 'code' => 'eksekutor'],
-            ['id' => 4, 'name' => 'Super Admin', 'code' => 'admin'],
-        ];
-        
-        DB::table('referensi.roles')->upsert($roles, ['id'], ['name', 'code']);
+        // 1. Seed Status Pengajuan (Referensi)
+        $statuses = ['Draft', 'Diajukan', 'Disetujui', 'Ditolak', 'Revisi'];
+        foreach ($statuses as $status) {
+            DB::table('referensi.status_pengajuan')->insert([
+                'UUID' => Str::uuid(),
+                'nm_status' => $status
+            ]);
+        }
 
-        DB::table('referensi.sso_role_mappings')->insert([
-            ['sso_group_name' => 'mahasiswa', 'target_role_id' => 1], 
-            ['sso_group_name' => 'dosen', 'target_role_id' => 1],     
-            ['sso_group_name' => 'tendik', 'target_role_id' => 1],    
-      
+        // 2. Seed Kategori Unit (Referensi)
+        $catFakultasId = Str::uuid();
+        DB::table('referensi.kategori_unit')->insert([
+            'UUID' => $catFakultasId,
+            'nm_kategori' => 'Fakultas'
         ]);
 
-        DB::table('users')->insertOrIgnore([
-            'name' => 'Budi Mahasiswa',
-            'email' => 'budi.mhs@unila.ac.id',
-            'nomor_identitas' => '2215061001',
-            'role_id' => 1,
-            'password' => Hash::make('password'),
-            'created_at' => now(),
+        // 3. Seed Unit Kerja (Referensi)
+        DB::table('referensi.unit_kerja')->insert([
+            'UUID' => Str::uuid(),
+            'nm_unit' => 'Fakultas Teknik',
+            'kode_unit' => 'FT',
+            'kategori_uuid' => $catFakultasId,
+            'a_aktif' => true
         ]);
 
-        // Siti (Verifikator) -> Role 2
-        DB::table('users')->insertOrIgnore([
-            'name' => 'Siti Verifikator',
-            'email' => 'siti.verif@tik.unila.ac.id',
-            'nomor_identitas' => '198702152011012002',
-            'role_id' => 2,
-            'password' => Hash::make('password'),
-            'created_at' => now(),
+        // 4. Seed Jenis Layanan (Referensi)
+        $layanan = ['Domain Baru', 'Hosting', 'VPS'];
+        foreach ($layanan as $l) {
+            DB::table('referensi.jenis_layanan')->insert([
+                'UUID' => Str::uuid(),
+                'nm_layanan' => $l,
+                'a_aktif' => true
+            ]);
+        }
+
+        // 5. Seed Peran (Akun)
+        $roleAdminId = Str::uuid();
+        DB::table('akun.peran')->insert([
+            'UUID' => $roleAdminId,
+            'nm_peran' => 'Administrator',
+            'a_aktif' => true
         ]);
 
-        // Andi (Eksekutor) -> Role 3
-        DB::table('users')->insertOrIgnore([
-            'name' => 'Andi Eksekutor',
-            'email' => 'andi.eksekutor@tik.unila.ac.id',
-            'nomor_identitas' => '199003202015011003',
-            'role_id' => 3, 
-            'password' => Hash::make('password'),
-            'created_at' => now(),
+        DB::table('akun.peran')->insert([
+            'UUID' => Str::uuid(),
+            'nm_peran' => 'Pengguna',
+            'a_aktif' => true
         ]);
 
-        // Admin TIK -> Role 4
-        DB::table('users')->insertOrIgnore([
-            'name' => 'Super Admin TIK',
-            'email' => 'admin@tik.unila.ac.id',
-            'nomor_identitas' => '198501012010011001',
-            'role_id' => 4, 
-            'password' => Hash::make('password'),
-            'created_at' => now(),
-        ]);
-        
-
-        $catFakultas = DB::table('referensi.unit_categories')->insertGetId(['name' => 'Fakultas']);
-        $catLembaga  = DB::table('referensi.unit_categories')->insertGetId(['name' => 'Lembaga/UPT']);
-        $catUKM      = DB::table('referensi.unit_categories')->insertGetId(['name' => 'UKM/Organisasi']);
-
-        $units = [
-            // Fakultas
-            ['category_id' => $catFakultas, 'name' => 'Fakultas Teknik', 'code' => 'FT'],
-            ['category_id' => $catFakultas, 'name' => 'Fakultas Ekonomi dan Bisnis', 'code' => 'FEB'],
-            ['category_id' => $catFakultas, 'name' => 'Fakultas Kedokteran', 'code' => 'FK'],
-            ['category_id' => $catFakultas, 'name' => 'Fakultas Hukum', 'code' => 'FH'],
-            
-            // Lembaga
-            ['category_id' => $catLembaga, 'name' => 'UPA TIK', 'code' => 'TIK'],
-            ['category_id' => $catLembaga, 'name' => 'LP3M', 'code' => 'LP3M'],
-            
-            // UKM
-            ['category_id' => $catUKM, 'name' => 'BEM Universitas', 'code' => 'BEM-U'],
-            ['category_id' => $catUKM, 'name' => 'Hima Komputasi', 'code' => 'HIMAKOM'],
-        ];
-
-        DB::table('referensi.units')->insert($units);
-
-        DB::table('referensi.service_types')->insert([
-            ['name' => 'Pembuatan Domain Baru (.unila.ac.id)'],
-            ['name' => 'Pembuatan Hosting Baru'],
-            ['name' => 'Perpanjangan Layanan'],
-            ['name' => 'Permintaan VPS (Virtual Private Server)'],
+        // 6. Seed Pengguna Admin (Akun)
+        DB::table('akun.pengguna')->insert([
+            'UUID' => Str::uuid(),
+            'nm' => 'Super Admin',
+            'usn' => 'admin',
+            'email' => 'admin@unila.ac.id',
+            'ktp' => '1871000000000001',
+            'tgl_lahir' => '1990-01-01',
+            'kata_sandi' => Hash::make('password'),
+            'peran_uuid' => $roleAdminId,
+            'a_aktif' => true,
+            'wkt_dibuat' => now()
         ]);
         
-        $this->command->info('Data Master Berhasil Ditanam! 🌱');
+        // 7. Seed Mapping SSO (Opsional)
+        DB::table('akun.pemetaan_peran_sso')->insert([
+            'UUID' => Str::uuid(),
+            'atribut_sso' => 'admin-group',
+            'peran_uuid' => $roleAdminId
+        ]);
     }
 }
