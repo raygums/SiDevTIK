@@ -10,18 +10,48 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // User biasa (Mahasiswa)
         DB::table('users')->insert([
             'name' => 'Budi Mahasiswa',
             'email' => 'budi.mahasiswa@students.unila.ac.id',
+            'nomor_identitas' => '2215061001',
+            'role' => 'user',
             'password' => Hash::make('password'),
             'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
+        // Admin TIK (Verifikator + Admin)
         DB::table('users')->insert([
             'name' => 'Admin TIK',
             'email' => 'helpdesk@tik.unila.ac.id',
+            'nomor_identitas' => '198501012010011001',
+            'role' => 'admin',
             'password' => Hash::make('password'),
             'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Verifikator
+        DB::table('users')->insert([
+            'name' => 'Siti Verifikator',
+            'email' => 'siti.verifikator@unila.ac.id',
+            'nomor_identitas' => '198702152011012002',
+            'role' => 'verifikator',
+            'password' => Hash::make('password'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Eksekutor (Teknisi)
+        DB::table('users')->insert([
+            'name' => 'Andi Eksekutor',
+            'email' => 'andi.teknisi@tik.unila.ac.id',
+            'nomor_identitas' => '199003202015011003',
+            'role' => 'eksekutor',
+            'password' => Hash::make('password'),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         $catFakultas = DB::table('referensi.unit_categories')->insertGetId(['name' => 'Fakultas']);

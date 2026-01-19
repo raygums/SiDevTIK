@@ -35,7 +35,7 @@ fi
 
 # 4. Setup Izin Folder (Permission)
 log_message "Setting permissions for storage and cache..."
-chmod -R 777 storage bootstrap/cache
+chmod -R 777 storage bootstrap/cache # sangat tidak aman untuk Production
 
 # 5. Migrasi Database
 log_message "Waiting for database connection..."

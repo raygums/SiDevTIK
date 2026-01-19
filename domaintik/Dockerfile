@@ -12,6 +12,11 @@ RUN apt-get update && apt-get install -y \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
+
+# redis ( mengurangi beban database PostgreSQL hanya untuk membaca/menulis session login. Dengan memindahkan beban session ke Redis (RAM), PostgreSQL bisa fokus melayani query transaksi bisnis.)
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
 RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd
 
 RUN a2enmod rewrite

@@ -37,7 +37,7 @@ return new class extends Migration
             // Dokumen
             $table->string('generated_form_path')->nullable();
             $table->string('signed_form_path')->nullable();
-            
+            $table->string('attachment_identity_path')->nullable();
             $table->timestamps();
         });
 
