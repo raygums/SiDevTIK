@@ -25,8 +25,6 @@ jobs:
 
       - name: Push to Bitbucket
         env:
-          # Pastikan username dan slug repo ini sesuai dengan Bitbucket Anda
-          # Berdasarkan log error Anda sebelumnya: mahendraunila/si-project-tik
           TARGET_REPO: git@bitbucket.org:mahendraunila/si-project-tik.git
         run: |
           # 1. Setup Remote Bitbucket (SSH)
