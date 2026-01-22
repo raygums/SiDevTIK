@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FormGeneratorController;
 use App\Http\Controllers\SubmissionController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,6 +12,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('home');
 })->name('home');
+
+// --- Generate Form Routes (Public untuk akses mudah) ---
+Route::prefix('form')->name('forms.')->group(function () {
+    Route::get('/{ticketNumber}', [FormGeneratorController::class, 'selectForm'])->name('select');
+    Route::get('/{ticketNumber}/paperless', [FormGeneratorController::class, 'showPaperless'])->name('paperless');
+    Route::get('/{ticketNumber}/hardcopy/preview', [FormGeneratorController::class, 'previewHardcopy'])->name('hardcopy.preview');
+    Route::get('/{ticketNumber}/hardcopy/download', [FormGeneratorController::class, 'downloadHardcopy'])->name('hardcopy.download');
+});
 
 
 // ==========================================
