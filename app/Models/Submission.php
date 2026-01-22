@@ -5,83 +5,37 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Submission extends Model
 {
     use HasUuids;
 
-    protected $table = 'transaksi.submissions';
+    protected $table = 'transaksi.pengajuan';
+    protected $primaryKey = 'UUID';
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    const CREATED_AT = 'create_at';
+    const UPDATED_AT = 'last_update';
 
     protected $fillable = [
-        'ticket_number',
-        'applicant_id',
-        'unit_id',
-        'admin_responsible_name',
-        'admin_responsible_nip',
-        'admin_responsible_position',
-        'admin_responsible_phone',
-        'application_name',
-        'description',
-        'status',
-        'assigned_verifier_id',
-        'assigned_executor_id',
-        'generated_form_path',
-        'signed_form_path',
-        'attachment_identity_path',
-        'metadata',
+        'no_tiket',
+        'pengguna_uuid',
+        'unit_kerja_uuid',
+        'jenis_layanan_uuid',
+        'status_uuid',
+        'tgl_pengajuan',
+        'id_creator',
+        'id_updater',
     ];
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'metadata' => 'array',
+        'tgl_pengajuan' => 'date',
+        'create_at' => 'datetime',
+        'last_update' => 'datetime',
     ];
-
-    /*
-    |--------------------------------------------------------------------------
-    | Status Constants
-    |--------------------------------------------------------------------------
-    */
-    public const STATUS_DRAFT = 'draft';
-    public const STATUS_SUBMITTED = 'submitted';
-    public const STATUS_IN_REVIEW = 'in_review';
-    public const STATUS_APPROVED_ADMIN = 'approved_admin';
-    public const STATUS_PROCESSING = 'processing';
-    public const STATUS_COMPLETED = 'completed';
-    public const STATUS_REJECTED = 'rejected';
-
-    public static function statuses(): array
-    {
-        return [
-            self::STATUS_DRAFT => 'Draft',
-            self::STATUS_SUBMITTED => 'Diajukan',
-            self::STATUS_IN_REVIEW => 'Sedang Ditinjau',
-            self::STATUS_APPROVED_ADMIN => 'Disetujui Admin',
-            self::STATUS_PROCESSING => 'Diproses',
-            self::STATUS_COMPLETED => 'Selesai',
-            self::STATUS_REJECTED => 'Ditolak',
-        ];
-    }
-
-    public function getStatusLabelAttribute(): string
-    {
-        return self::statuses()[$this->status] ?? $this->status;
-    }
-
-    public function getStatusColorAttribute(): string
-    {
-        return match($this->status) {
-            self::STATUS_DRAFT => 'gray',
-            self::STATUS_SUBMITTED => 'blue',
-            self::STATUS_IN_REVIEW => 'yellow',
-            self::STATUS_APPROVED_ADMIN => 'indigo',
-            self::STATUS_PROCESSING => 'purple',
-            self::STATUS_COMPLETED => 'green',
-            self::STATUS_REJECTED => 'red',
-            default => 'gray',
-        };
-    }
 
     /*
     |--------------------------------------------------------------------------
@@ -102,54 +56,93 @@ class Submission extends Model
     | Relationships
     |--------------------------------------------------------------------------
     */
-    public function applicant(): BelongsTo
+    public function pengguna(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'applicant_id');
+        return $this->belongsTo(User::class, 'pengguna_uuid', 'UUID');
     }
 
-    public function unit(): BelongsTo
+    public function unitKerja(): BelongsTo
     {
-        return $this->belongsTo(Unit::class, 'unit_id');
+        return $this->belongsTo(Unit::class, 'unit_kerja_uuid', 'UUID');
     }
 
-    public function verifier(): BelongsTo
+    public function jenisLayanan(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'assigned_verifier_id');
+        return $this->belongsTo(JenisLayanan::class, 'jenis_layanan_uuid', 'UUID');
     }
 
-    public function executor(): BelongsTo
+    public function status(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'assigned_executor_id');
+        return $this->belongsTo(StatusPengajuan::class, 'status_uuid', 'UUID');
     }
 
-    public function details(): HasMany
+    public function rincian(): HasOne
     {
-        return $this->hasMany(SubmissionDetail::class, 'submission_id');
+        return $this->hasOne(SubmissionDetail::class, 'pengajuan_uuid', 'UUID');
     }
 
-    public function logs(): HasMany
+    public function riwayat(): HasMany
     {
-        return $this->hasMany(SubmissionLog::class, 'submission_id');
+        return $this->hasMany(SubmissionLog::class, 'pengajuan_uuid', 'UUID');
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id_creator', 'UUID');
+    }
+
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id_updater', 'UUID');
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Helpers
+    | Aliases for backward compatibility
     |--------------------------------------------------------------------------
     */
-    public function getMainDetail(): ?SubmissionDetail
+    public function applicant(): BelongsTo
     {
-        return $this->details->first();
+        return $this->pengguna();
     }
 
-    public function getRequestTypeLabelAttribute(): string
+    public function unit(): BelongsTo
     {
-        $detail = $this->getMainDetail();
-        return match($detail?->request_type) {
-            'domain' => 'Domain',
-            'hosting' => 'Hosting',
-            'vps' => 'VPS',
-            default => '-',
-        };
+        return $this->unitKerja();
+    }
+
+    public function details(): HasOne
+    {
+        return $this->rincian();
+    }
+
+    public function logs(): HasMany
+    {
+        return $this->riwayat();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors
+    |--------------------------------------------------------------------------
+    */
+    public function getTicketNumberAttribute(): string
+    {
+        return $this->no_tiket;
+    }
+
+    public function getServiceTypeAttribute(): ?string
+    {
+        return $this->jenisLayanan?->nm_layanan;
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return $this->status?->nm_status ?? '-';
+    }
+
+    public function getStatusColorAttribute(): string
+    {
+        return $this->status?->color ?? 'gray';
     }
 }

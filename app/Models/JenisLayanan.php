@@ -4,14 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Unit extends Model
+class JenisLayanan extends Model
 {
     use HasUuids;
 
-    protected $table = 'referensi.unit_kerja';
+    protected $table = 'referensi.jenis_layanan';
     protected $primaryKey = 'UUID';
     protected $keyType = 'string';
     public $incrementing = false;
@@ -20,9 +19,8 @@ class Unit extends Model
     const UPDATED_AT = 'last_update';
 
     protected $fillable = [
-        'nm_lmbg',
-        'kode_unit',
-        'kategori_uuid',
+        'nm_layanan',
+        'deskripsi',
         'a_aktif',
     ];
 
@@ -30,13 +28,13 @@ class Unit extends Model
         'a_aktif' => 'boolean',
     ];
 
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(UnitCategory::class, 'kategori_uuid', 'UUID');
-    }
+    // Konstanta tipe layanan
+    public const DOMAIN = 'domain';
+    public const HOSTING = 'hosting';
+    public const VPS = 'vps';
 
     public function submissions(): HasMany
     {
-        return $this->hasMany(Submission::class, 'unit_kerja_uuid', 'UUID');
+        return $this->hasMany(Submission::class, 'jenis_layanan_uuid', 'UUID');
     }
 }

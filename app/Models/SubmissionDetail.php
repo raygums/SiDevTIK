@@ -2,33 +2,62 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SubmissionDetail extends Model
 {
-    protected $table = 'transaksi.submission_details';
+    use HasUuids;
+
+    protected $table = 'transaksi.rincian_pengajuan';
+    protected $primaryKey = 'UUID';
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    const CREATED_AT = 'create_at';
+    const UPDATED_AT = 'last_update';
 
     protected $fillable = [
-        'submission_id',
-        'request_type',
-        'requested_domain',
-        'requested_quota_gb',
-        'initial_password_hint',
+        'pengajuan_uuid',
+        'nm_domain',
+        'alamat_ip',
+        'kapasitas_penyimpanan',
+        'lokasi_server',
+        'keterangan_keperluan',
+        'file_lampiran',
+        'id_creator',
+        'id_updater',
     ];
 
-    public function submission(): BelongsTo
+    public function pengajuan(): BelongsTo
     {
-        return $this->belongsTo(Submission::class, 'submission_id');
+        return $this->belongsTo(Submission::class, 'pengajuan_uuid', 'UUID');
     }
 
-    public function getRequestTypeLabelAttribute(): string
+    // Alias for backward compatibility
+    public function submission(): BelongsTo
     {
-        return match($this->request_type) {
-            'domain' => 'Domain (.unila.ac.id)',
-            'hosting' => 'Hosting (cPanel)',
-            'vps' => 'VPS (Virtual Private Server)',
-            default => $this->request_type,
-        };
+        return $this->pengajuan();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors for backward compatibility
+    |--------------------------------------------------------------------------
+    */
+    public function getRequestedDomainAttribute(): ?string
+    {
+        return $this->nm_domain;
+    }
+
+    public function getHostingQuotaAttribute(): ?string
+    {
+        return $this->kapasitas_penyimpanan;
+    }
+
+    public function getVpsPurposeAttribute(): ?string
+    {
+        return $this->keterangan_keperluan;
     }
 }
