@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JenisLayanan;
+use App\Models\StatusPengajuan;
 use App\Models\Submission;
 use App\Models\SubmissionDetail;
 use App\Models\SubmissionLog;
@@ -19,9 +21,9 @@ class SubmissionController extends Controller
      */
     public function index()
     {
-        $submissions = Submission::with(['unit', 'details'])
-            ->where('applicant_id', Auth::id())
-            ->orderBy('created_at', 'desc')
+        $submissions = Submission::with(['unitKerja', 'rincian', 'jenisLayanan', 'status'])
+            ->where('pengguna_uuid', Auth::user()->UUID)
+            ->orderBy('create_at', 'desc')
             ->paginate(10);
 
         return view('submissions.index', compact('submissions'));
@@ -86,6 +88,16 @@ class SubmissionController extends Controller
             'application_name' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
             'request_type' => 'required|in:domain,hosting,vps',
+            
+            // VPS specific
+            'vps_cpu' => 'nullable|string',
+            'vps_ram' => 'nullable|string',
+            'vps_storage' => 'nullable|string',
+            'vps_os' => 'nullable|string',
+            'vps_purpose' => 'nullable|string',
+            
+            // Hosting specific
+            'hosting_quota' => 'nullable|string',
         ], [
             'jenis_domain.required' => 'Jenis domain wajib dipilih.',
             'nama_organisasi.required' => 'Nama lembaga/organisasi/kegiatan wajib diisi.',
@@ -109,67 +121,58 @@ class SubmissionController extends Controller
         try {
             DB::beginTransaction();
 
-            // Create submission
+            $user = Auth::user();
+            
+            // Get or create jenis layanan
+            $jenisLayanan = JenisLayanan::firstOrCreate(
+                ['nm_layanan' => $validated['request_type']],
+                ['deskripsi' => 'Layanan ' . ucfirst($validated['request_type']), 'a_aktif' => true]
+            );
+            
+            // Get or create status
+            $status = StatusPengajuan::firstOrCreate(
+                ['nm_status' => 'Draft'],
+            );
+            
+            // Get first unit if no unit selected
+            $unitKerja = Unit::first();
+
+            // Create submission (pengajuan)
             $submission = Submission::create([
-                'ticket_number' => Submission::generateTicketNumber(),
-                'applicant_id' => Auth::id(),
-                'unit_id' => $validated['unit_id'] ?? null,
-                'admin_responsible_name' => $validated['admin_responsible_name'],
-                'admin_responsible_nip' => $validated['admin_responsible_nip'] ?? null,
-                'admin_responsible_position' => $validated['admin_responsible_position'],
-                'admin_responsible_phone' => $validated['admin_responsible_phone'],
-                'application_name' => $validated['nama_organisasi'],
-                'description' => 'Permohonan Sub Domain untuk ' . $validated['nama_organisasi'],
-                'status' => Submission::STATUS_DRAFT,
-                
-                // Extended data stored as JSON in notes or separate columns
-                'metadata' => json_encode([
-                    'jenis_domain' => $validated['jenis_domain'],
-                    'nama_organisasi' => $validated['nama_organisasi'],
-                    'admin' => [
-                        'name' => $validated['admin_responsible_name'],
-                        'position' => $validated['admin_responsible_position'],
-                        'nip' => $validated['admin_responsible_nip'] ?? null,
-                        'alamat_kantor' => $validated['admin_alamat_kantor'] ?? null,
-                        'alamat_rumah' => $validated['admin_alamat_rumah'] ?? null,
-                        'telepon_kantor' => $validated['admin_telepon_kantor'] ?? null,
-                        'telepon_rumah' => $validated['admin_responsible_phone'],
-                        'email' => $validated['admin_email'],
-                    ],
-                    'tech' => [
-                        'name' => $validated['tech_name'],
-                        'nip' => $validated['tech_nip'],
-                        'phone' => $validated['tech_phone'],
-                        'alamat_kantor' => $validated['tech_alamat_kantor'] ?? null,
-                        'alamat_rumah' => $validated['tech_alamat_rumah'] ?? null,
-                        'email' => $validated['tech_email'],
-                    ],
-                ]),
+                'no_tiket' => Submission::generateTicketNumber(),
+                'pengguna_uuid' => $user->UUID,
+                'unit_kerja_uuid' => $unitKerja?->UUID,
+                'jenis_layanan_uuid' => $jenisLayanan->UUID,
+                'status_uuid' => $status->UUID,
+                'tgl_pengajuan' => now(),
+                'id_creator' => $user->UUID,
             ]);
 
-            // Create submission detail
+            // Build keterangan_keperluan based on request type
+            $keterangan = $this->buildKeterangan($validated);
+
+            // Create submission detail (rincian_pengajuan)
             SubmissionDetail::create([
-                'submission_id' => $submission->id,
-                'request_type' => $validated['request_type'],
-                'requested_domain' => $this->formatDomain($validated['requested_domain']),
-                'requested_quota_gb' => null,
-                'initial_password_hint' => $validated['admin_password'],
+                'pengajuan_uuid' => $submission->UUID,
+                'nm_domain' => $this->formatDomain($validated['requested_domain']),
+                'kapasitas_penyimpanan' => $validated['hosting_quota'] ?? $validated['vps_storage'] ?? null,
+                'keterangan_keperluan' => $keterangan,
+                'id_creator' => $user->UUID,
             ]);
 
-            // Create log
+            // Create log (riwayat_pengajuan)
             SubmissionLog::create([
-                'submission_id' => $submission->id,
-                'user_id' => Auth::id(),
-                'action' => 'created',
-                'note' => 'Formulir pengajuan dibuat.',
-                'created_at' => now(),
+                'pengajuan_uuid' => $submission->UUID,
+                'status_baru_uuid' => $status->UUID,
+                'catatan_log' => 'Formulir pengajuan dibuat.',
+                'id_creator' => $user->UUID,
             ]);
 
             DB::commit();
 
             return redirect()
-                ->route('submissions.download-form', $submission)
-                ->with('success', 'Formulir berhasil dibuat! Silakan download, cetak, dan minta tanda tangan atasan.');
+                ->route('forms.select', $submission->no_tiket)
+                ->with('success', 'Formulir berhasil dibuat! Silakan pilih jenis form yang ingin digenerate.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -180,13 +183,51 @@ class SubmissionController extends Controller
     }
 
     /**
+     * Build keterangan keperluan from validated data
+     */
+    private function buildKeterangan(array $validated): string
+    {
+        $data = [
+            'jenis_domain' => $validated['jenis_domain'],
+            'nama_organisasi' => $validated['nama_organisasi'],
+            'admin' => [
+                'name' => $validated['admin_responsible_name'],
+                'position' => $validated['admin_responsible_position'],
+                'nip' => $validated['admin_responsible_nip'] ?? null,
+                'email' => $validated['admin_email'],
+                'phone' => $validated['admin_responsible_phone'],
+            ],
+            'tech' => [
+                'name' => $validated['tech_name'],
+                'nip' => $validated['tech_nip'],
+                'email' => $validated['tech_email'],
+                'phone' => $validated['tech_phone'],
+            ],
+            'password_hint' => $validated['admin_password'],
+        ];
+        
+        // Add VPS specific data
+        if ($validated['request_type'] === 'vps') {
+            $data['vps'] = [
+                'cpu' => $validated['vps_cpu'] ?? null,
+                'ram' => $validated['vps_ram'] ?? null,
+                'storage' => $validated['vps_storage'] ?? null,
+                'os' => $validated['vps_os'] ?? null,
+                'purpose' => $validated['vps_purpose'] ?? null,
+            ];
+        }
+        
+        return json_encode($data);
+    }
+
+    /**
      * Show download form page
      */
     public function downloadForm(Submission $submission)
     {
         $this->authorizeAccess($submission);
         
-        $submission->load(['applicant', 'unit.category', 'details']);
+        $submission->load(['pengguna', 'unitKerja.category', 'rincian']);
 
         return view('submissions.download-form', compact('submission'));
     }
@@ -198,7 +239,7 @@ class SubmissionController extends Controller
     {
         $this->authorizeAccess($submission);
         
-        $submission->load(['applicant', 'unit.category', 'details']);
+        $submission->load(['pengguna', 'unitKerja.category', 'rincian']);
 
         return view('partials.printable-form', compact('submission'));
     }
@@ -230,27 +271,44 @@ class SubmissionController extends Controller
         ]);
 
         try {
+            $user = Auth::user();
+            
             // Store files
             $signedFormPath = $request->file('signed_form')
-                ->store("submissions/{$submission->id}", 'public');
+                ->store("submissions/{$submission->UUID}", 'public');
             
             $identityPath = $request->file('identity_attachment')
-                ->store("submissions/{$submission->id}", 'public');
+                ->store("submissions/{$submission->UUID}", 'public');
 
-            // Update submission
+            // Get or create submitted status
+            $statusDiajukan = StatusPengajuan::firstOrCreate(
+                ['nm_status' => 'Diajukan'],
+            );
+            
+            $oldStatusUuid = $submission->status_uuid;
+
+            // Update submission detail with file paths
+            $submission->rincian()->update([
+                'file_lampiran' => json_encode([
+                    'signed_form' => $signedFormPath,
+                    'identity' => $identityPath,
+                ]),
+                'id_updater' => $user->UUID,
+            ]);
+            
+            // Update submission status
             $submission->update([
-                'signed_form_path' => $signedFormPath,
-                'attachment_identity_path' => $identityPath,
-                'status' => Submission::STATUS_SUBMITTED,
+                'status_uuid' => $statusDiajukan->UUID,
+                'id_updater' => $user->UUID,
             ]);
 
             // Create log
             SubmissionLog::create([
-                'submission_id' => $submission->id,
-                'user_id' => Auth::id(),
-                'action' => 'submitted',
-                'note' => 'Dokumen diupload dan pengajuan dikirim untuk verifikasi.',
-                'created_at' => now(),
+                'pengajuan_uuid' => $submission->UUID,
+                'status_lama_uuid' => $oldStatusUuid,
+                'status_baru_uuid' => $statusDiajukan->UUID,
+                'catatan_log' => 'Dokumen diupload dan pengajuan dikirim untuk verifikasi.',
+                'id_creator' => $user->UUID,
             ]);
 
             return redirect()
@@ -269,7 +327,7 @@ class SubmissionController extends Controller
     {
         $this->authorizeAccess($submission);
         
-        $submission->load(['applicant', 'unit.category', 'details', 'logs.user']);
+        $submission->load(['pengguna', 'unitKerja.category', 'rincian', 'riwayat.creator']);
 
         return view('submissions.show', compact('submission'));
     }
@@ -298,12 +356,13 @@ class SubmissionController extends Controller
         $user = Auth::user();
         
         // Owner can always access
-        if ($submission->applicant_id === $user->id) {
+        if ($submission->pengguna_uuid === $user->UUID) {
             return;
         }
         
         // Admin, Verifikator, Eksekutor can access all
-        if (in_array($user->role, ['admin', 'verifikator', 'eksekutor'])) {
+        $userRole = $user->peran?->nm_peran ?? '';
+        if (in_array(strtolower($userRole), ['admin', 'verifikator', 'eksekutor'])) {
             return;
         }
         
