@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Formulir Pengajuan Sub Domain')
+@section('title', 'Formulir Pengajuan ' . ucfirst($type))
 
 @section('content')
 <div class="py-8 lg:py-12">
@@ -16,14 +16,34 @@
             </a>
             
             <div class="flex items-center gap-4">
-                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-unila text-white shadow-lg shadow-myunila/30">
-                    <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
-                    </svg>
+                @php
+                    $iconBg = match($type) {
+                        'hosting' => 'bg-gradient-ocean',
+                        'vps' => 'bg-info',
+                        default => 'bg-gradient-unila'
+                    };
+                    $iconSvg = match($type) {
+                        'hosting' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>',
+                        'vps' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>',
+                        default => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>'
+                    };
+                    $formTitle = match($type) {
+                        'hosting' => 'Formulir Permohonan Hosting',
+                        'vps' => 'Formulir Permohonan VPS',
+                        default => 'Formulir Permohonan Sub Domain'
+                    };
+                    $formSubtitle = match($type) {
+                        'hosting' => 'Layanan Hosting Universitas Lampung',
+                        'vps' => 'Layanan Virtual Private Server Universitas Lampung',
+                        default => 'Layanan Domain Universitas Lampung'
+                    };
+                @endphp
+                <div class="flex h-14 w-14 items-center justify-center rounded-2xl {{ $iconBg }} text-white shadow-lg shadow-myunila/30">
+                    <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">{!! $iconSvg !!}</svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">Formulir Permohonan Sub Domain</h1>
-                    <p class="text-gray-600">Layanan Hosting Universitas Lampung</p>
+                    <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">{{ $formTitle }}</h1>
+                    <p class="text-gray-600">{{ $formSubtitle }}</p>
                 </div>
             </div>
         </div>
@@ -59,7 +79,7 @@
                                     ];
                                 @endphp
                                 @foreach($jenisOptions as $value => $label)
-                                    <label class="relative flex cursor-pointer items-center justify-center rounded-xl border-2 border-gray-200 bg-white p-4 text-center transition hover:border-myunila-300 hover:bg-myunila-50 has-checked:border-myunila has-checked:bg-myunila-50">
+                                    <label class="relative flex cursor-pointer items-center justify-center rounded-xl border-2 border-gray-200 bg-white p-4 text-center transition hover:border-myunila-300 hover:bg-myunila-50 has-[:checked]:border-myunila has-[:checked]:bg-myunila-50">
                                         <input type="radio" name="jenis_domain" value="{{ $value }}" class="peer sr-only" {{ old('jenis_domain') == $value ? 'checked' : '' }} required>
                                         <span class="text-xs font-medium text-gray-700 peer-checked:text-myunila">{{ $label }}</span>
                                     </label>
@@ -264,7 +284,7 @@
                                 value="{{ old('tech_name') }}"
                                 placeholder="Nama lengkap pengelola teknis"
                                 required
-                                data-user-name="{{ $user->name }}"
+                                data-user-name="{{ $user->name ?? '' }}"
                                 class="form-input @error('tech_name') form-input-error @enderror"
                             >
                             @error('tech_name')
@@ -283,7 +303,7 @@
                                 value="{{ old('tech_nip') }}"
                                 placeholder="NIP atau NIM"
                                 required
-                                data-user-nip="{{ $user->nomor_identitas }}"
+                                data-user-nip="{{ $user->nomor_identitas ?? '' }}"
                                 class="form-input @error('tech_nip') form-input-error @enderror"
                             >
                             @error('tech_nip')
@@ -348,7 +368,7 @@
                                 value="{{ old('tech_email') }}"
                                 placeholder="email@students.unila.ac.id"
                                 required
-                                data-user-email="{{ $user->email }}"
+                                data-user-email="{{ $user->email ?? '' }}"
                                 class="form-input @error('tech_email') form-input-error @enderror"
                             >
                             @error('tech_email')
@@ -359,19 +379,32 @@
                 </div>
             </div>
 
-            {{-- Section 4: Nama Sub Domain yang Diminta --}}
+            {{-- Section 4: Data Layanan yang Diminta --}}
             <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
                 <div class="border-b border-gray-200 bg-myunila-50 px-6 py-4">
                     <h2 class="flex items-center gap-2 text-lg font-semibold text-gray-900">
                         <span class="flex h-6 w-6 items-center justify-center rounded-full bg-myunila text-xs font-bold text-white">4</span>
-                        Nama Sub Domain yang Diminta
+                        @if($type === 'vps')
+                            Spesifikasi VPS yang Diminta
+                        @elseif($type === 'hosting')
+                            Data Hosting yang Diminta
+                        @else
+                            Nama Sub Domain yang Diminta
+                        @endif
                     </h2>
                 </div>
                 <div class="p-6">
                     <div class="grid gap-6 md:grid-cols-2">
+                        {{-- Domain/Hostname Field (semua tipe) --}}
                         <div class="md:col-span-2">
                             <label for="requested_domain" class="mb-1 block text-sm font-medium text-gray-700">
-                                Sub Domain <span class="text-error">*</span>
+                                @if($type === 'vps')
+                                    Hostname VPS <span class="text-error">*</span>
+                                @elseif($type === 'hosting')
+                                    Nama Akun Hosting <span class="text-error">*</span>
+                                @else
+                                    Sub Domain <span class="text-error">*</span>
+                                @endif
                             </label>
                             <div class="flex items-center gap-2">
                                 <input 
@@ -379,14 +412,16 @@
                                     name="requested_domain" 
                                     id="requested_domain"
                                     value="{{ old('requested_domain') }}"
-                                    placeholder="namadomain"
+                                    placeholder="{{ $type === 'vps' ? 'vps-namamu' : ($type === 'hosting' ? 'hosting-namamu' : 'namadomain') }}"
                                     minlength="2"
                                     maxlength="12"
                                     pattern="[a-z0-9\-]+"
                                     required
                                     class="form-input max-w-xs @error('requested_domain') form-input-error @enderror"
                                 >
-                                <span class="whitespace-nowrap text-lg font-semibold text-myunila">.unila.ac.id</span>
+                                @if($type !== 'vps')
+                                    <span class="whitespace-nowrap text-lg font-semibold text-myunila">.unila.ac.id</span>
+                                @endif
                             </div>
                             <p class="mt-2 text-sm text-gray-500">
                                 <span class="font-medium">Ketentuan:</span> Minimal 2 karakter, maksimal 12 karakter. Hanya huruf kecil, angka, dan tanda hubung (-).
@@ -396,7 +431,110 @@
                             @enderror
                         </div>
 
-                        <div class="md:col-span-2">
+                        {{-- VPS-specific fields --}}
+                        @if($type === 'vps')
+                            <div>
+                                <label for="vps_cpu" class="mb-1 block text-sm font-medium text-gray-700">
+                                    Jumlah CPU Core <span class="text-error">*</span>
+                                </label>
+                                <select name="vps_cpu" id="vps_cpu" required class="form-input @error('vps_cpu') form-input-error @enderror">
+                                    <option value="">Pilih jumlah CPU</option>
+                                    <option value="1" {{ old('vps_cpu') == '1' ? 'selected' : '' }}>1 Core</option>
+                                    <option value="2" {{ old('vps_cpu') == '2' ? 'selected' : '' }}>2 Core</option>
+                                    <option value="4" {{ old('vps_cpu') == '4' ? 'selected' : '' }}>4 Core</option>
+                                </select>
+                                @error('vps_cpu')
+                                    <p class="mt-1 text-sm text-error">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="vps_ram" class="mb-1 block text-sm font-medium text-gray-700">
+                                    RAM <span class="text-error">*</span>
+                                </label>
+                                <select name="vps_ram" id="vps_ram" required class="form-input @error('vps_ram') form-input-error @enderror">
+                                    <option value="">Pilih kapasitas RAM</option>
+                                    <option value="1" {{ old('vps_ram') == '1' ? 'selected' : '' }}>1 GB</option>
+                                    <option value="2" {{ old('vps_ram') == '2' ? 'selected' : '' }}>2 GB</option>
+                                    <option value="4" {{ old('vps_ram') == '4' ? 'selected' : '' }}>4 GB</option>
+                                    <option value="8" {{ old('vps_ram') == '8' ? 'selected' : '' }}>8 GB</option>
+                                </select>
+                                @error('vps_ram')
+                                    <p class="mt-1 text-sm text-error">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="vps_storage" class="mb-1 block text-sm font-medium text-gray-700">
+                                    Storage <span class="text-error">*</span>
+                                </label>
+                                <select name="vps_storage" id="vps_storage" required class="form-input @error('vps_storage') form-input-error @enderror">
+                                    <option value="">Pilih kapasitas storage</option>
+                                    <option value="20" {{ old('vps_storage') == '20' ? 'selected' : '' }}>20 GB</option>
+                                    <option value="40" {{ old('vps_storage') == '40' ? 'selected' : '' }}>40 GB</option>
+                                    <option value="80" {{ old('vps_storage') == '80' ? 'selected' : '' }}>80 GB</option>
+                                    <option value="100" {{ old('vps_storage') == '100' ? 'selected' : '' }}>100 GB</option>
+                                </select>
+                                @error('vps_storage')
+                                    <p class="mt-1 text-sm text-error">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="vps_os" class="mb-1 block text-sm font-medium text-gray-700">
+                                    Sistem Operasi <span class="text-error">*</span>
+                                </label>
+                                <select name="vps_os" id="vps_os" required class="form-input @error('vps_os') form-input-error @enderror">
+                                    <option value="">Pilih OS</option>
+                                    <option value="ubuntu-22.04" {{ old('vps_os') == 'ubuntu-22.04' ? 'selected' : '' }}>Ubuntu 22.04 LTS</option>
+                                    <option value="ubuntu-20.04" {{ old('vps_os') == 'ubuntu-20.04' ? 'selected' : '' }}>Ubuntu 20.04 LTS</option>
+                                    <option value="centos-8" {{ old('vps_os') == 'centos-8' ? 'selected' : '' }}>CentOS 8</option>
+                                    <option value="debian-11" {{ old('vps_os') == 'debian-11' ? 'selected' : '' }}>Debian 11</option>
+                                </select>
+                                @error('vps_os')
+                                    <p class="mt-1 text-sm text-error">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label for="vps_purpose" class="mb-1 block text-sm font-medium text-gray-700">
+                                    Tujuan Penggunaan VPS <span class="text-error">*</span>
+                                </label>
+                                <textarea 
+                                    name="vps_purpose" 
+                                    id="vps_purpose"
+                                    rows="3"
+                                    required
+                                    placeholder="Jelaskan tujuan penggunaan VPS, misalnya: untuk hosting aplikasi SIAKAD, web service API, dll."
+                                    class="form-input @error('vps_purpose') form-input-error @enderror"
+                                >{{ old('vps_purpose') }}</textarea>
+                                @error('vps_purpose')
+                                    <p class="mt-1 text-sm text-error">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        @endif
+
+                        {{-- Hosting-specific fields --}}
+                        @if($type === 'hosting')
+                            <div>
+                                <label for="hosting_quota" class="mb-1 block text-sm font-medium text-gray-700">
+                                    Kuota Storage <span class="text-error">*</span>
+                                </label>
+                                <select name="hosting_quota" id="hosting_quota" required class="form-input @error('hosting_quota') form-input-error @enderror">
+                                    <option value="">Pilih kuota</option>
+                                    <option value="500" {{ old('hosting_quota') == '500' ? 'selected' : '' }}>500 MB</option>
+                                    <option value="1000" {{ old('hosting_quota') == '1000' ? 'selected' : '' }}>1 GB</option>
+                                    <option value="2000" {{ old('hosting_quota') == '2000' ? 'selected' : '' }}>2 GB</option>
+                                    <option value="5000" {{ old('hosting_quota') == '5000' ? 'selected' : '' }}>5 GB</option>
+                                </select>
+                                @error('hosting_quota')
+                                    <p class="mt-1 text-sm text-error">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        @endif
+
+                        {{-- Password field (semua tipe) --}}
+                        <div class="{{ $type === 'hosting' ? '' : 'md:col-span-2' }}">
                             <label for="admin_password" class="mb-1 block text-sm font-medium text-gray-700">
                                 Admin Password (Hint) <span class="text-error">*</span>
                             </label>
@@ -423,7 +561,7 @@
             </div>
 
             {{-- Hidden fields for DB compatibility --}}
-            <input type="hidden" name="unit_id" value="{{ $categories->first()?->units->first()?->id }}">
+            <input type="hidden" name="unit_id" value="{{ $categories->first()?->units->first()?->id ?? '' }}">
             <input type="hidden" name="application_name" id="hidden_application_name" value="">
             <input type="hidden" name="description" id="hidden_description" value="">
 

@@ -88,6 +88,10 @@
                         <p class="text-sm text-gray-600">Hosting Aktif</p>
                     </div>
                     <div class="rounded-lg bg-white/80 px-6 py-4 shadow-sm backdrop-blur">
+                        <p class="text-3xl font-bold text-info">20+</p>
+                        <p class="text-sm text-gray-600">VPS Aktif</p>
+                    </div>
+                    <div class="rounded-lg bg-white/80 px-6 py-4 shadow-sm backdrop-blur">
                         <p class="text-3xl font-bold text-success">8</p>
                         <p class="text-sm text-gray-600">Fakultas Terlayani</p>
                     </div>
@@ -107,59 +111,59 @@
             </div>
             
             {{-- Service Cards --}}
-            <div class="grid gap-8 md:grid-cols-2 lg:gap-12">
+            <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
                 {{-- Card: Domain --}}
-                <div class="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-8 shadow-lg shadow-gray-200/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-myunila/20">
+                <div class="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-6 shadow-lg shadow-gray-200/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-myunila/20 lg:p-8">
                     {{-- Gradient Background on Hover --}}
                     <div class="absolute inset-0 -z-10 bg-linear-to-br from-myunila-50 to-myunila-100 opacity-0 transition-opacity group-hover:opacity-100"></div>
                     
                     {{-- Icon --}}
-                    <div class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-unila text-white shadow-lg shadow-myunila/30">
-                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-unila text-white shadow-lg shadow-myunila/30">
+                        <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
                         </svg>
                     </div>
                     
                     {{-- Content --}}
-                    <h3 class="mb-3 text-2xl font-bold text-gray-900">Pengajuan Domain</h3>
-                    <p class="mb-6 text-gray-600">
-                        Ajukan subdomain <code class="rounded bg-myunila-100 px-2 py-0.5 font-mono text-sm text-myunila">*.unila.ac.id</code> 
-                        untuk website unit kerja, sistem informasi, atau kegiatan resmi Anda.
+                    <h3 class="mb-2 text-xl font-bold text-gray-900">Pengajuan Domain</h3>
+                    <p class="mb-4 text-sm text-gray-600">
+                        Ajukan subdomain <code class="rounded bg-myunila-100 px-1.5 py-0.5 font-mono text-xs text-myunila">*.unila.ac.id</code> 
+                        untuk website unit kerja atau kegiatan resmi.
                     </p>
                     
                     {{-- Features --}}
-                    <ul class="mb-8 space-y-3">
-                        <li class="flex items-center gap-3 text-sm text-gray-600">
-                            <svg class="h-5 w-5 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
+                    <ul class="mb-6 space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="h-4 w-4 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
-                            Subdomain resmi dengan ekstensi <strong>.unila.ac.id</strong>
+                            Subdomain resmi .unila.ac.id
                         </li>
-                        <li class="flex items-center gap-3 text-sm text-gray-600">
-                            <svg class="h-5 w-5 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
+                        <li class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="h-4 w-4 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
-                            Konfigurasi DNS sesuai kebutuhan
+                            Konfigurasi DNS fleksibel
                         </li>
-                        <li class="flex items-center gap-3 text-sm text-gray-600">
-                            <svg class="h-5 w-5 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
+                        <li class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="h-4 w-4 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
-                            Pointing ke IP server eksternal maupun hosting TIK
+                            Pointing ke server eksternal
                         </li>
                     </ul>
                     
                     {{-- CTA Button --}}
                     @auth
-                        <a href="{{ route('submissions.create', ['type' => 'domain']) }}" class="btn-primary inline-flex w-full items-center justify-center gap-2">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('submissions.create', ['type' => 'domain']) }}" class="btn-primary inline-flex w-full items-center justify-center gap-2 text-sm">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
-                            Ajukan Layanan Domain 
+                            Ajukan Domain
                         </a>
                     @else
-                        <button onclick="alert('Silakan login terlebih dahulu untuk mengajukan layanan.')" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-100 px-6 py-4 font-semibold text-gray-500 transition-all hover:bg-gray-200">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button onclick="alert('Silakan login terlebih dahulu untuk mengajukan layanan.')" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-500 transition-all hover:bg-gray-200">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                             Login untuk Mengajukan
@@ -168,56 +172,121 @@
                 </div>
                 
                 {{-- Card: Hosting --}}
-                <div class="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-8 shadow-lg shadow-gray-200/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-myunila/20">
+                <div class="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-6 shadow-lg shadow-gray-200/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-myunila/20 lg:p-8">
                     {{-- Gradient Background on Hover --}}
                     <div class="absolute inset-0 -z-10 bg-linear-to-br from-myunila-50 to-myunila-100 opacity-0 transition-opacity group-hover:opacity-100"></div>
                     
                     {{-- Icon --}}
-                    <div class="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-ocean text-white shadow-lg shadow-myunila/30">
-                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-ocean text-white shadow-lg shadow-myunila/30">
+                        <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
                         </svg>
                     </div>
                     
                     {{-- Content --}}
-                    <h3 class="mb-3 text-2xl font-bold text-gray-900">Pengajuan Hosting</h3>
-                    <p class="mb-6 text-gray-600">
-                        Ajukan akun hosting (cPanel) untuk meng-host website, aplikasi web, atau sistem informasi unit kerja Anda.
+                    <h3 class="mb-2 text-xl font-bold text-gray-900">Pengajuan Hosting</h3>
+                    <p class="mb-4 text-sm text-gray-600">
+                        Ajukan akun hosting (cPanel) untuk website atau sistem informasi unit kerja.
                     </p>
                     
                     {{-- Features --}}
-                    <ul class="mb-8 space-y-3">
-                        <li class="flex items-center gap-3 text-sm text-gray-600">
-                            <svg class="h-5 w-5 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
+                    <ul class="mb-6 space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="h-4 w-4 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
-                            Akun cPanel dengan panel kontrol lengkap
+                            cPanel dengan kontrol penuh
                         </li>
-                        <li class="flex items-center gap-3 text-sm text-gray-600">
-                            <svg class="h-5 w-5 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
+                        <li class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="h-4 w-4 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
-                            Kuota penyimpanan sesuai kebutuhan
+                            PHP, MySQL, SSL Certificate
                         </li>
-                        <li class="flex items-center gap-3 text-sm text-gray-600">
-                            <svg class="h-5 w-5 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
+                        <li class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="h-4 w-4 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
-                            Support PHP, MySQL, SSL Certificate
+                            Kuota sesuai kebutuhan
                         </li>
                     </ul>
                     
                     {{-- CTA Button --}}
                     @auth
-                        <a href="{{ route('submissions.create', ['type' => 'hosting']) }}" class="btn-primary inline-flex w-full items-center justify-center gap-2">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('submissions.create', ['type' => 'hosting']) }}" class="btn-primary inline-flex w-full items-center justify-center gap-2 text-sm">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
-                            Ajukan Layanan Hosting 
+                            Ajukan Hosting
                         </a>
                     @else
-                        <button onclick="alert('Silakan login terlebih dahulu untuk mengajukan layanan.')" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-100 px-6 py-4 font-semibold text-gray-500 transition-all hover:bg-gray-200">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button onclick="alert('Silakan login terlebih dahulu untuk mengajukan layanan.')" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-500 transition-all hover:bg-gray-200">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            Login untuk Mengajukan
+                        </button>
+                    @endauth
+                </div>
+                
+                {{-- Card: VPS --}}
+                <div class="group relative overflow-hidden rounded-3xl border border-gray-200 bg-white p-6 shadow-lg shadow-gray-200/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-info/20 lg:p-8">
+                    {{-- Gradient Background on Hover --}}
+                    <div class="absolute inset-0 -z-10 bg-linear-to-br from-info-light to-info/20 opacity-0 transition-opacity group-hover:opacity-100"></div>
+                    
+                    {{-- Badge New --}}
+                    <div class="absolute right-4 top-4">
+                        <span class="inline-flex items-center rounded-full bg-info px-2.5 py-0.5 text-xs font-semibold text-white">
+                            Baru
+                        </span>
+                    </div>
+                    
+                    {{-- Icon --}}
+                    <div class="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-info text-white shadow-lg shadow-info/30">
+                        <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                    </div>
+                    
+                    {{-- Content --}}
+                    <h3 class="mb-2 text-xl font-bold text-gray-900">Pengajuan VPS</h3>
+                    <p class="mb-4 text-sm text-gray-600">
+                        Ajukan Virtual Private Server untuk aplikasi yang membutuhkan resource dedicated.
+                    </p>
+                    
+                    {{-- Features --}}
+                    <ul class="mb-6 space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="h-4 w-4 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Root access penuh
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="h-4 w-4 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            CPU, RAM, Storage dedicated
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="h-4 w-4 shrink-0 text-success" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            OS pilihan (Ubuntu, CentOS)
+                        </li>
+                    </ul>
+                    
+                    {{-- CTA Button --}}
+                    @auth
+                        <a href="{{ route('submissions.create', ['type' => 'vps']) }}" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-info px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-info/30 transition-all hover:bg-info/90">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Ajukan VPS
+                        </a>
+                    @else
+                        <button onclick="alert('Silakan login terlebih dahulu untuk mengajukan layanan.')" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-500 transition-all hover:bg-gray-200">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                             Login untuk Mengajukan
