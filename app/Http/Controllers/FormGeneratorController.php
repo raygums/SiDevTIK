@@ -9,13 +9,25 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class FormGeneratorController extends Controller
 {
     /**
+     * Halaman pemilihan jenis form yang akan digenerate
+     */
+    public function selectForm(string $ticketNumber)
+    {
+        $submission = Submission::with(['unitKerja.category', 'rincian', 'jenisLayanan', 'status'])
+            ->where('no_tiket', $ticketNumber)
+            ->firstOrFail();
+
+        return view('forms.select-form', compact('submission'));
+    }
+
+    /**
      * Tampilkan form paperless (untuk TIK)
      * Form digital yang bisa dilihat dan dicetak langsung
      */
     public function showPaperless(string $ticketNumber)
     {
-        $submission = Submission::with(['unit.category', 'details'])
-            ->where('ticket_number', $ticketNumber)
+        $submission = Submission::with(['unitKerja.category', 'rincian', 'jenisLayanan', 'pengguna'])
+            ->where('no_tiket', $ticketNumber)
             ->firstOrFail();
 
         return view('forms.form-paperless', compact('submission'));
@@ -27,11 +39,11 @@ class FormGeneratorController extends Controller
      */
     public function downloadHardcopy(string $ticketNumber)
     {
-        $submission = Submission::with(['unit.category', 'details'])
-            ->where('ticket_number', $ticketNumber)
+        $submission = Submission::with(['unitKerja.category', 'rincian', 'jenisLayanan', 'pengguna'])
+            ->where('no_tiket', $ticketNumber)
             ->firstOrFail();
 
-        $serviceName = match($submission->service_type) {
+        $serviceName = match($submission->jenisLayanan?->nm_layanan) {
             'hosting' => 'Hosting',
             'vps' => 'VPS',
             default => 'Sub_Domain'
@@ -52,25 +64,13 @@ class FormGeneratorController extends Controller
      */
     public function previewHardcopy(string $ticketNumber)
     {
-        $submission = Submission::with(['unit.category', 'details'])
-            ->where('ticket_number', $ticketNumber)
+        $submission = Submission::with(['unitKerja.category', 'rincian', 'jenisLayanan', 'pengguna'])
+            ->where('no_tiket', $ticketNumber)
             ->firstOrFail();
 
         $pdf = Pdf::loadView('forms.form-hardcopy', compact('submission'));
         $pdf->setPaper('A4', 'portrait');
 
         return $pdf->stream("Form_{$ticketNumber}.pdf");
-    }
-
-    /**
-     * Halaman pemilihan jenis form yang akan digenerate
-     */
-    public function selectForm(string $ticketNumber)
-    {
-        $submission = Submission::with(['unit.category', 'details'])
-            ->where('ticket_number', $ticketNumber)
-            ->firstOrFail();
-
-        return view('forms.select-form', compact('submission'));
     }
 }
