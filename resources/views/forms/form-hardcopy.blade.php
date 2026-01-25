@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Pengajuan {{ ucfirst($submission->service_type) }} - {{ $submission->ticket_number }}</title>
+    <title>Form Pengajuan {{ ucfirst($submission->jenisLayanan?->nm_layanan ?? 'domain') }} - {{ $submission->no_tiket }}</title>
     <style>
         * {
             margin: 0;
@@ -270,14 +270,29 @@
         </div>
 
         {{-- Form Title --}}
+        @php
+            $serviceType = $submission->jenisLayanan?->nm_layanan ?? 'domain';
+            $keterangan = json_decode($submission->rincian?->keterangan_keperluan ?? '{}', true);
+            $tipePengajuan = $keterangan['tipe_pengajuan'] ?? 'pengajuan_baru';
+            $tipePengajuanLabel = match($tipePengajuan) {
+                'pengajuan_baru' => 'Permohonan Baru',
+                'perpanjangan' => 'Perpanjangan',
+                'perubahan_data' => 'Perubahan Data',
+                'upgrade_downgrade' => 'Upgrade/Downgrade',
+                'penonaktifan' => 'Penonaktifan',
+                'laporan_masalah' => 'Laporan Masalah',
+                default => 'Permohonan'
+            };
+        @endphp
+
         <div class="form-title">
             <h3>
-                @if($submission->service_type === 'vps')
-                    Formulir Permohonan Layanan VPS
-                @elseif($submission->service_type === 'hosting')
-                    Formulir Permohonan Layanan Hosting
+                @if($serviceType === 'vps')
+                    Formulir {{ $tipePengajuanLabel }} Layanan VPS
+                @elseif($serviceType === 'hosting')
+                    Formulir {{ $tipePengajuanLabel }} Layanan Hosting
                 @else
-                    Formulir Permohonan Layanan Sub Domain
+                    Formulir {{ $tipePengajuanLabel }} Layanan Sub Domain
                 @endif
             </h3>
             <p>*.unila.ac.id</p>
@@ -286,80 +301,72 @@
         {{-- Ticket Info --}}
         <div class="ticket-info">
             <div class="left">
-                <strong>No. Tiket:</strong> <span class="ticket-number">{{ $submission->ticket_number }}</span>
+                <strong>No. Tiket:</strong> <span class="ticket-number">{{ $submission->no_tiket }}</span>
             </div>
             <div class="right">
-                <strong>Tanggal:</strong> {{ $submission->created_at->format('d F Y') }}
+                <strong>Tanggal:</strong> {{ $submission->create_at?->format('d F Y') ?? now()->format('d F Y') }}
             </div>
         </div>
 
         {{-- Section 1: Data Pemohon --}}
         <div class="section">
             <div class="section-title">
-                <span>1</span> DATA PEMOHON
+                <span>1</span> DATA PEMOHON / ORGANISASI
             </div>
             <table class="data-table">
                 <tr>
-                    <td class="label">Nama Lengkap</td>
-                    <td class="value">{{ $submission->applicant_name }}</td>
+                    <td class="label">Nama Organisasi</td>
+                    <td class="value">{{ $keterangan['nama_organisasi'] ?? '-' }}</td>
                 </tr>
                 <tr>
-                    <td class="label">NIP</td>
-                    <td class="value">{{ $submission->applicant_nip ?? '-' }}</td>
+                    <td class="label">Kategori</td>
+                    <td class="value">{{ ucfirst(str_replace('_', ' ', $keterangan['kategori_pemohon'] ?? '-')) }}</td>
                 </tr>
                 <tr>
-                    <td class="label">Jabatan</td>
-                    <td class="value">{{ $submission->applicant_position }}</td>
-                </tr>
-                <tr>
-                    <td class="label">Email</td>
-                    <td class="value">{{ $submission->applicant_email }}</td>
-                </tr>
-                <tr>
-                    <td class="label">No. Telepon/HP</td>
-                    <td class="value">{{ $submission->applicant_phone }}</td>
+                    <td class="label">Unit Kerja</td>
+                    <td class="value">{{ $submission->unitKerja?->nm_unit ?? '-' }}</td>
                 </tr>
             </table>
         </div>
 
-        {{-- Section 2: Data Unit --}}
+        {{-- Section 2: Kontak Admin --}}
         <div class="section">
             <div class="section-title">
-                <span>2</span> DATA UNIT KERJA
-            </div>
-            <table class="data-table">
-                <tr>
-                    <td class="label">Nama Unit</td>
-                    <td class="value">{{ $submission->unit->nama ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td class="label">Kategori Unit</td>
-                    <td class="value">{{ $submission->unit->category->nama ?? '-' }}</td>
-                </tr>
-            </table>
-        </div>
-
-        {{-- Section 3: Data PIC --}}
-        <div class="section">
-            <div class="section-title">
-                <span>3</span> DATA PENANGGUNG JAWAB TEKNIS
+                <span>2</span> KONTAK ADMIN (PENGELOLA)
             </div>
             <table class="data-table">
                 <tr>
                     <td class="label">Nama Lengkap</td>
-                    <td class="value">{{ $submission->pic_name }}</td>
+                    <td class="value">{{ $keterangan['admin_nama'] ?? '-' }}</td>
                 </tr>
                 <tr>
-                    <td class="label">NIP</td>
-                    <td class="value">{{ $submission->pic_nip ?? '-' }}</td>
+                    <td class="label">No. HP</td>
+                    <td class="value">{{ $keterangan['admin_hp'] ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">Email</td>
-                    <td class="value">{{ $submission->pic_email }}</td>
+                    <td class="value">{{ $keterangan['admin_email'] ?? '-' }}</td>
+                </tr>
+            </table>
+        </div>
+
+        {{-- Section 3: Kontak Teknis --}}
+        <div class="section">
+            <div class="section-title">
+                <span>3</span> KONTAK TEKNIS (PENGELOLA TEKNIS)
+            </div>
+            <table class="data-table">
+                <tr>
+                    <td class="label">Nama Lengkap</td>
+                    <td class="value">{{ $keterangan['tech_nama'] ?? '-' }}</td>
                 </tr>
                 <tr>
-                    <td class="label">No. Telepon/HP</td>
-                    <td class="value">{{ $submission->pic_phone }}</td>
+                    <td class="label">No. HP</td>
+                    <td class="value">{{ $keterangan['tech_hp'] ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Email</td>
+                    <td class="value">{{ $keterangan['tech_email'] ?? '-' }}</td>
                 </tr>
             </table>
         </div>
@@ -368,54 +375,83 @@
         <div class="section">
             <div class="section-title">
                 <span>4</span>
-                @if($submission->service_type === 'vps')
+                @if($serviceType === 'vps')
                     SPESIFIKASI VPS YANG DIMINTA
-                @elseif($submission->service_type === 'hosting')
+                @elseif($serviceType === 'hosting')
                     DATA HOSTING YANG DIMINTA
                 @else
                     NAMA SUB DOMAIN YANG DIMINTA
                 @endif
             </div>
             <table class="data-table">
-                @if($submission->service_type === 'domain')
+                @if($tipePengajuan !== 'pengajuan_baru')
+                    <tr>
+                        <td class="label">Layanan Existing</td>
+                        <td class="value highlight">{{ $keterangan['existing_service'] ?? '-' }}</td>
+                    </tr>
+                    @if(!empty($keterangan['existing_ticket']))
+                    <tr>
+                        <td class="label">No. Tiket Sebelumnya</td>
+                        <td class="value">{{ $keterangan['existing_ticket'] }}</td>
+                    </tr>
+                    @endif
+                @endif
+
+                @if($serviceType === 'domain')
                     <tr>
                         <td class="label">Sub Domain</td>
-                        <td class="value highlight">{{ $submission->details->requested_domain }}.unila.ac.id</td>
+                        <td class="value highlight">{{ $submission->rincian?->nm_domain ?? '-' }}.unila.ac.id</td>
                     </tr>
-                @elseif($submission->service_type === 'hosting')
+                @elseif($serviceType === 'hosting')
                     <tr>
                         <td class="label">Nama Akun Hosting</td>
-                        <td class="value highlight">{{ $submission->details->requested_domain }}</td>
+                        <td class="value highlight">{{ $submission->rincian?->nm_domain ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td class="label">Kuota Storage</td>
-                        <td class="value">{{ $submission->details->hosting_quota }} MB</td>
+                        <td class="value">{{ $keterangan['hosting_quota'] ?? '-' }} MB</td>
                     </tr>
-                @elseif($submission->service_type === 'vps')
+                @elseif($serviceType === 'vps')
                     <tr>
                         <td class="label">Hostname VPS</td>
-                        <td class="value highlight">{{ $submission->details->requested_domain }}</td>
+                        <td class="value highlight">{{ $submission->rincian?->nm_domain ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td class="label">Sistem Operasi</td>
-                        <td class="value">{{ $submission->details->vps_os }}</td>
+                        <td class="value">{{ $keterangan['vps_os'] ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td class="label">CPU Core</td>
-                        <td class="value">{{ $submission->details->vps_cpu }} Core</td>
+                        <td class="value">{{ $keterangan['vps_cpu'] ?? '-' }} Core</td>
                     </tr>
                     <tr>
                         <td class="label">RAM</td>
-                        <td class="value">{{ $submission->details->vps_ram }} GB</td>
+                        <td class="value">{{ $keterangan['vps_ram'] ?? '-' }} GB</td>
                     </tr>
                     <tr>
                         <td class="label">Storage</td>
-                        <td class="value">{{ $submission->details->vps_storage }} GB</td>
+                        <td class="value">{{ $keterangan['vps_storage'] ?? '-' }} GB</td>
                     </tr>
-                    <tr>
-                        <td class="label">Tujuan Penggunaan</td>
-                        <td class="value">{{ $submission->details->vps_purpose }}</td>
-                    </tr>
+                @endif
+
+                @if(!empty($keterangan['tujuan_penggunaan']))
+                <tr>
+                    <td class="label">Tujuan Penggunaan</td>
+                    <td class="value">{{ $keterangan['tujuan_penggunaan'] }}</td>
+                </tr>
+                @endif
+
+                @if(!empty($keterangan['detail_masalah']))
+                <tr>
+                    <td class="label">
+                        @if($tipePengajuan === 'laporan_masalah')
+                            Deskripsi Masalah
+                        @else
+                            Keterangan Tambahan
+                        @endif
+                    </td>
+                    <td class="value">{{ $keterangan['detail_masalah'] }}</td>
+                </tr>
                 @endif
             </table>
         </div>
@@ -425,12 +461,12 @@
             <p style="margin-bottom: 10px;">Demikian permohonan ini kami ajukan. Atas perhatian dan kerjasamanya kami ucapkan terima kasih.</p>
             
             <div style="text-align: right; margin-bottom: 10px;">
-                Bandar Lampung, {{ $submission->created_at->format('d F Y') }}
+                Bandar Lampung, {{ $submission->create_at?->format('d F Y') ?? now()->format('d F Y') }}
             </div>
             
             <div class="signature-row">
                 <div class="signature-box">
-                    <div class="title">Mengetahui,<br>Pimpinan Unit</div>
+                    <div class="title">Mengetahui,<br>Atasan Pemohon<br>(Kajur/Dekan/Wakil Rektor)</div>
                     <div class="space"></div>
                     <div class="name">................................</div>
                     <div class="nip">NIP. ................................</div>
@@ -438,8 +474,8 @@
                 <div class="signature-box">
                     <div class="title">Pemohon,</div>
                     <div class="space"></div>
-                    <div class="name">{{ $submission->applicant_name }}</div>
-                    <div class="nip">NIP. {{ $submission->applicant_nip ?? '................................' }}</div>
+                    <div class="name">{{ $keterangan['admin_nama'] ?? '................................' }}</div>
+                    <div class="nip">Kontak: {{ $keterangan['admin_hp'] ?? '................................' }}</div>
                 </div>
             </div>
         </div>
@@ -448,8 +484,8 @@
         <div class="notes">
             <h4>Catatan:</h4>
             <ul>
-                <li>Form ini harus ditandatangani oleh pimpinan unit dan pemohon</li>
-                <li>Serahkan form yang sudah ditandatangani ke UPT TIK atau scan dan kirim ke tik@unila.ac.id</li>
+                <li>Form ini harus ditandatangani oleh atasan (Kajur/Dekan/Wakil Rektor) dan pemohon</li>
+                <li>Scan form yang sudah ditandatangani dan upload ke sistem</li>
                 <li>Proses verifikasi membutuhkan waktu 1-3 hari kerja</li>
                 <li>Status pengajuan dapat dipantau melalui website domaintik.unila.ac.id dengan nomor tiket di atas</li>
             </ul>
@@ -458,7 +494,7 @@
         {{-- Footer --}}
         <div class="footer">
             <p>Dokumen ini digenerate secara otomatis oleh sistem Domaintik - UPT TIK Universitas Lampung</p>
-            <p>{{ config('app.url') }} | Tiket: {{ $submission->ticket_number }}</p>
+            <p>{{ config('app.url') }} | Tiket: {{ $submission->no_tiket }}</p>
         </div>
     </div>
 </body>
