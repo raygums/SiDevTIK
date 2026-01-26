@@ -49,6 +49,7 @@ class User extends Authenticatable
         'a_aktif',
         'create_at',
         'last_update',
+        'last_sync',
         'id_creator',
         'id_updater',
     ];

@@ -12,6 +12,10 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         //
+        $this->app->bind(
+        \App\Contracts\SsoProviderInterface::class,
+        \App\Services\Sso\HttpSsoService::class // <-- Pakai yang HTTP
+        );
     }
 
     /**

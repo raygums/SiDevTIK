@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FormGeneratorController;
 use App\Http\Controllers\SubmissionController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SsoAuthController;
 
 
 // ==========================================
@@ -67,5 +68,9 @@ Route::middleware('auth')->group(function () {
             return "Halaman Manajemen User (Admin Only)";
         })->name('users');
     });
-
+    // Group Route SSO
+    Route::prefix('auth/sso')->name('auth.sso.')->group(function () {
+    Route::get('/redirect', [SsoAuthController::class, 'redirect'])->name('redirect');
+    Route::get('/callback', [SsoAuthController::class, 'callback'])->name('callback');
+    });
 });
