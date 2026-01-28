@@ -46,10 +46,6 @@ jobs:
           else
             # Push perubahan ke Bitbucket
             echo "Pushing to Bitbucket..."
-<<<<<<< HEAD
-            # Tanpa --force: Aman. Jika ada konflik, pipeline gagal (Anda harus manual fix).
-=======
             # Tanpa --force: Aman. Jika ada konflik, pipeline gagal (manual fix).
->>>>>>> ee5cef5fbf47bb6e0ab8b86307230180b6f4793f
             git push bitbucket "${{ github.ref }}"
           fi
