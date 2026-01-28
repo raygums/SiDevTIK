@@ -1,0 +1,56 @@
+name: Sync to Bitbucket (SSH)
+
+# Trigger: Berjalan saat ada Push (commit baru) atau Delete (hapus branch)
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - '*'
+  delete:
+  workflow_dispatch:
+
+jobs:
+  sync-to-bitbucket:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout Code dengan History Lengkap
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Wajib '0' agar bisa push ke remote lain tanpa error
+
+      # 2. Setup SSH Key (Ambil dari Secrets GitHub)
+      - name: Setup SSH for Bitbucket
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.BITBUCKET_SSH_KEY }}
+
+      # 3. Logika Sinkronisasi Aman
+      - name: Sync to Bitbucket Remote
+        env:
+          # Ganti URL di bawah sesuai repo Bitbucket kamu
+          TARGET_REPO: git@bitbucket.org:mahendraunila/si-project-tik.git
+        run: |
+          # Config User (Hanya untuk log Git)
+          git config --global user.email "bot@github.com"
+          git config --global user.name "GitHub Sync Bot"
+          
+          # Tambah Remote Bitbucket
+          git remote add bitbucket $TARGET_REPO
+          
+          # Scan Host Key agar SSH tidak bertanya 'Are you sure?'
+          mkdir -p ~/.ssh
+          ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts
+          
+          # LOGIKA UTAMA
+          if [ "${{ github.event_name }}" == "delete" ]; then
+            # Jika event adalah DELETE, hapus juga branch/tag di Bitbucket
+            echo "🗑️ Deleting ref on Bitbucket..."
+            git push bitbucket --delete "${{ github.event.ref }}"
+          else
+            # Jika event adalah PUSH, update branch/tag tersebut
+            echo "🔄 Syncing ref: ${{ github.ref }}"
+            # PENTING: Tidak menggunakan --force untuk mencegah menimpa kerjaan orang lain
+            git push bitbucket "${{ github.ref }}"
+          fi
