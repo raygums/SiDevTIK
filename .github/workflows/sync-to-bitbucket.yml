@@ -1,56 +1,58 @@
 name: Sync to Bitbucket (SSH)
 
-# Trigger: Berjalan saat ada Push (commit baru) atau Delete (hapus branch)
 on:
   push:
     branches:
       - '*'
     tags:
       - '*'
-  delete:
+  delete: # Trigger saat branch/tag dihapus
   workflow_dispatch:
 
 jobs:
-  sync-to-bitbucket:
+  sync-repo:
     runs-on: ubuntu-latest
+    name: Syncing to Bitbucket via SSH
+    
     steps:
-      # 1. Checkout Code dengan History Lengkap
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Wajib '0' agar bisa push ke remote lain tanpa error
+          fetch-depth: 0 # Mengambil history lengkap (Wajib untuk sync)
 
-      # 2. Setup SSH Key (Ambil dari Secrets GitHub)
       - name: Setup SSH for Bitbucket
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.BITBUCKET_SSH_KEY }}
 
-      # 3. Logika Sinkronisasi Aman
-      - name: Sync to Bitbucket Remote
+      - name: Sync Logic
         env:
-          # Ganti URL di bawah sesuai repo Bitbucket kamu
           TARGET_REPO: git@bitbucket.org:mahendraunila/si-project-tik.git
         run: |
-          # Config User (Hanya untuk log Git)
+          # 1. Setup Remote
+          # Config user agar git tidak komplain saat internal merge/action
           git config --global user.email "bot@github.com"
           git config --global user.name "GitHub Sync Bot"
-          
-          # Tambah Remote Bitbucket
           git remote add bitbucket $TARGET_REPO
           
-          # Scan Host Key agar SSH tidak bertanya 'Are you sure?'
+          # 2. Setup Security (Host Key)
           mkdir -p ~/.ssh
           ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts
           
-          # LOGIKA UTAMA
+          # 3. Logika Cerdas Berdasarkan Event
           if [ "${{ github.event_name }}" == "delete" ]; then
-            # Jika event adalah DELETE, hapus juga branch/tag di Bitbucket
-            echo "🗑️ Deleting ref on Bitbucket..."
+            # KASUS: Penghapusan Branch/Tag
+            echo "🗑️ Detected DELETE event. Deleting ref on Bitbucket..."
+            echo "Ref to delete: ${{ github.event.ref }}"
+            
+            # Perintah khusus untuk menghapus di remote
             git push bitbucket --delete "${{ github.event.ref }}"
+            
           else
-            # Jika event adalah PUSH, update branch/tag tersebut
+            # KASUS: Push Biasa (Update code) atau Create Branch
             echo "🔄 Syncing ref: ${{ github.ref }}"
-            # PENTING: Tidak menggunakan --force untuk mencegah menimpa kerjaan orang lain
+            
+            # PENTING: Hapus '--force' untuk keamanan 2 arah!
+            # Jika pipeline ini gagal, berarti ada konflik. Pull dulu di lokal, resolve, lalu push lagi.
             git push bitbucket "${{ github.ref }}"
           fi
