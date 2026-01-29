@@ -37,8 +37,8 @@ Route::get('/auth/sso/callback', [SSOController::class, 'handleCallback'])->name
 // GUEST ROUTES (Hanya untuk yang belum login)
 // ==========================================
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'index'])->name('login');
-    Route::post('/login', [AuthController::class, 'store'])->name('login.store');
+    // Login langsung redirect ke SSO
+    Route::get('/login', [SSOController::class, 'redirectToSSO'])->name('login');
 });
 
 

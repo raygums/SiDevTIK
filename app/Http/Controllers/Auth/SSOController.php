@@ -232,7 +232,10 @@ class SSOController extends Controller
     }
 
     /**
-     * Logout user
+     * Logout user dari aplikasi
+     * Note: SSO akses.unila.ac.id tidak menyediakan endpoint logout public,
+     * jadi user hanya logout dari aplikasi ini. Session SSO di browser
+     * akan tetap aktif sampai expired atau user logout manual dari akses.unila.ac.id
      */
     public function logout(Request $request)
     {
@@ -250,11 +253,8 @@ class SSOController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Optionally redirect to SSO logout
-        // return redirect()->away("{$this->ssoBaseUrl}/logout");
-
-        return redirect()->route('login')
-            ->with('success', 'Anda telah berhasil logout.');
+        return redirect()->route('home')
+            ->with('success', 'Anda telah keluar dari aplikasi.');
     }
 
     /**

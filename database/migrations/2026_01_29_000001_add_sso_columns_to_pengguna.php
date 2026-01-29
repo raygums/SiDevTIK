@@ -23,6 +23,9 @@ return new class extends Migration
             // Last login tracking
             $table->timestamp('last_login_at')->nullable()->after('a_aktif');
             $table->string('last_login_ip', 45)->nullable()->after('last_login_at');
+            
+            // Remember token for Laravel Auth
+            $table->rememberToken()->after('last_login_ip');
         });
     }
 
@@ -38,6 +41,7 @@ return new class extends Migration
                 'id_pd',
                 'last_login_at',
                 'last_login_ip',
+                'remember_token',
             ]);
         });
     }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -39,6 +40,7 @@ class User extends Authenticatable
      * The attributes that are mass assignable.
      */
     protected $fillable = [
+        'UUID',
         'sso_id',
         'nm',           
         'usn',          
@@ -52,6 +54,7 @@ class User extends Authenticatable
         'a_aktif',
         'last_login_at',
         'last_login_ip',
+        'remember_token',
         'create_at',
         'last_update',
         'id_creator',
@@ -63,6 +66,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'kata_sandi',
+        'remember_token',
     ];
 
     /**
@@ -75,6 +79,20 @@ class User extends Authenticatable
         'create_at' => 'datetime',
         'last_update' => 'datetime',
     ];
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->UUID)) {
+                $model->UUID = (string) Str::uuid();
+            }
+        });
+    }
 
     /**
      * Get the password for the user (Laravel Auth compatibility).
