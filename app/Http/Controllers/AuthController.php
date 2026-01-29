@@ -19,11 +19,11 @@ class AuthController extends Controller
     ) {}
 
     /**
-     * Menampilkan halaman login (DUMMY SSO).
+     * Menampilkan halaman login.
      */
     public function index(): View
     {
-        return view('auth.dummy_login'); 
+        return view('auth.login'); 
     }
 
     /**
