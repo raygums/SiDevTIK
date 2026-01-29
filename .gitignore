@@ -1,0 +1,32 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+
+# Claude Code
+.claude/
+
+# Deployment env files (keep .env.example)
+deployment/*/.env
+deployment/*/.env.*
+!deployment/*/.env.example
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
