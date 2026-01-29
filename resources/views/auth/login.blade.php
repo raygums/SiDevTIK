@@ -80,10 +80,10 @@
         </div>
 
         <div class="mt-6">
-            <a href="#" 
+            <a href="{{ route('sso.login') }}" 
                 class="w-full inline-flex items-center justify-center gap-2 rounded-md border border-slate-300 bg-white py-2.5 px-4 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
                 <img src="{{ asset('images/logo-unila.png') }}" alt="SSO" class="h-5 w-5">
-                Login SSO Unila
+                Login dengan SSO Unila
             </a>
         </div>
     </div>
