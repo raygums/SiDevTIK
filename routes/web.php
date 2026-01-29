@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExecutionController;
 use App\Http\Controllers\FormGeneratorController;
 use App\Http\Controllers\SubmissionController;
@@ -41,10 +42,8 @@ Route::middleware('auth')->group(function () {
     // --- Authentication ---
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
 
-    // --- Dashboard (setelah login) ---
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    // --- Dashboard (setelah login, redirect berdasarkan role) ---
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // --- Fitur Pengajuan ---
     Route::prefix('pengajuan')->name('submissions.')->group(function () {
@@ -61,10 +60,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/{submission}/print-form', [SubmissionController::class, 'printForm'])->name('print-form');
         Route::get('/{submission}/upload', [SubmissionController::class, 'showUpload'])->name('upload');
         Route::post('/{submission}/upload', [SubmissionController::class, 'storeUpload'])->name('upload.store');
+        
+        // Quick Submit (Development/Testing only)
+        Route::post('/{submission}/quick-submit', [SubmissionController::class, 'quickSubmit'])->name('quick-submit');
     });
 
     // --- Admin Routes ---
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', [DashboardController::class, 'adminDashboard'])->name('dashboard');
         Route::get('/users', function () {
             return "Halaman Manajemen User (Admin Only)";
         })->name('users');
