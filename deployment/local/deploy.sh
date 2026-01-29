@@ -364,16 +364,6 @@ while true; do
                     echo -e "${GREEN}✓ Updated $PROJECT_DIR/.env${NC}"
                 fi
                 
-                # Update .env di deployment/local
-                if [ -f "$compose_env" ]; then
-                    if grep -q "^DB_HOST=" "$compose_env"; then
-                        sed -i "s/^DB_HOST=.*/DB_HOST=$new_ip/" "$compose_env"
-                    else
-                        echo "DB_HOST=$new_ip" >> "$compose_env"
-                    fi
-                    echo -e "${GREEN}✓ Updated deployment/local/.env${NC}"
-                fi
-                
                 # Note: docker-compose.yml now uses ${DB_HOST} from .env, no need to update
                 echo -e "${CYAN}ℹ docker-compose.yml will use DB_HOST from .env files${NC}"
                 
