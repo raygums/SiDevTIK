@@ -19,7 +19,7 @@
             <div class="text-right text-xs">
                 <p>No. Tiket:</p>
                 <p class="font-mono font-bold">{{ $submission->ticket_number }}</p>
-                <p class="mt-1 text-gray-500">{{ $submission->created_at->format('d/m/Y H:i') }}</p>
+                <p class="mt-1 text-gray-500">{{ $submission->tgl_pengajuan?->format('d/m/Y') ?? '-' }}</p>
             </div>
         </div>
     </div>
@@ -27,7 +27,7 @@
     {{-- Title --}}
     <div class="mb-6 text-center">
         <h1 class="text-lg font-bold uppercase">Formulir Permohonan</h1>
-        <h2 class="font-bold">Layanan {{ $submission->getMainDetail()?->request_type === 'domain' ? 'Domain' : 'Hosting' }} (.unila.ac.id)</h2>
+        <h2 class="font-bold">Layanan {{ ucfirst($submission->jenisLayanan?->nm_layanan ?? 'Domain') }} (.unila.ac.id)</h2>
     </div>
 
     {{-- Section A: Data Pemohon --}}
@@ -80,36 +80,31 @@
     <div class="mb-6">
         <h3 class="mb-2 font-bold uppercase">C. Data Permohonan Layanan</h3>
         <table class="w-full border-collapse">
-            @php $detail = $submission->getMainDetail(); @endphp
             <tr>
                 <td class="w-1/3 border border-gray-400 px-2 py-1.5 font-medium">Jenis Layanan</td>
                 <td class="border border-gray-400 px-2 py-1.5">
-                    @if($detail?->request_type === 'domain')
-                        ☑ Domain &nbsp;&nbsp; ☐ Hosting &nbsp;&nbsp; ☐ VPS
-                    @elseif($detail?->request_type === 'hosting')
-                        ☐ Domain &nbsp;&nbsp; ☑ Hosting &nbsp;&nbsp; ☐ VPS
-                    @else
-                        ☐ Domain &nbsp;&nbsp; ☐ Hosting &nbsp;&nbsp; ☑ VPS
-                    @endif
+                    {{ ucfirst($submission->jenisLayanan?->nm_layanan ?? 'Domain') }}
                 </td>
             </tr>
             <tr>
-                <td class="border border-gray-400 px-2 py-1.5 font-medium">Nama Aplikasi/Website</td>
-                <td class="border border-gray-400 px-2 py-1.5">{{ $submission->application_name }}</td>
-            </tr>
-            <tr>
                 <td class="border border-gray-400 px-2 py-1.5 font-medium">Nama Domain Diminta</td>
-                <td class="border border-gray-400 px-2 py-1.5 font-mono">{{ $detail?->requested_domain }}.unila.ac.id</td>
+                <td class="border border-gray-400 px-2 py-1.5 font-mono">{{ $submission->rincian?->nm_domain ?? '-' }}</td>
             </tr>
-            @if($detail?->request_type === 'hosting')
+            @if($submission->rincian?->kapasitas_penyimpanan)
             <tr>
-                <td class="border border-gray-400 px-2 py-1.5 font-medium">Kuota Storage</td>
-                <td class="border border-gray-400 px-2 py-1.5">{{ $detail?->requested_quota_gb ?? 5 }} GB</td>
+                <td class="border border-gray-400 px-2 py-1.5 font-medium">Kapasitas Storage</td>
+                <td class="border border-gray-400 px-2 py-1.5">{{ $submission->rincian->kapasitas_penyimpanan }}</td>
+            </tr>
+            @endif
+            @if($submission->rincian?->alamat_ip)
+            <tr>
+                <td class="border border-gray-400 px-2 py-1.5 font-medium">Alamat IP</td>
+                <td class="border border-gray-400 px-2 py-1.5 font-mono">{{ $submission->rincian->alamat_ip }}</td>
             </tr>
             @endif
             <tr>
-                <td class="border border-gray-400 px-2 py-1.5 font-medium align-top">Deskripsi/Keperluan</td>
-                <td class="border border-gray-400 px-2 py-1.5">{{ $submission->description }}</td>
+                <td class="border border-gray-400 px-2 py-1.5 font-medium align-top">Keterangan/Keperluan</td>
+                <td class="border border-gray-400 px-2 py-1.5">{{ $submission->rincian?->keterangan_keperluan ?? '-' }}</td>
             </tr>
         </table>
     </div>

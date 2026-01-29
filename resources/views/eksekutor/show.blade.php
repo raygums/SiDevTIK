@@ -23,9 +23,9 @@
                     <div class="flex items-center gap-3">
                         <h1 class="text-2xl font-bold text-gray-900">{{ $submission->no_tiket }}</h1>
                         <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium
-                            @if($submission->status?->kd_status === 'disetujui_verifikator') bg-warning-light text-warning
-                            @elseif($submission->status?->kd_status === 'sedang_dikerjakan') bg-info-light text-info
-                            @elseif($submission->status?->kd_status === 'selesai') bg-success-light text-success
+                            @if($submission->status?->nm_status === 'Disetujui Verifikator') bg-warning-light text-warning
+                            @elseif($submission->status?->nm_status === 'Sedang Dikerjakan') bg-info-light text-info
+                            @elseif($submission->status?->nm_status === 'Selesai') bg-success-light text-success
                             @else bg-gray-100 text-gray-800
                             @endif">
                             {{ $submission->status?->nm_status ?? 'Unknown' }}
@@ -126,7 +126,7 @@
                     </h3>
                     <div class="text-sm text-teal-700">
                         <p>Diverifikasi oleh <strong>{{ $verificationLog->admin?->nm ?? 'Unknown' }}</strong></p>
-                        <p class="text-xs text-teal-600">{{ $verificationLog->created_at?->format('d M Y H:i') }}</p>
+                        <p class="text-xs text-teal-600">{{ $verificationLog->create_at?->format('d M Y H:i') }}</p>
                         @if($verificationLog->catatan)
                         <p class="mt-2 rounded-lg bg-white/50 p-3">{{ $verificationLog->catatan }}</p>
                         @endif
@@ -135,7 +135,7 @@
                 @endif
 
                 {{-- Action Forms --}}
-                @if($submission->status?->kd_status === 'disetujui_verifikator')
+                @if($submission->status?->nm_status === 'Disetujui Verifikator')
                 <div class="rounded-2xl border-2 border-purple-200 bg-white p-6 shadow-sm">
                     <h2 class="mb-6 text-lg font-semibold text-gray-900">Aksi Eksekutor</h2>
                     
@@ -188,7 +188,7 @@
                 @endif
 
                 {{-- Complete/Reject for In Progress --}}
-                @if($submission->status?->kd_status === 'sedang_dikerjakan')
+                @if($submission->status?->nm_status === 'Sedang Dikerjakan')
                 <div class="rounded-2xl border-2 border-info/30 bg-white p-6 shadow-sm">
                     <h2 class="mb-6 text-lg font-semibold text-gray-900">Selesaikan Pekerjaan</h2>
                     
@@ -261,15 +261,15 @@
                         <div class="flex gap-3">
                             <div class="flex flex-col items-center">
                                 <div class="flex h-8 w-8 items-center justify-center rounded-full 
-                                    @if(str_contains($log->status?->kd_status ?? '', 'ditolak')) bg-danger-light text-danger
-                                    @elseif(str_contains($log->status?->kd_status ?? '', 'selesai')) bg-success-light text-success
-                                    @elseif(str_contains($log->status?->kd_status ?? '', 'dikerjakan')) bg-info-light text-info
+                                    @if(str_contains($log->status?->nm_status ?? '', 'Ditolak')) bg-danger-light text-danger
+                                    @elseif(str_contains($log->status?->nm_status ?? '', 'Selesai')) bg-success-light text-success
+                                    @elseif(str_contains($log->status?->nm_status ?? '', 'Dikerjakan')) bg-info-light text-info
                                     @else bg-gray-100 text-gray-600
                                     @endif">
                                     <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                        @if(str_contains($log->status?->kd_status ?? '', 'ditolak'))
+                                        @if(str_contains($log->status?->nm_status ?? '', 'Ditolak'))
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                        @elseif(str_contains($log->status?->kd_status ?? '', 'selesai'))
+                                        @elseif(str_contains($log->status?->nm_status ?? '', 'Selesai'))
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                         @else
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clip-rule="evenodd"/>
@@ -282,7 +282,7 @@
                             </div>
                             <div class="pb-4">
                                 <p class="text-sm font-medium text-gray-900">{{ $log->status?->nm_status ?? 'Unknown' }}</p>
-                                <p class="text-xs text-gray-500">{{ $log->created_at?->format('d M Y H:i') }}</p>
+                                <p class="text-xs text-gray-500">{{ $log->create_at?->format('d M Y H:i') }}</p>
                                 @if($log->catatan)
                                 <p class="mt-1 text-xs text-gray-600">{{ Str::limit($log->catatan, 100) }}</p>
                                 @endif

@@ -59,28 +59,29 @@
                         <h2 class="font-semibold text-gray-900">Informasi Layanan</h2>
                     </div>
                     <div class="divide-y divide-gray-100">
-                        @php $detail = $submission->getMainDetail(); @endphp
                         <div class="flex justify-between px-6 py-4">
                             <span class="text-gray-600">Jenis Layanan</span>
-                            <span class="font-medium text-gray-900">{{ $submission->request_type_label }}</span>
-                        </div>
-                        <div class="flex justify-between px-6 py-4">
-                            <span class="text-gray-600">Nama Aplikasi</span>
-                            <span class="font-medium text-gray-900">{{ $submission->application_name }}</span>
+                            <span class="font-medium text-gray-900">{{ ucfirst($submission->jenisLayanan?->nm_layanan ?? '-') }}</span>
                         </div>
                         <div class="flex justify-between px-6 py-4">
                             <span class="text-gray-600">Domain Diminta</span>
-                            <span class="font-mono font-medium text-myunila">{{ $detail?->requested_domain }}.unila.ac.id</span>
+                            <span class="font-mono font-medium text-myunila">{{ $submission->rincian?->nm_domain ?? '-' }}</span>
                         </div>
-                        @if($detail?->requested_quota_gb)
+                        @if($submission->rincian?->kapasitas_penyimpanan)
                         <div class="flex justify-between px-6 py-4">
-                            <span class="text-gray-600">Kuota Storage</span>
-                            <span class="font-medium text-gray-900">{{ $detail->requested_quota_gb }} GB</span>
+                            <span class="text-gray-600">Kapasitas Storage</span>
+                            <span class="font-medium text-gray-900">{{ $submission->rincian->kapasitas_penyimpanan }}</span>
+                        </div>
+                        @endif
+                        @if($submission->rincian?->alamat_ip)
+                        <div class="flex justify-between px-6 py-4">
+                            <span class="text-gray-600">IP Tujuan</span>
+                            <span class="font-mono font-medium text-gray-900">{{ $submission->rincian->alamat_ip }}</span>
                         </div>
                         @endif
                         <div class="px-6 py-4">
-                            <span class="text-gray-600">Deskripsi/Keperluan</span>
-                            <p class="mt-2 text-gray-900">{{ $submission->description }}</p>
+                            <span class="text-gray-600">Keterangan/Keperluan</span>
+                            <p class="mt-2 text-gray-900">{{ $submission->rincian?->keterangan_keperluan ?? '-' }}</p>
                         </div>
                     </div>
                 </div>
@@ -205,7 +206,7 @@
                     </div>
                     <div class="p-6">
                         <div class="space-y-4">
-                            @forelse($submission->logs->sortByDesc('created_at') as $log)
+                            @forelse($submission->logs->sortByDesc('create_at') as $log)
                                 <div class="flex gap-3">
                                     <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-myunila-100 text-xs font-medium text-myunila">
                                         {{ strtoupper(substr($log->user->name ?? 'S', 0, 1)) }}
@@ -215,7 +216,7 @@
                                             <span class="font-medium text-gray-900">{{ $log->user->name ?? 'System' }}</span>
                                             <span class="text-gray-600">{{ $log->note }}</span>
                                         </p>
-                                        <p class="text-xs text-gray-500">{{ $log->created_at->diffForHumans() }}</p>
+                                        <p class="text-xs text-gray-500">{{ $log->create_at?->diffForHumans() }}</p>
                                     </div>
                                 </div>
                             @empty
@@ -231,11 +232,11 @@
                         <div class="space-y-4 text-sm">
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Dibuat</span>
-                                <span class="font-medium text-gray-900">{{ $submission->created_at->format('d M Y, H:i') }}</span>
+                                <span class="font-medium text-gray-900">{{ $submission->tgl_pengajuan?->format('d M Y') ?? '-' }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Terakhir Update</span>
-                                <span class="font-medium text-gray-900">{{ $submission->updated_at->format('d M Y, H:i') }}</span>
+                                <span class="font-medium text-gray-900">{{ $submission->last_update?->format('d M Y, H:i') ?? '-' }}</span>
                             </div>
                         </div>
                     </div>

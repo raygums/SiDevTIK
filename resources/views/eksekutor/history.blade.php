@@ -86,9 +86,9 @@
                             </td>
                             <td class="whitespace-nowrap px-6 py-4">
                                 <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
-                                    @if($submission->status?->kd_status === 'selesai') bg-success-light text-success
-                                    @elseif(str_contains($submission->status?->kd_status ?? '', 'ditolak')) bg-danger-light text-danger
-                                    @elseif($submission->status?->kd_status === 'sedang_dikerjakan') bg-info-light text-info
+                                    @if($submission->status?->nm_status === 'Selesai') bg-success-light text-success
+                                    @elseif(str_contains($submission->status?->nm_status ?? '', 'Ditolak')) bg-danger-light text-danger
+                                    @elseif($submission->status?->nm_status === 'Sedang Dikerjakan') bg-info-light text-info
                                     @else bg-gray-100 text-gray-800
                                     @endif">
                                     {{ $submission->status?->nm_status ?? 'Unknown' }}
