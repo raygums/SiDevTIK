@@ -1,0 +1,42 @@
+# ===========================================
+# SI Project TIK - Development Docker Compose
+# ===========================================
+
+services:
+  # ===========================================
+  # Laravel App (Development)
+  # ===========================================
+  app:
+    build:
+      context: ../..
+      dockerfile: deployment/local/Dockerfile
+    container_name: si-project-tik-app-dev
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8090}:8000"
+      - "5173:5173"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://localhost:${APP_PORT:-8090}
+      - APP_TIMEZONE=Asia/Jakarta
+      - TZ=Asia/Jakarta
+      - DB_CONNECTION=pgsql
+      - DB_HOST=172.25.32.1
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ../..:/var/www/html
+    networks:
+      - si-project-tik-dev-network
+
+# ===========================================
+# Networks
+# ===========================================
+networks:
+  si-project-tik-dev-network:
+    driver: bridge
