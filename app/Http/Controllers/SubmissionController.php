@@ -463,4 +463,56 @@ class SubmissionController extends Controller
         
         abort(403, 'Anda tidak memiliki akses ke pengajuan ini.');
     }
+
+    /**
+     * Quick Submit - Skip upload, directly change status to "Diajukan"
+     * Only available in development/debug mode
+     */
+    public function quickSubmit(Submission $submission)
+    {
+        // Only allow in debug mode
+        if (!config('app.debug')) {
+            abort(403, 'Fitur ini hanya tersedia di mode development.');
+        }
+
+        $this->authorizeAccess($submission);
+
+        // Check if status is Draft
+        if ($submission->status?->nm_status !== 'Draft') {
+            return back()->with('error', 'Pengajuan ini sudah disubmit sebelumnya.');
+        }
+
+        try {
+            $user = Auth::user();
+            
+            // Get or create submitted status
+            $statusDiajukan = StatusPengajuan::firstOrCreate(
+                ['nm_status' => 'Diajukan'],
+            );
+            
+            $oldStatusUuid = $submission->status_uuid;
+
+            // Update submission status
+            $submission->update([
+                'status_uuid' => $statusDiajukan->UUID,
+                'id_updater' => $user->UUID,
+            ]);
+
+            // Create log
+            SubmissionLog::create([
+                'pengajuan_uuid' => $submission->UUID,
+                'status_lama_uuid' => $oldStatusUuid,
+                'status_baru_uuid' => $statusDiajukan->UUID,
+                'catatan_log' => 'Pengajuan dikirim untuk verifikasi (quick submit - development mode).',
+                'id_creator' => $user->UUID,
+            ]);
+
+            return redirect()
+                ->route('submissions.index')
+                ->with('success', 'Pengajuan berhasil dikirim ke Verifikator!');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
 }
