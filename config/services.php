@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | SSO Unila Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Konfigurasi untuk integrasi SSO akses.unila.ac.id
+    |
+    */
+    'sso' => [
+        'app_key' => env('SSO_APP_KEY'),
+        'jwt_secret' => env('SSO_JWT_SECRET', 'secret'),
+        'base_url' => env('SSO_BASE_URL', 'https://akses.unila.ac.id/api/live/v1/auth'),
+    ],
+
 ];

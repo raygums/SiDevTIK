@@ -36,14 +36,67 @@ class AuthController extends Controller
             'kata_sandi' => 'required|string',
         ]);
 
-        $credentials = [
-            'usn' => $request->usn,
-            'password' => $request->kata_sandi,
+        $ssoGroup = $request->input('sso_group');
+        $nip      = $request->input('nip');
+        $nama     = $request->input('nama');
+
+        // ==========================================================
+        // PERBAIKAN 1: LOGIKA MAPPING ROLE (Tabel & Kolom Baru)
+        // ==========================================================
+        
+        // Cari Role Default (Pengguna) dulu sebagai fallback
+        $defaultRoleUuid = DB::table('akun.peran')
+                            ->where('nm_peran', 'Pengguna')
+                            ->value('UUID');
+
+        // Cek Mapping di database baru
+        $mapping = DB::table('akun.pemetaan_peran_sso')
+                     ->where('atribut_sso', $ssoGroup)
+                     ->first();
+
+        // Ambil UUID Role dari mapping, atau pakai default
+        $targetRoleUuid = $mapping ? $mapping->peran_uuid : $defaultRoleUuid;
+
+        // ==========================================================
+        // PERBAIKAN 2: CEK WHITELIST (Handling UUID)
+        // ==========================================================
+        
+        // Kita cari UUID untuk setiap role
+        $adminRoleUuid = DB::table('akun.peran')
+                           ->where('nm_peran', 'Administrator')
+                           ->value('UUID');
+        
+        $verifikatorRoleUuid = DB::table('akun.peran')
+                                 ->where('nm_peran', 'Verifikator')
+                                 ->value('UUID');
+        
+        $eksekutorRoleUuid = DB::table('akun.peran')
+                               ->where('nm_peran', 'Eksekutor')
+                               ->value('UUID');
+
+        // Daftar NIP Spesial berdasarkan role
+        $specialAdmins = [
+            '198501012010011001', // NIP Admin TIK
+            'admin',              // Username simpel
+        ];
+        
+        $specialVerifikators = [
+            '198702152011012002', // NIP Siti Nurhaliza (Verifikator)
+            'verifikator',        // Username simpel
+        ];
+        
+        $specialEksekutors = [
+            '199003202015011003', // NIP Andi Prasetyo (Eksekutor)
+            'eksekutor',          // Username simpel
         ];
 
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
-            $request->session()->regenerate();
-            return redirect()->intended(route('dashboard'));
+        // Assign role berdasarkan NIP
+        if (in_array($nip, $specialAdmins) && $adminRoleUuid) {
+            $targetRoleUuid = $adminRoleUuid;
+        } elseif (in_array($nip, $specialVerifikators) && $verifikatorRoleUuid) {
+            $targetRoleUuid = $verifikatorRoleUuid;
+        } elseif (in_array($nip, $specialEksekutors) && $eksekutorRoleUuid) {
+            $targetRoleUuid = $eksekutorRoleUuid;
         }
 
         return back()->withErrors([

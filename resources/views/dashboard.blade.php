@@ -56,7 +56,7 @@
                         </svg>
                     </div>
                     <h3 class="font-semibold text-gray-900">Dalam Proses</h3>
-                    <p class="mt-1 text-2xl font-bold text-warning">0</p>
+                    <p class="mt-1 text-2xl font-bold text-warning">{{ $stats['dalam_proses'] ?? 0 }}</p>
                 </div>
             </div>
 
@@ -70,10 +70,63 @@
                         </svg>
                     </div>
                     <h3 class="font-semibold text-gray-900">Selesai</h3>
-                    <p class="mt-1 text-2xl font-bold text-success">0</p>
+                    <p class="mt-1 text-2xl font-bold text-success">{{ $stats['selesai'] ?? 0 }}</p>
                 </div>
             </div>
         </div>
+
+        {{-- Recent Submissions --}}
+        @if(isset($submissions) && $submissions->isNotEmpty())
+        <div class="mb-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
+                <h2 class="font-semibold text-gray-900">Pengajuan Terbaru Anda</h2>
+            </div>
+            <div class="divide-y divide-gray-100">
+                @foreach($submissions as $submission)
+                <a href="{{ route('submissions.show', $submission) }}" class="flex items-center justify-between p-4 hover:bg-gray-50">
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-myunila-50 text-myunila">
+                            @php $serviceType = $submission->jenisLayanan?->nm_layanan ?? 'domain'; @endphp
+                            @if($serviceType === 'vps')
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
+                            </svg>
+                            @else
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                            </svg>
+                            @endif
+                        </div>
+                        <div>
+                            <p class="font-mono text-sm font-semibold text-myunila">{{ $submission->no_tiket }}</p>
+                            <p class="text-sm text-gray-600">{{ $submission->rincian?->nm_domain ?? ucfirst($serviceType) }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        @php $status = $submission->status?->nm_status ?? ''; @endphp
+                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                            @if($status === 'Selesai') bg-success-light text-success
+                            @elseif(str_contains($status, 'Ditolak')) bg-danger-light text-danger
+                            @elseif($status === 'Sedang Dikerjakan') bg-info-light text-info
+                            @elseif(in_array($status, ['Diajukan', 'Disetujui Verifikator'])) bg-warning-light text-warning
+                            @else bg-gray-100 text-gray-800
+                            @endif">
+                            {{ $submission->status?->nm_status ?? 'Draft' }}
+                        </span>
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+            <div class="border-t border-gray-200 bg-gray-50 px-6 py-3">
+                <a href="{{ route('submissions.index') }}" class="text-sm font-medium text-myunila hover:underline">
+                    Lihat semua pengajuan →
+                </a>
+            </div>
+        </div>
+        @endif
 
         {{-- Info Card --}}
         <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">

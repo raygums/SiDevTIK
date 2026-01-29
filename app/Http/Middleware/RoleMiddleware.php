@@ -27,13 +27,18 @@ class RoleMiddleware
         // Kita handle support untuk Enum (Laravel 11/12 Casting) atau String biasa
         $userRole = $user->role instanceof \BackedEnum ? $user->role->value : $user->role;
 
-        // 3. Cek apakah role user termasuk dalam role yang diizinkan route ini
+        // 3. Admin/Super Admin bisa akses semua route
+        if ($userRole === 'admin') {
+            return $next($request);
+        }
+
+        // 4. Cek apakah role user termasuk dalam role yang diizinkan route ini
         // Contoh penggunaan di route: middleware('role:admin,verifikator')
         if (in_array($userRole, $roles)) {
             return $next($request);
         }
 
-        // 4. Jika tidak cocok, tolak akses (403 Forbidden)
+        // 5. Jika tidak cocok, tolak akses (403 Forbidden)
         abort(403, 'Akses ditolak. Anda tidak memiliki izin.');
     }
 }

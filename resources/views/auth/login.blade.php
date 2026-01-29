@@ -89,7 +89,7 @@
                 <!-- SSO Login -->
                 <div class="mt-6">
                     <p class="text-center text-sm text-gray-500 mb-3">Khusus pengguna dosen/tendik</p>
-                    <a href="{{ route('auth.sso.redirect') }}" 
+                    <a href="{{ route('auth.sso.login') }}" 
                        class="w-full flex items-center justify-center gap-2 py-3 px-4 border-2 border-cyan-500 text-cyan-600 font-semibold rounded-lg hover:bg-cyan-50 transition duration-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>

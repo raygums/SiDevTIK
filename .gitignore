@@ -30,3 +30,5 @@ deployment/*/.env.*
 Homestead.json
 Homestead.yaml
 Thumbs.db
+node_modules
+install.sh

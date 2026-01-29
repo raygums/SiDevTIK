@@ -1,8 +1,12 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\SSOController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExecutionController;
 use App\Http\Controllers\FormGeneratorController;
 use App\Http\Controllers\SubmissionController;
+use App\Http\Controllers\VerificationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SsoAuthController;
 
@@ -24,11 +28,18 @@ Route::prefix('form')->name('forms.')->group(function () {
 
 
 // ==========================================
+// SSO ROUTES (sesuai dengan URL yang didaftarkan di akses.unila.ac.id)
+// ==========================================
+Route::get('/login/sso', [SSOController::class, 'redirectToSSO'])->name('sso.login');
+Route::get('/auth/sso/callback', [SSOController::class, 'handleCallback'])->name('sso.callback');
+
+
+// ==========================================
 // GUEST ROUTES (Hanya untuk yang belum login)
 // ==========================================
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'index'])->name('login');
-    Route::post('/login', [AuthController::class, 'store'])->name('login.store');
+    // Login langsung redirect ke SSO
+    Route::get('/login', [SSOController::class, 'redirectToSSO'])->name('login');
 });
 
 
@@ -38,12 +49,10 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     
     // --- Authentication ---
-    Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
+    Route::post('/logout', [SSOController::class, 'logout'])->name('logout');
 
-    // --- Dashboard (setelah login) ---
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    // --- Dashboard (setelah login, redirect berdasarkan role) ---
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // --- Fitur Pengajuan ---
     Route::prefix('pengajuan')->name('submissions.')->group(function () {
@@ -60,10 +69,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/{submission}/print-form', [SubmissionController::class, 'printForm'])->name('print-form');
         Route::get('/{submission}/upload', [SubmissionController::class, 'showUpload'])->name('upload');
         Route::post('/{submission}/upload', [SubmissionController::class, 'storeUpload'])->name('upload.store');
+        
+        // Quick Submit (Development/Testing only)
+        Route::post('/{submission}/quick-submit', [SubmissionController::class, 'quickSubmit'])->name('quick-submit');
     });
 
     // --- Admin Routes ---
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', [DashboardController::class, 'adminDashboard'])->name('dashboard');
         Route::get('/users', function () {
             return "Halaman Manajemen User (Admin Only)";
         })->name('users');
@@ -78,5 +91,24 @@ Route::middleware('auth')->group(function () {
     Route::get('/auth/pending-approval', function () {
     return view('auth.pending-approval');
     })->name('auth.pending');
+
+    // --- Verifikator Routes ---
+    Route::middleware('role:verifikator')->prefix('verifikator')->name('verifikator.')->group(function () {
+        Route::get('/', [VerificationController::class, 'index'])->name('index');
+        Route::get('/riwayat', [VerificationController::class, 'history'])->name('history');
+        Route::get('/{submission}', [VerificationController::class, 'show'])->name('show');
+        Route::post('/{submission}/approve', [VerificationController::class, 'approve'])->name('approve');
+        Route::post('/{submission}/reject', [VerificationController::class, 'reject'])->name('reject');
+    });
+
+    // --- Eksekutor Routes ---
+    Route::middleware('role:eksekutor')->prefix('eksekutor')->name('eksekutor.')->group(function () {
+        Route::get('/', [ExecutionController::class, 'index'])->name('index');
+        Route::get('/riwayat', [ExecutionController::class, 'history'])->name('history');
+        Route::get('/{submission}', [ExecutionController::class, 'show'])->name('show');
+        Route::post('/{submission}/accept', [ExecutionController::class, 'accept'])->name('accept');
+        Route::post('/{submission}/complete', [ExecutionController::class, 'complete'])->name('complete');
+        Route::post('/{submission}/reject', [ExecutionController::class, 'reject'])->name('reject');
+    });
 
 });

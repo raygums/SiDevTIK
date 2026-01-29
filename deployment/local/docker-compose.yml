@@ -22,7 +22,7 @@ services:
       - APP_TIMEZONE=Asia/Jakarta
       - TZ=Asia/Jakarta
       - DB_CONNECTION=pgsql
-      - DB_HOST=172.25.32.1
+      - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT:-5432}
       - DB_DATABASE=${DB_DATABASE}
       - DB_USERNAME=${DB_USERNAME}
@@ -31,6 +31,7 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - ../..:/var/www/html
+      - /var/www/html/node_modules
     networks:
       - si-project-tik-dev-network
 

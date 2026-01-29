@@ -227,8 +227,8 @@
     <h2 class="form-title">FORMULIR PERMOHONAN SUB DOMAIN</h2>
     
     <p style="text-align: center; margin-bottom: 15px; font-size: 10pt;">
-        No. Tiket: <strong>{{ $submission->ticket_number }}</strong> | 
-        Tanggal: <strong>{{ $submission->created_at->format('d F Y') }}</strong>
+        No. Tiket: <strong>{{ $submission->no_tiket }}</strong> | 
+        Tanggal: <strong>{{ $submission->tgl_pengajuan?->translatedFormat('d F Y') ?? '-' }}</strong>
     </p>
 
     {{-- Section: Data Sub Domain --}}

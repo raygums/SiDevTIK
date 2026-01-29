@@ -21,27 +21,6 @@
             </a>
         </div>
 
-        @php
-            $statusColors = [
-                'draft' => 'bg-gray-100 text-gray-700',
-                'submitted' => 'bg-info-light text-info',
-                'in_review' => 'bg-warning-light text-warning',
-                'approved_admin' => 'bg-myunila-100 text-myunila',
-                'processing' => 'bg-myunila-200 text-myunila-700',
-                'completed' => 'bg-success-light text-success',
-                'rejected' => 'bg-error-light text-error',
-            ];
-            $statusDots = [
-                'draft' => 'bg-gray-500',
-                'submitted' => 'bg-info',
-                'in_review' => 'bg-warning',
-                'approved_admin' => 'bg-myunila',
-                'processing' => 'bg-myunila-700',
-                'completed' => 'bg-success',
-                'rejected' => 'bg-error',
-            ];
-        @endphp
-
         {{-- Submissions List --}}
         @if($submissions->count() > 0)
             <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
@@ -65,8 +44,10 @@
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
                                         <div class="flex items-center gap-2">
-                                            @php $detail = $submission->getMainDetail(); @endphp
-                                            @if($detail?->request_type === 'domain')
+                                            @php 
+                                                $serviceType = $submission->jenisLayanan?->nm_layanan ?? 'domain';
+                                            @endphp
+                                            @if($serviceType === 'domain')
                                                 <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-myunila-100 text-myunila">
                                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
@@ -79,27 +60,51 @@
                                                     </svg>
                                                 </span>
                                             @endif
-                                            <span class="text-sm text-gray-900">{{ $submission->request_type_label }}</span>
+                                            <span class="text-sm text-gray-900">{{ ucfirst($serviceType) }}</span>
                                         </div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
-                                        <span class="font-mono text-sm text-gray-700">{{ $detail?->requested_domain }}.unila.ac.id</span>
+                                        <span class="font-mono text-sm text-gray-700">{{ $submission->rincian?->nm_domain ?? '-' }}</span>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
-                                        <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium {{ $statusColors[$submission->status] ?? 'bg-gray-100 text-gray-700' }}">
-                                            <span class="h-1.5 w-1.5 rounded-full {{ $statusDots[$submission->status] ?? 'bg-gray-500' }}"></span>
-                                            {{ $submission->status_label }}
+                                        @php $statusName = $submission->status?->nm_status ?? 'Diajukan'; @endphp
+                                        <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium
+                                            @if(str_contains($statusName, 'Ditolak')) bg-error-light text-error
+                                            @elseif($statusName === 'Selesai') bg-success-light text-success
+                                            @elseif(str_contains($statusName, 'Dikerjakan')) bg-myunila-200 text-myunila-700
+                                            @elseif(str_contains($statusName, 'Diverifikasi')) bg-myunila-100 text-myunila
+                                            @else bg-info-light text-info
+                                            @endif
+                                        ">
+                                            <span class="h-1.5 w-1.5 rounded-full
+                                                @if(str_contains($statusName, 'Ditolak')) bg-error
+                                                @elseif($statusName === 'Selesai') bg-success
+                                                @elseif(str_contains($statusName, 'Dikerjakan')) bg-myunila-700
+                                                @elseif(str_contains($statusName, 'Diverifikasi')) bg-myunila
+                                                @else bg-info
+                                                @endif
+                                            "></span>
+                                            {{ $statusName }}
                                         </span>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
-                                        <span class="text-sm text-gray-600">{{ $submission->created_at->format('d M Y') }}</span>
+                                        <span class="text-sm text-gray-600">{{ $submission->tgl_pengajuan?->format('d M Y') ?? '-' }}</span>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-right">
                                         <div class="flex items-center justify-end gap-2">
-                                            @if($submission->status === 'draft')
+                                            @if($statusName === 'Draft')
                                                 <a href="{{ route('submissions.upload', $submission) }}" class="rounded-lg bg-myunila-100 px-3 py-1.5 text-xs font-medium text-myunila transition hover:bg-myunila-200">
                                                     Upload
                                                 </a>
+                                                {{-- Quick Submit for Testing --}}
+                                                @if(config('app.debug'))
+                                                <form action="{{ route('submissions.quick-submit', $submission) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="submit" class="rounded-lg bg-green-100 px-3 py-1.5 text-xs font-medium text-green-700 transition hover:bg-green-200" onclick="return confirm('Submit langsung tanpa upload dokumen?')">
+                                                        Submit
+                                                    </button>
+                                                </form>
+                                                @endif
                                             @endif
                                             <a href="{{ route('submissions.show', $submission) }}" class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-200">
                                                 Detail
