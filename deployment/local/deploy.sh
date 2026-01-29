@@ -29,6 +29,40 @@ fi
 # Container names
 APP_CONTAINER="si-project-tik-app-dev"
 
+# Function to get WSL gateway IP (Windows host IP)
+get_wsl_gateway_ip() {
+    if grep -qi microsoft /proc/version 2>/dev/null; then
+        # Running in WSL - get gateway IP
+        ip route show | grep default | awk '{print $3}'
+    else
+        # Not WSL, use host.docker.internal
+        echo "host.docker.internal"
+    fi
+}
+
+# Function to update DB_HOST in .env and docker-compose.yml
+update_db_host() {
+    local new_ip=$(get_wsl_gateway_ip)
+    local project_env="$PROJECT_DIR/.env"
+    local compose_file="$COMPOSE_DIR/docker-compose.yml"
+    
+    if [ -n "$new_ip" ]; then
+        # Update .env file
+        if [ -f "$project_env" ]; then
+            local current_ip=$(grep "^DB_HOST=" "$project_env" | cut -d'=' -f2)
+            if [ "$current_ip" != "$new_ip" ]; then
+                sed -i "s/^DB_HOST=.*/DB_HOST=$new_ip/" "$project_env"
+                echo -e "${YELLOW}Updated DB_HOST in .env: $current_ip -> $new_ip${NC}"
+            fi
+        fi
+        
+        # Update docker-compose.yml
+        if [ -f "$compose_file" ]; then
+            sed -i "s/DB_HOST=.*/DB_HOST=$new_ip/" "$compose_file"
+        fi
+    fi
+}
+
 # Function to show menu
 show_menu() {
     clear
@@ -41,7 +75,7 @@ show_menu() {
     echo -e "${YELLOW}Pilih operasi:${NC}"
     echo ""
     echo -e "  ${CYAN}--- Start/Stop ---${NC}"
-    echo -e "  ${GREEN}1)${NC} Start Development (docker-compose up)"
+    echo -e "  ${GREEN}1)${NC} Start Development (docker compose up)"
     echo -e "  ${GREEN}2)${NC} Stop Development"
     echo ""
     echo -e "  ${CYAN}--- Rebuild ---${NC}"
@@ -150,9 +184,10 @@ while true; do
         1)
             check_env || continue
             echo ""
+            update_db_host
             echo -e "${GREEN}Starting Development Environment...${NC}"
             cd "$COMPOSE_DIR"
-            docker-compose up -d --build
+            docker compose up -d --build
             echo ""
 
             # Load port from .env
@@ -167,7 +202,7 @@ while true; do
             echo ""
             echo -e "${YELLOW}Stopping Development Environment...${NC}"
             cd "$COMPOSE_DIR"
-            docker-compose down
+            docker compose down
             echo -e "${GREEN}✓ Development environment stopped!${NC}"
             read -p "Press Enter to continue..."
             ;;
@@ -179,9 +214,10 @@ while true; do
             echo -e "${RED}Clean Rebuild - This will remove container and rebuild!${NC}"
             read -p "Are you sure? (y/n): " confirm
             if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+                update_db_host
                 cd "$COMPOSE_DIR"
-                docker-compose down -v --rmi local
-                docker-compose up -d --build
+                docker compose down -v --rmi local
+                docker compose up -d --build
                 echo -e "${GREEN}✓ Clean rebuild complete!${NC}"
             fi
             read -p "Press Enter to continue..."
@@ -189,9 +225,10 @@ while true; do
         4)
             check_env || continue
             echo ""
+            update_db_host
             echo -e "${GREEN}Quick Rebuild...${NC}"
             cd "$COMPOSE_DIR"
-            docker-compose up -d --build
+            docker compose up -d --build
             echo -e "${GREEN}✓ Quick rebuild complete!${NC}"
             read -p "Press Enter to continue..."
             ;;
@@ -278,7 +315,7 @@ while true; do
             read -p "Are you sure? (y/n): " confirm
             if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
                 cd "$COMPOSE_DIR"
-                docker-compose down -v --rmi all 2>/dev/null
+                docker compose down -v --rmi all 2>/dev/null
                 echo -e "${GREEN}✓ All resources removed!${NC}"
             fi
             read -p "Press Enter to continue..."

@@ -22,7 +22,7 @@ services:
       - APP_TIMEZONE=Asia/Jakarta
       - TZ=Asia/Jakarta
       - DB_CONNECTION=pgsql
-      - DB_HOST=host.docker.internal
+      - DB_HOST=172.25.32.1
       - DB_PORT=${DB_PORT:-5432}
       - DB_DATABASE=${DB_DATABASE}
       - DB_USERNAME=${DB_USERNAME}
