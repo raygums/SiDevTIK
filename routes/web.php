@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\SSOController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExecutionController;
 use App\Http\Controllers\FormGeneratorController;
@@ -26,6 +27,13 @@ Route::prefix('form')->name('forms.')->group(function () {
 
 
 // ==========================================
+// SSO ROUTES (sesuai dengan URL yang didaftarkan di akses.unila.ac.id)
+// ==========================================
+Route::get('/login/sso', [SSOController::class, 'redirectToSSO'])->name('sso.login');
+Route::get('/auth/sso/callback', [SSOController::class, 'handleCallback'])->name('sso.callback');
+
+
+// ==========================================
 // GUEST ROUTES (Hanya untuk yang belum login)
 // ==========================================
 Route::middleware('guest')->group(function () {
@@ -40,7 +48,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     
     // --- Authentication ---
-    Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
+    Route::post('/logout', [SSOController::class, 'logout'])->name('logout');
 
     // --- Dashboard (setelah login, redirect berdasarkan role) ---
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
