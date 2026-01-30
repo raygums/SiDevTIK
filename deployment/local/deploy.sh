@@ -98,10 +98,11 @@ show_menu() {
     echo ""
     echo -e "  ${CYAN}--- WSL/Database ---${NC}"
     echo -e "  ${YELLOW}50)${NC} Auto-Update DB Host IP (WSL Gateway)"
+    echo -e "  ${YELLOW}51)${NC} Show Detected Gateway IP"
     echo ""
     echo -e "  ${RED}0)${NC} Exit"
     echo ""
-    echo -n "Pilihan [0-50]: "
+    echo -n "Pilihan [0-51]: "
 }
 
 # Function to show container status
@@ -380,6 +381,56 @@ while true; do
                 echo -e "${GREEN}✓ DB_HOST is already up-to-date!${NC}"
             fi
             
+            echo ""
+            read -p "Press Enter to continue..."
+            ;;
+
+        51)
+            echo ""
+            echo -e "${CYAN}╔════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║          Detected Gateway IP (WSL/Linux)               ║${NC}"
+            echo -e "${CYAN}╚════════════════════════════════════════════════════════╝${NC}"
+            echo ""
+            
+            echo -e "${YELLOW}Detecting IP from system...${NC}"
+            echo ""
+            
+            # Detect gateway IP using the specified command
+            detected_ip=$(ip route show | grep default | awk '{print $3}')
+            
+            if [ -n "$detected_ip" ]; then
+                echo -e "${GREEN}✓ Gateway IP Detected:${NC}"
+                echo -e "  ${BLUE}IP Address: ${YELLOW}$detected_ip${NC}"
+                echo ""
+                
+                # Show current DB_HOST from .env for comparison
+                project_env="$PROJECT_DIR/.env"
+                if [ -f "$project_env" ]; then
+                    current_db_host=$(grep "^DB_HOST=" "$project_env" 2>/dev/null | cut -d'=' -f2)
+                    echo -e "${YELLOW}Current DB_HOST in .env:${NC}"
+                    echo -e "  ${BLUE}DB_HOST: ${CYAN}$current_db_host${NC}"
+                    echo ""
+                    
+                    # Compare
+                    if [ "$current_db_host" = "$detected_ip" ]; then
+                        echo -e "${GREEN}✓ DB_HOST matches detected gateway IP${NC}"
+                    elif [ -z "$current_db_host" ]; then
+                        echo -e "${RED}⚠ DB_HOST is not set in .env${NC}"
+                        echo -e "${YELLOW}  Recommendation: Use menu option 50 to update${NC}"
+                    else
+                        echo -e "${RED}⚠ DB_HOST differs from detected gateway IP${NC}"
+                        echo -e "${YELLOW}  Detected:  $detected_ip${NC}"
+                        echo -e "${YELLOW}  In .env:   $current_db_host${NC}"
+                        echo -e "${YELLOW}  Recommendation: Use menu option 50 to update${NC}"
+                    fi
+                fi
+            else
+                echo -e "${RED}✗ Failed to detect gateway IP${NC}"
+                echo -e "${YELLOW}This might not be a WSL/Linux environment${NC}"
+            fi
+            
+            echo ""
+            echo -e "${CYAN}Command used: ${NC}ip route show | grep default | awk '{print \$3}'"
             echo ""
             read -p "Press Enter to continue..."
             ;;
