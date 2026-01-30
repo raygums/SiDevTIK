@@ -185,5 +185,12 @@ class DatabaseSeeder extends Seeder
             'peran_uuid' => $roleEksekutorId,
             'a_aktif' => true
         ]);
+
+        // ==========================================================
+        // CALL ADDITIONAL SEEDERS (Test Users for Development)
+        // ==========================================================
+        $this->call([
+            TestUsersSeeder::class,  // Seed test users untuk development & testing
+        ]);
     }
 }
