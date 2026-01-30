@@ -1,45 +1,52 @@
-name: Sync to Bitbucket (SSH)
+name: Sync to Bitbucket
 
 on:
   push:
     branches:
       - '*'
-  create:
-  delete:
-
+    tags:
+      - '*'
+  delete: 
+  workflow_dispatch:
+  
 jobs:
-  sync-repo:
+  sync-to-bitbucket:
     runs-on: ubuntu-latest
-    name: Syncing to Bitbucket via SSH
-    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Mengambil seluruh history
-
+          fetch-depth: 0 
+          
       - name: Setup SSH for Bitbucket
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.BITBUCKET_SSH_KEY }}
 
-      - name: Push to Bitbucket
+      - name: Sync to Bitbucket
         env:
           TARGET_REPO: git@bitbucket.org:mahendraunila/si-project-tik.git
         run: |
-          # 1. Setup Remote Bitbucket (SSH)
+          # 1. Konfigurasi Git User
+          git config --global user.email "bot@github.com"
+          git config --global user.name "GitHub Sync Bot"
+          
+          # 2. Tambahkan Remote Bitbucket
           git remote add bitbucket $TARGET_REPO
           
-          # 2. Scan Host Key (Agar tidak ditanya 'Are you sure...' saat koneksi)
+          # 3. Setup Keamanan Host Key 
           mkdir -p ~/.ssh
           ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts
           
-          # 3. Safety Fetch (Memastikan kita punya history lengkap sebelum push)
-          # '|| true' mencegah error jika repo sudah unshallow
-          git fetch --unshallow origin || true
+          # 4. Sinkronisasi Penuh (All, Tags, & Prune)
+          # --all   : Push semua branch yang ada
+          # --tags  : Push semua tag
+          # --force : Timpa history di Bitbucket jika ada force push di GitHub (rebase/amend)
+          # --prune : HAPUS branch di Bitbucket yang sudah tidak ada di GitHub (Menangani Delete & Rename)
           
-          # 4. Push Spesifik (SOLUSI ERROR)
-          # Kita hanya push branch/tag yang sedang aktif diproses (trigger).
-          # Ini MENCEGAH penghapusan branch 'main' secara tidak sengaja.
-          echo "Syncing ref: ${{ github.ref }}"
-          git push --force bitbucket ${{ github.ref }}
+          echo "Starting synchronization..."
+          git push bitbucket --all --force
+          git push bitbucket --tags --force
+          git push bitbucket --prune
+          
+          echo "Synchronization complete."
