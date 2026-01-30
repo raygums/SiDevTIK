@@ -3,12 +3,12 @@ name: Sync to Bitbucket
 on:
   push:
     branches:
-      - '*' 
+      - '*'
     tags:
-      - '*' 
+      - '*'
   delete: 
   workflow_dispatch:
-
+  
 jobs:
   sync-to-bitbucket:
     runs-on: ubuntu-latest
@@ -16,8 +16,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
+          fetch-depth: 0 
+          
       - name: Setup SSH for Bitbucket
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -31,21 +31,22 @@ jobs:
           git config --global user.email "bot@github.com"
           git config --global user.name "GitHub Sync Bot"
           
-          # 2. Setup Remote
+          # 2. Tambahkan Remote Bitbucket
           git remote add bitbucket $TARGET_REPO
           
-          # 3. Setup Keamanan Host Key
+          # 3. Setup Keamanan Host Key 
           mkdir -p ~/.ssh
           ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts
           
-          # 4. Eksekusi Sinkronisasi
-          if [ "${{ github.event_name }}" == "delete" ]; then
-            # Hapus branch di Bitbucket jika dihapus di GitHub
-            echo "Deleting ref on Bitbucket..."
-            git push bitbucket --delete "${{ github.event.ref }}"
-          else
-            # Push perubahan ke Bitbucket
-            echo "Pushing to Bitbucket..."
-            # Tanpa --force: Aman. Jika ada konflik, pipeline gagal (manual fix).
-            git push bitbucket "${{ github.ref }}"
-          fi
+          # 4. Sinkronisasi Penuh (All, Tags, & Prune)
+          # --all   : Push semua branch yang ada
+          # --tags  : Push semua tag
+          # --force : Timpa history di Bitbucket jika ada force push di GitHub (rebase/amend)
+          # --prune : HAPUS branch di Bitbucket yang sudah tidak ada di GitHub (Menangani Delete & Rename)
+          
+          echo "Starting synchronization..."
+          git push bitbucket --all --force
+          git push bitbucket --tags --force
+          git push bitbucket --prune
+          
+          echo "Synchronization complete."
