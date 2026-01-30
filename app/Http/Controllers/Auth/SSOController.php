@@ -138,15 +138,27 @@ class SSOController extends Controller
     }
 
     /**
-     * Find existing user or create new one from SSO payload
+     * Find existing user or create new one from SSO payload.
+     * 
+     * SSO-Gate Implementation:
+     * - User baru: a_aktif = FALSE (default inactive, butuh approval Verifikator)
+     * - User existing: UPDATE data dari SSO, KEEP status a_aktif yang sudah ada
+     * 
+     * Strategi Pencarian (Cascade Lookup):
+     * 1. By sso_id (primary identifier)
+     * 2. By username (usn) - untuk link existing account
+     * 3. By email - fallback identifier
+     * 
+     * Semua operasi database menggunakan transaction untuk integritas data.
+     * Transaction di-handle oleh caller (handleCallback method).
      */
     protected function findOrCreateUser(object $payload): ?User
     {
-        // Try to find user by SSO ID first
+        // Try to find user by SSO ID first (paling reliable)
         $user = User::where('sso_id', $payload->id_pengguna)->first();
 
         if ($user) {
-            // Update user data from SSO (mapping ke kolom database yang benar)
+            // User existing: update data dari SSO, PRESERVE a_aktif status
             $user->update([
                 'nm' => $payload->nm_pengguna,
                 'email' => $payload->email,
@@ -154,15 +166,23 @@ class SSOController extends Controller
                 'id_pd' => $payload->id_pd_pengguna,
                 'last_login_at' => now(),
                 'last_login_ip' => request()->ip(),
+                'last_update' => now(),
             ]);
+            
+            Log::info('SSO User Updated', [
+                'user_uuid' => $user->UUID,
+                'sso_id' => $user->sso_id,
+                'a_aktif' => $user->a_aktif,
+            ]);
+            
             return $user;
         }
 
-        // Try to find by username (usn)
+        // Try to find by username (usn) - untuk linking existing account
         $user = User::where('usn', $payload->username)->first();
 
         if ($user) {
-            // Link existing user to SSO
+            // Link existing local account ke SSO, PRESERVE a_aktif
             $user->update([
                 'sso_id' => $payload->id_pengguna,
                 'nm' => $payload->nm_pengguna,
@@ -171,15 +191,23 @@ class SSOController extends Controller
                 'id_pd' => $payload->id_pd_pengguna,
                 'last_login_at' => now(),
                 'last_login_ip' => request()->ip(),
+                'last_update' => now(),
             ]);
+            
+            Log::info('SSO Linked to Existing User (by username)', [
+                'user_uuid' => $user->UUID,
+                'sso_id' => $user->sso_id,
+                'a_aktif' => $user->a_aktif,
+            ]);
+            
             return $user;
         }
 
-        // Try to find by email
+        // Try to find by email - fallback identifier
         $user = User::where('email', $payload->email)->first();
 
         if ($user) {
-            // Link existing user to SSO
+            // Link existing account by email, PRESERVE a_aktif
             $user->update([
                 'sso_id' => $payload->id_pengguna,
                 'nm' => $payload->nm_pengguna,
@@ -187,12 +215,20 @@ class SSOController extends Controller
                 'id_pd' => $payload->id_pd_pengguna,
                 'last_login_at' => now(),
                 'last_login_ip' => request()->ip(),
+                'last_update' => now(),
             ]);
+            
+            Log::info('SSO Linked to Existing User (by email)', [
+                'user_uuid' => $user->UUID,
+                'sso_id' => $user->sso_id,
+                'a_aktif' => $user->a_aktif,
+            ]);
+            
             return $user;
         }
 
-        // Create new user
-        // Determine role based on SSO peran_pengguna
+        // Create new user - CRITICAL: a_aktif = FALSE (SSO-Gate)
+        // User baru harus di-approve oleh Verifikator sebelum bisa akses fitur
         $peranUuid = $this->determineRole($payload->peran_pengguna);
 
         $user = User::create([
@@ -204,9 +240,20 @@ class SSOController extends Controller
             'id_sdm' => $payload->id_sdm_pengguna,
             'id_pd' => $payload->id_pd_pengguna,
             'peran_uuid' => $peranUuid,
-            'a_aktif' => true,
+            'a_aktif' => false,                          // DEFAULT: INACTIVE untuk user baru (SSO-Gate)
             'last_login_at' => now(),
             'last_login_ip' => request()->ip(),
+            'create_at' => now(),
+            'id_creator' => null,                        // Self-registered via SSO
+        ]);
+
+        Log::info('New SSO User Created (INACTIVE)', [
+            'user_uuid' => $user->UUID,
+            'sso_id' => $user->sso_id,
+            'usn' => $user->usn,
+            'email' => $user->email,
+            'a_aktif' => $user->a_aktif,
+            'note' => 'User requires Verifikator approval',
         ]);
 
         return $user;

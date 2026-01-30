@@ -56,8 +56,8 @@ Route::middleware('auth')->group(function () {
     // --- Dashboard (setelah login, redirect berdasarkan role) ---
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // --- Fitur Pengajuan ---
-    Route::prefix('pengajuan')->name('submissions.')->group(function () {
+    // --- Fitur Pengajuan (Membutuhkan akun aktif) ---
+    Route::middleware('active')->prefix('pengajuan')->name('submissions.')->group(function () {
         // Form & Store
         Route::get('/buat', [SubmissionController::class, 'create'])->name('create');
         Route::post('/', [SubmissionController::class, 'store'])->name('store');
