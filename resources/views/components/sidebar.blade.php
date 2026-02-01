@@ -21,14 +21,14 @@
                 'icon' => 'user-check',
             ],
             [
-                'title' => 'Log Audit Pengguna',
-                'route' => null, // Placeholder - route requires parameter
-                'icon' => 'document-text',
+                'title' => 'Log Aktivitas Login',
+                'route' => 'admin.audit.login',
+                'icon' => 'clock',
             ],
             [
-                'title' => 'Kelola Peran',
-                'route' => null, // Placeholder - not yet implemented
-                'icon' => 'shield-check',
+                'title' => 'Log Status Pengajuan',
+                'route' => 'admin.audit.submissions',
+                'icon' => 'document-text',
             ],
         ];
     }
