@@ -12,19 +12,28 @@ use App\Models\JenisLayanan;
 class DashboardController extends Controller
 {
     /**
-     * Redirect ke dashboard sesuai role user
+     * Dashboard utama - redirect berdasarkan role atau tampilkan dashboard sesuai role
      */
     public function index()
     {
         $user = Auth::user();
-        $role = $user->role;
+        $roleName = strtolower($user->peran->nm_peran ?? 'pengguna');
 
-        return match ($role) {
-            'admin' => redirect()->route('admin.dashboard'),
-            'verifikator' => redirect()->route('verifikator.index'),
-            'eksekutor' => redirect()->route('eksekutor.index'),
-            default => $this->penggunaDashboard(),
-        };
+        // Admin dan role khusus mendapat dashboard tersendiri
+        if (str_contains($roleName, 'admin')) {
+            return $this->adminDashboard();
+        }
+        
+        if ($roleName === 'verifikator') {
+            return $this->verifikatorDashboard();
+        }
+        
+        if ($roleName === 'eksekutor') {
+            return $this->eksekutorDashboard();
+        }
+
+        // Default: Dashboard Pengguna biasa
+        return $this->penggunaDashboard();
     }
 
     /**
@@ -59,44 +68,93 @@ class DashboardController extends Controller
     /**
      * Dashboard untuk Admin/Super Admin
      */
-    public function adminDashboard()
+    private function adminDashboard()
     {
-        // Stats overview
-        $stats = [
-            'total_pengajuan' => Submission::count(),
-            'pengajuan_bulan_ini' => Submission::whereMonth('tgl_pengajuan', now()->month)
+        // Stats akun pengguna - Admin hanya mengelola user dengan role "Pengguna"
+        $penggunaQuery = User::whereHas('peran', function($q) {
+            $q->where('nm_peran', 'Pengguna');
+        });
+
+        $userStats = [
+            'total' => (clone $penggunaQuery)->count(),
+            'aktif' => (clone $penggunaQuery)->where('a_aktif', true)->count(),
+            'nonaktif' => (clone $penggunaQuery)->where('a_aktif', false)->count(),
+            'sso' => (clone $penggunaQuery)->whereNotNull('sso_id')->count(),
+            'lokal' => (clone $penggunaQuery)->whereNull('sso_id')->count(),
+        ];
+
+        // Stats pengajuan
+        $submissionStats = [
+            'total' => Submission::count(),
+            'bulan_ini' => Submission::whereMonth('tgl_pengajuan', now()->month)
                 ->whereYear('tgl_pengajuan', now()->year)
                 ->count(),
             'menunggu_verifikasi' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Diajukan'))
                 ->count(),
-            'menunggu_eksekusi' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Disetujui Verifikator'))
+            'disetujui' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Selesai'))
                 ->count(),
-            'sedang_dikerjakan' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Sedang Dikerjakan'))
-                ->count(),
-            'selesai' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Selesai'))
-                ->count(),
-            'ditolak' => Submission::whereHas('status', fn($q) => $q->whereIn('nm_status', ['Ditolak Verifikator', 'Ditolak Eksekutor']))
-                ->count(),
-            'total_users' => User::count(),
         ];
 
-        // Stats per layanan
-        $layananStats = JenisLayanan::withCount('submissions')->get();
-
-        // Recent submissions
-        $recentSubmissions = Submission::with(['pengguna', 'status', 'jenisLayanan', 'rincian', 'unitKerja'])
-            ->latest('tgl_pengajuan')
+        // Recent user registrations (need verification) - Hanya role Pengguna
+        $recentUsers = User::where('a_aktif', false)
+            ->whereHas('peran', function($q) {
+                $q->where('nm_peran', 'Pengguna');
+            })
+            ->with('peran')
+            ->latest('create_at')
             ->take(10)
             ->get();
 
-        // Users per role
-        $userStats = [
-            'admin' => User::where('role', 'admin')->count(),
-            'verifikator' => User::where('role', 'verifikator')->count(),
-            'eksekutor' => User::where('role', 'eksekutor')->count(),
-            'pengguna' => User::where('role', 'pengguna')->count(),
+        return view('admin.dashboard', compact('userStats', 'submissionStats', 'recentUsers'));
+    }
+
+    /**
+     * Dashboard untuk Verifikator
+     */
+    private function verifikatorDashboard()
+    {
+        // Stats verifikasi
+        $stats = [
+            'menunggu' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Diajukan'))->count(),
+            'disetujui_hari_ini' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Disetujui Verifikator'))
+                ->whereDate('last_update', today())
+                ->count(),
+            'ditolak_hari_ini' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Ditolak Verifikator'))
+                ->whereDate('last_update', today())
+                ->count(),
         ];
 
-        return view('admin.dashboard', compact('stats', 'layananStats', 'recentSubmissions', 'userStats'));
+        // Pengajuan yang perlu diverifikasi
+        $pendingSubmissions = Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Diajukan'))
+            ->with(['pengguna', 'unitKerja', 'jenisLayanan', 'status'])
+            ->latest('tgl_pengajuan')
+            ->take(5)
+            ->get();
+
+        return view('verifikator.dashboard', compact('stats', 'pendingSubmissions'));
+    }
+
+    /**
+     * Dashboard untuk Eksekutor
+     */
+    private function eksekutorDashboard()
+    {
+        // Stats eksekusi
+        $stats = [
+            'tugas_baru' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Disetujui Verifikator'))->count(),
+            'sedang_dikerjakan' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Sedang Dikerjakan'))->count(),
+            'selesai_hari_ini' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Selesai'))
+                ->whereDate('last_update', today())
+                ->count(),
+        ];
+
+        // Tugas yang perlu dikerjakan
+        $tasks = Submission::whereHas('status', fn($q) => $q->whereIn('nm_status', ['Disetujui Verifikator', 'Sedang Dikerjakan']))
+            ->with(['pengguna', 'unitKerja', 'jenisLayanan', 'status'])
+            ->latest('tgl_pengajuan')
+            ->take(5)
+            ->get();
+
+        return view('eksekutor.dashboard', compact('stats', 'tasks'));
     }
 }
