@@ -290,7 +290,7 @@
                                         class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium transition
                                                {{ $user->a_aktif 
                                                    ? 'bg-red-50 text-red-600 hover:bg-red-100' 
-                                                   : 'bg-success-light text-success hover:bg-success' }}">
+                                                   : 'bg-success-light text-success hover:bg-green-200' }}">
                                         @if($user->a_aktif)
                                             <x-icon name="x-circle" class="h-4 w-4" />
                                             Nonaktifkan
