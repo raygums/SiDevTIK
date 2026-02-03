@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SubmissionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+// Domain availability check
+Route::get('/check-domain', [SubmissionController::class, 'checkDomainAvailability']);
 
 // Contoh route sederhana (opsional)
 Route::get('/ping', function () {
