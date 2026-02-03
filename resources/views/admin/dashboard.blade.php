@@ -107,22 +107,25 @@
         </a>
 
         {{-- Log Audit (Placeholder) --}}
-        <div class="group overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm opacity-60">
+        <a href="{{ route('admin.audit.aktivitas') }}" 
+           class="group block overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:border-myunila-300 hover:shadow-lg">
             <div class="flex items-start gap-4">
-                <div class="rounded-xl bg-gray-100 p-3">
-                    <x-icon name="document-text" class="h-8 w-8 text-gray-400" />
+                <div class="rounded-xl bg-gray-100 p-3 transition-colors group-hover:bg-myunila-50">
+                    <x-icon name="document-text" class="h-8 w-8 text-gray-400 transition-colors group-hover:text-myunila-600" />
                 </div>
                 <div class="flex-1">
                     <h3 class="text-lg font-semibold text-gray-900">Log Audit Pengguna</h3>
                     <p class="mt-1 text-sm text-gray-600">
                         Lihat riwayat aktivitas dan audit trail pengguna sistem.
                     </p>
-                    <span class="mt-3 inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">
-                        Segera Hadir
-                    </span>
+                </div>
+                <div class="flex items-center text-gray-400 transition-transform group-hover:translate-x-1 group-hover:text-myunila-600">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 
     {{-- Recent User Registrations --}}
