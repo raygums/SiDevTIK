@@ -147,11 +147,16 @@ class DatabaseSeeder extends Seeder
         // 7. PENGGUNA - Seeded melalui seeder terpisah
         // ==========================================================
         $this->call([
+            // User seeders - dijalankan pertama untuk membuat users
             AdminSeeder::class,        // 5 Admin users
             VerifikatorSeeder::class,  // 5 Verifikator users
             EksekutorSeeder::class,    // 5 Eksekutor users
             PimpinanSeeder::class,     // 5 Pimpinan users
             MahasiswaSeeder::class,    // 50 Mahasiswa users (tanpa SSO)
+            
+            // Testing data seeders - dijalankan setelah users dibuat
+            AdminTestingSeeder::class, // Submissions, SubmissionLogs, dan LoginLogs
+            LoginHistorySeeder::class, // Additional login history tracking data
         ]);
     }
 }
