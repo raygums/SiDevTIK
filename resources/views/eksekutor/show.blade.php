@@ -136,50 +136,56 @@
 
                 {{-- Action Forms --}}
                 @if($submission->status?->nm_status === 'Disetujui Verifikator')
-                <div class="rounded-2xl border-2 border-purple-200 bg-white p-6 shadow-sm">
-                    <h2 class="mb-6 text-lg font-semibold text-gray-900">Aksi Eksekutor</h2>
+                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <h2 class="mb-6 text-lg font-semibold text-gray-900">Keputusan Eksekusi</h2>
                     
                     <div class="grid gap-6 sm:grid-cols-2">
-                        {{-- Accept Form --}}
-                        <div class="rounded-xl border border-info/30 bg-info-light p-4">
-                            <h3 class="mb-3 flex items-center gap-2 font-medium text-info">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                                </svg>
-                                Mulai Kerjakan
-                            </h3>
-                            <p class="mb-4 text-sm text-info/80">Pengajuan akan masuk ke daftar pekerjaan Anda.</p>
-                            <form action="{{ route('eksekutor.accept', $submission) }}" method="POST">
+                        {{-- Accept Card --}}
+                        <div class="decision-card rounded-xl border-2 border-gray-200 bg-white p-4 cursor-pointer transition-all hover:shadow-md" 
+                             data-type="accept"
+                             onclick="selectDecisionEksekutor('accept')">
+                            <div class="mb-4 flex items-center gap-3">
+                                <div class="card-icon flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-gray-500 transition-colors">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="card-title font-semibold text-gray-700 transition-colors">Mulai Kerjakan</p>
+                                    <p class="text-xs text-gray-500">Masuk ke daftar pekerjaan</p>
+                                </div>
+                            </div>
+                            <form action="{{ route('eksekutor.accept', $submission) }}" method="POST" class="card-form" style="display: none;">
                                 @csrf
-                                <button type="submit" class="w-full rounded-lg bg-info px-4 py-2 text-sm font-medium text-white hover:bg-info/90 focus:outline-none focus:ring-2 focus:ring-info focus:ring-offset-2">
-                                    Terima & Kerjakan
+                                <button type="submit" class="w-full rounded-lg bg-info px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-info/90 hover:shadow-md">
+                                    ✓ Terima & Kerjakan
                                 </button>
                             </form>
                         </div>
 
-                        {{-- Reject Form --}}
-                        <div class="rounded-xl border border-danger/30 bg-danger-light p-4">
-                            <h3 class="mb-3 flex items-center gap-2 font-medium text-danger">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                Tolak Pengajuan
-                            </h3>
-                            <form action="{{ route('eksekutor.reject', $submission) }}" method="POST">
+                        {{-- Reject Card --}}
+                        <div class="decision-card rounded-xl border-2 border-gray-200 bg-white p-4 cursor-pointer transition-all hover:shadow-md" 
+                             data-type="reject"
+                             onclick="selectDecisionEksekutor('reject')">
+                            <div class="mb-4 flex items-center gap-3">
+                                <div class="card-icon flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-gray-500 transition-colors">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="card-title font-semibold text-gray-700 transition-colors">Tolak Pengajuan</p>
+                                    <p class="text-xs text-gray-500">Ada kendala teknis</p>
+                                </div>
+                            </div>
+                            <form action="{{ route('eksekutor.reject', $submission) }}" method="POST" class="card-form" style="display: none;">
                                 @csrf
                                 <div class="mb-4">
-                                    <label for="alasan_penolakan" class="mb-1 block text-sm font-medium text-danger">Alasan Penolakan <span class="text-danger">*</span></label>
-                                    <textarea 
-                                        name="alasan_penolakan" 
-                                        id="alasan_penolakan" 
-                                        rows="3"
-                                        required
-                                        placeholder="Jelaskan kendala atau alasan mengapa pengajuan tidak bisa dieksekusi..."
-                                        class="w-full rounded-lg border border-danger/30 bg-white p-3 text-sm focus:border-danger focus:outline-none focus:ring-2 focus:ring-danger/20"
-                                    ></textarea>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Alasan Penolakan <span class="text-error">*</span></label>
+                                    <textarea name="alasan_penolakan" rows="3" required class="block w-full rounded-lg border-gray-300 bg-white text-sm shadow-sm focus:border-error focus:ring-error" placeholder="Jelaskan kendala atau alasan mengapa pengajuan tidak bisa dieksekusi..."></textarea>
                                 </div>
-                                <button type="submit" class="w-full rounded-lg bg-danger px-4 py-2 text-sm font-medium text-white hover:bg-danger/90 focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2">
-                                    Tolak Pengajuan
+                                <button type="submit" class="w-full rounded-lg bg-error px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-error/90 hover:shadow-md">
+                                    ✗ Tolak Pengajuan
                                 </button>
                             </form>
                         </div>
@@ -322,4 +328,70 @@
         </div>
     </div>
 </div>
+
+<script>
+function selectDecisionEksekutor(type) {
+    // Get all decision cards
+    const cards = document.querySelectorAll('.decision-card');
+    
+    cards.forEach(card => {
+        const cardType = card.getAttribute('data-type');
+        const cardIcon = card.querySelector('.card-icon');
+        const cardTitle = card.querySelector('.card-title');
+        const cardForm = card.querySelector('.card-form');
+        
+        if (cardType === type) {
+            // Selected card - toggle selection
+            const isSelected = card.classList.contains('selected');
+            
+            if (isSelected) {
+                // Deselect
+                card.classList.remove('selected');
+                card.classList.remove(type === 'accept' ? 'border-info' : 'border-error');
+                card.classList.remove(type === 'accept' ? 'bg-info-light/50' : 'bg-error-light/50');
+                card.classList.add('border-gray-200', 'bg-white');
+                
+                cardIcon.classList.remove(type === 'accept' ? 'bg-info' : 'bg-error');
+                cardIcon.classList.remove('text-white');
+                cardIcon.classList.add('bg-gray-200', 'text-gray-500');
+                
+                cardTitle.classList.remove(type === 'accept' ? 'text-info' : 'text-error');
+                cardTitle.classList.add('text-gray-700');
+                
+                cardForm.style.display = 'none';
+            } else {
+                // Select
+                card.classList.add('selected');
+                card.classList.remove('border-gray-200', 'bg-white');
+                card.classList.add(type === 'accept' ? 'border-info' : 'border-error');
+                card.classList.add(type === 'accept' ? 'bg-info-light/50' : 'bg-error-light/50');
+                
+                cardIcon.classList.remove('bg-gray-200', 'text-gray-500');
+                cardIcon.classList.add(type === 'accept' ? 'bg-info' : 'bg-error');
+                cardIcon.classList.add('text-white');
+                
+                cardTitle.classList.remove('text-gray-700');
+                cardTitle.classList.add(type === 'accept' ? 'text-info' : 'text-error');
+                
+                cardForm.style.display = 'block';
+            }
+        } else {
+            // Deselect other card
+            card.classList.remove('selected');
+            card.classList.remove('border-info', 'border-error');
+            card.classList.remove('bg-info-light/50', 'bg-error-light/50');
+            card.classList.add('border-gray-200', 'bg-white');
+            
+            cardIcon.classList.remove('bg-info', 'bg-error', 'text-white');
+            cardIcon.classList.add('bg-gray-200', 'text-gray-500');
+            
+            cardTitle.classList.remove('text-info', 'text-error');
+            cardTitle.classList.add('text-gray-700');
+            
+            cardForm.style.display = 'none';
+        }
+    });
+}
+</script>
+
 @endsection

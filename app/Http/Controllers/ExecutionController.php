@@ -55,7 +55,7 @@ class ExecutionController extends Controller
      */
     public function show(Submission $submission): View
     {
-        $submission->load(['pengguna', 'unitKerja.category', 'jenisLayanan', 'status', 'rincian', 'riwayat.status']);
+        $submission->load(['pengguna', 'unitKerja.category', 'jenisLayanan', 'status', 'rincian', 'riwayat.statusLama', 'riwayat.statusBaru', 'riwayat.creator']);
         
         return view('eksekutor.show', compact('submission'));
     }
