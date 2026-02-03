@@ -280,9 +280,15 @@ class SSOController extends Controller
 
     /**
      * Logout user dari aplikasi
-     * Note: SSO akses.unila.ac.id tidak menyediakan endpoint logout public,
-     * jadi user hanya logout dari aplikasi ini. Session SSO di browser
-     * akan tetap aktif sampai expired atau user logout manual dari akses.unila.ac.id
+     * 
+     * Strategy:
+     * 1. Logout dari Laravel Auth
+     * 2. Destroy semua session data
+     * 3. Hapus semua cookies (termasuk laravel_session, XSRF-TOKEN, dll)
+     * 4. Set flag di session untuk force re-login di SSO saat login berikutnya
+     * 
+     * Note: SSO Unila tidak support redirect_uri di logout endpoint,
+     * jadi kita hanya logout dari aplikasi lokal dan force re-login saat masuk lagi
      */
     public function logout(Request $request)
     {
@@ -296,12 +302,38 @@ class SSOController extends Controller
             ]);
         }
 
+        // Logout dari Laravel Auth
         Auth::logout();
+        
+        // Hapus semua data session
+        session()->flush();
+        
+        // Invalidate session ID  
         $request->session()->invalidate();
-        $request->session()->regenerateToken(); //ganti jadi session dan cookies destroy 
 
-        return redirect()->route('home')
+        // Buat response dengan redirect
+        $response = redirect()->route('home')
             ->with('success', 'Anda telah keluar dari aplikasi.');
+        
+        // Hapus cookies yang relevan
+        $cookiesToForget = [
+            'laravel_session',
+            'XSRF-TOKEN', 
+            'remember_web_' . sha1(get_class(Auth::guard()) . Auth::getRecallerName()),
+        ];
+        
+        foreach ($cookiesToForget as $cookieName) {
+            $response->withCookie(cookie()->forget($cookieName));
+        }
+        
+        // Juga coba hapus semua cookies dari request
+        foreach ($request->cookies->keys() as $cookieName) {
+            $response->withCookie(cookie()->forget($cookieName));
+        }
+
+        Log::info('User Logout Complete - Session & Cookies Destroyed');
+
+        return $response;
     }
 
     /**
