@@ -94,3 +94,8 @@
     content: ' *';
     @apply text-error;
 }
+
+/* Alpine.js x-cloak */
+[x-cloak] {
+    display: none !important;
+}

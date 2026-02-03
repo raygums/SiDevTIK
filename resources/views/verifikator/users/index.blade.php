@@ -86,105 +86,123 @@
         </div>
 
         {{-- Filters & Search --}}
-        <div class="mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div class="border-b border-gray-200 bg-myunila-50 px-6 py-4">
-                <h2 class="font-semibold text-gray-900">Filter & Pencarian</h2>
-            </div>
+        <div class="mb-6 rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div class="p-6">
-                <form method="GET" action="{{ route('verifikator.users.index') }}" class="space-y-4">
+                <form method="GET" action="{{ route('verifikator.users.index') }}" id="filterFormVerifikator">
                     
-                    {{-- Search Bar --}}
-                    <div>
-                        <label for="search" class="block text-sm font-medium text-gray-700">Cari User</label>
-                        <div class="mt-1 flex gap-2">
+                    {{-- Search Bar with Filter Button --}}
+                    <div class="flex flex-col gap-3 sm:flex-row">
+                        <div class="relative flex-1">
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                            </div>
                             <input 
                                 type="text" 
                                 name="search" 
                                 id="search" 
                                 value="{{ $filters['search'] }}"
-                                placeholder="Nama, username, atau email..."
-                                class="block w-full rounded-lg border-gray-300 px-4 py-2.5 shadow-sm focus:border-myunila focus:ring-myunila sm:text-sm"
-                            >
-                            <button 
-                                type="submit"
-                                class="inline-flex items-center rounded-lg bg-myunila px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-myunila-600 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2"
-                            >
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                                </svg>
-                            </button>
+                                placeholder="Cari nama, username, atau email..."
+                                class="block w-full rounded-lg border-gray-300 py-2.5 pl-10 pr-3 shadow-sm transition focus:border-myunila focus:ring-myunila sm:text-sm">
                         </div>
-                    </div>
-
-                    {{-- Filter Grid --}}
-                    <div class="grid gap-4 sm:grid-cols-3">
                         
-                        {{-- Filter Status --}}
-                        <div>
-                            <label for="status" class="block text-sm font-medium text-gray-700">Status Akun</label>
-                            <select 
-                                name="status" 
-                                id="status"
-                                class="mt-1 block w-full rounded-lg border-gray-300 px-4 py-2.5 shadow-sm focus:border-myunila focus:ring-myunila sm:text-sm"
-                            >
-                                <option value="all" {{ $filters['status'] === 'all' ? 'selected' : '' }}>Semua Status</option>
-                                <option value="tidak_aktif" {{ $filters['status'] === 'tidak_aktif' ? 'selected' : '' }}>Belum Aktif</option>
-                                <option value="aktif" {{ $filters['status'] === 'aktif' ? 'selected' : '' }}>Sudah Aktif</option>
-                            </select>
+                        {{-- Filter Button --}}
+                        <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                            <button 
+                                type="button"
+                                @click="open = !open"
+                                class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2 sm:w-auto">
+                                <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                                </svg>
+                                <span>Filter</span>
+                            </button>
+
+                            {{-- Filter Dropdown --}}
+                            <div 
+                                x-show="open"
+                                x-cloak
+                                x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="transform opacity-0 scale-95"
+                                x-transition:enter-end="transform opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="transform opacity-100 scale-100"
+                                x-transition:leave-end="transform opacity-0 scale-95"
+                                class="absolute right-0 z-50 mt-2 w-80 origin-top-right rounded-lg border border-gray-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+                                style="display: none;">
+                                
+                                <div class="border-b border-gray-200 px-4 py-3">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="text-sm font-semibold text-gray-900">Filter</h3>
+                                        <button 
+                                            type="button"
+                                            @click="document.getElementById('status').value='all'; document.getElementById('tipe_akun').value='all'; document.getElementById('identity').value='all'; document.getElementById('filterFormVerifikator').submit();"
+                                            class="text-xs font-medium text-red-600 hover:text-red-700">
+                                            Reset
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="p-4 space-y-4">
+                                    {{-- Status Filter --}}
+                                    <div>
+                                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                                        <select 
+                                            name="status" 
+                                            id="status"
+                                            class="block w-full rounded-lg border-gray-300 py-2 shadow-sm transition focus:border-myunila focus:ring-myunila sm:text-sm">
+                                            <option value="all" {{ $filters['status'] === 'all' ? 'selected' : '' }}>Semua</option>
+                                            <option value="tidak_aktif" {{ $filters['status'] === 'tidak_aktif' ? 'selected' : '' }}>Belum Aktif</option>
+                                            <option value="aktif" {{ $filters['status'] === 'aktif' ? 'selected' : '' }}>Sudah Aktif</option>
+                                        </select>
+                                    </div>
+
+                                    {{-- Tipe Akun Filter --}}
+                                    <div>
+                                        <label for="tipe_akun" class="block text-sm font-medium text-gray-700 mb-2">Tipe Akun</label>
+                                        <select 
+                                            name="tipe_akun" 
+                                            id="tipe_akun"
+                                            class="block w-full rounded-lg border-gray-300 shadow-sm transition focus:border-myunila focus:ring-myunila sm:text-sm">
+                                            <option value="all" {{ $filters['tipe_akun'] === 'all' ? 'selected' : '' }}>Semua</option>
+                                            <option value="sso" {{ $filters['tipe_akun'] === 'sso' ? 'selected' : '' }}>Akun SSO</option>
+                                            <option value="lokal" {{ $filters['tipe_akun'] === 'lokal' ? 'selected' : '' }}>Akun Lokal</option>
+                                        </select>
+                                    </div>
+
+                                    {{-- Identity Filter --}}
+                                    <div>
+                                        <label for="identity" class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                                        <select 
+                                            name="identity" 
+                                            id="identity"
+                                            class="block w-full rounded-lg border-gray-300 py-2 shadow-sm transition focus:border-myunila focus:ring-myunila sm:text-sm">
+                                            <option value="all" {{ $filters['identity'] === 'all' ? 'selected' : '' }}>Semua</option>
+                                            <option value="mahasiswa" {{ $filters['identity'] === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
+                                            <option value="dosen_tendik" {{ $filters['identity'] === 'dosen_tendik' ? 'selected' : '' }}>Dosen/Tendik</option>
+                                        </select>
+                                    </div>
+
+                                    {{-- Apply Button --}}
+                                    <div class="flex gap-2 pt-2 border-t border-gray-100 mt-4">
+                                        <button 
+                                            type="submit"
+                                            class="flex-1 rounded-lg bg-myunila px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-myunila-600 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2">
+                                            Terapkan Filter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        {{-- Filter Tipe Akun --}}
-                        <div>
-                            <label for="tipe_akun" class="block text-sm font-medium text-gray-700">Tipe Akun</label>
-                            <select 
-                                name="tipe_akun" 
-                                id="tipe_akun"
-                                class="mt-1 block w-full rounded-lg border-gray-300 px-4 py-2.5 shadow-sm focus:border-myunila focus:ring-myunila sm:text-sm"
-                            >
-                                <option value="all" {{ $filters['tipe_akun'] === 'all' ? 'selected' : '' }}>Semua Tipe</option>
-                                <option value="sso" {{ $filters['tipe_akun'] === 'sso' ? 'selected' : '' }}>Akun SSO</option>
-                                <option value="lokal" {{ $filters['tipe_akun'] === 'lokal' ? 'selected' : '' }}>Akun Lokal</option>
-                            </select>
-                        </div>
-
-                        {{-- Filter Identity --}}
-                        <div>
-                            <label for="identity" class="block text-sm font-medium text-gray-700">Kategori</label>
-                            <select 
-                                name="identity" 
-                                id="identity"
-                                class="mt-1 block w-full rounded-lg border-gray-300 px-4 py-2.5 shadow-sm focus:border-myunila focus:ring-myunila sm:text-sm"
-                            >
-                                <option value="all" {{ $filters['identity'] === 'all' ? 'selected' : '' }}>Semua Kategori</option>
-                                <option value="mahasiswa" {{ $filters['identity'] === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
-                                <option value="dosen_tendik" {{ $filters['identity'] === 'dosen_tendik' ? 'selected' : '' }}>Dosen/Tendik</option>
-                            </select>
-                        </div>
-
-                    </div>
-
-                    {{-- Action Buttons --}}
-                    <div class="flex items-center gap-3">
+                        {{-- Search Button --}}
                         <button 
                             type="submit"
-                            class="inline-flex items-center gap-2 rounded-lg bg-myunila px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-myunila-600"
-                        >
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                            </svg>
-                            Terapkan Filter
+                            class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-myunila px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-myunila-600 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2 sm:w-auto">
+                            <span>Cari</span>
                         </button>
-                        <a 
-                            href="{{ route('verifikator.users.index') }}"
-                            class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50"
-                        >
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                            </svg>
-                            Reset Filter
-                        </a>
                     </div>
-
                 </form>
             </div>
         </div>

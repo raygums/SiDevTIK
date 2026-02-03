@@ -50,7 +50,11 @@ class AdminController extends Controller
             'sort_dir' => $request->get('sort_dir', 'desc'),
         ];
 
-        $users = $this->adminService->getUsersForVerification($filters, 15);
+        // Get per page from request (default: 20, allowed: 10, 20, 50, 100)
+        $perPage = (int) $request->get('per_page', 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
+
+        $users = $this->adminService->getUsersForVerification($filters, $perPage);
         $stats = $this->adminService->getUserStatistics();
 
         return view('admin.user-verification', compact('users', 'stats', 'filters'));
@@ -100,19 +104,6 @@ class AdminController extends Controller
 
         return redirect()->back()
             ->with('error', 'Tidak ada user yang diaktifkan. Pastikan user dalam status non-aktif.');
-    }
-
-    /**
-     * Halaman audit logs user
-     * 
-     * Route: GET /admin/users/{uuid}/logs
-     * Middleware: auth, role:admin
-     */
-    public function userLogs(string $uuid): View
-    {
-        $auditData = $this->adminService->getUserAuditLogs($uuid);
-
-        return view('admin.user-logs', $auditData);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Peran;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -12,6 +13,9 @@ use Illuminate\Support\Facades\DB;
 
 class SSOController extends Controller
 {
+    public function __construct(
+        protected AuditLogService $auditLogService
+    ) {}
     /**
      * SSO Base URL
      */
@@ -75,6 +79,15 @@ class SSOController extends Controller
                 'ip' => $request->ip(),
                 'query' => $request->query(),
             ]);
+
+            // Record failed SSO login: No token
+            $this->auditLogService->recordLoginLog(
+                userUuid: null,
+                status: 'GAGAL_SSO',
+                request: $request,
+                keterangan: 'SSO callback: Token tidak ditemukan'
+            );
+
             return redirect()->route('login')
                 ->with('error', 'Token SSO tidak ditemukan. Silakan coba lagi.');
         }
@@ -92,6 +105,15 @@ class SSOController extends Controller
                 'ip' => $request->ip(),
                 'token_preview' => substr($token, 0, 50) . '...',
             ]);
+
+            // Record failed SSO login: Invalid token
+            $this->auditLogService->recordLoginLog(
+                userUuid: null,
+                status: 'GAGAL_SSO',
+                request: $request,
+                keterangan: 'SSO authentication failed: Token tidak valid atau kadaluarsa'
+            );
+
             return redirect()->route('login')
                 ->with('error', 'Token SSO tidak valid atau sudah kadaluarsa.');
         }
@@ -108,6 +130,14 @@ class SSOController extends Controller
 
             // Login user
             Auth::login($user, true); // Remember me = true
+
+            // Record successful SSO login
+            $this->auditLogService->recordLoginLog(
+                userUuid: $user->UUID,
+                status: 'BERHASIL',
+                request: $request,
+                keterangan: "Login berhasil via SSO Unila - SSO ID: {$payload->id_pengguna}"
+            );
 
             // Log successful login
             Log::info('SSO Login Success', [
@@ -126,6 +156,15 @@ class SSOController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+
+            // Record failed SSO login: Exception
+            $this->auditLogService->recordLoginLog(
+                userUuid: null,
+                status: 'GAGAL_SSO',
+                request: $request,
+                keterangan: "SSO authentication failed: {$e->getMessage()}"
+            );
+
             Log::error('SSO Callback Error', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),

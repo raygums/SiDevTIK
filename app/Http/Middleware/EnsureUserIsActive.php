@@ -60,7 +60,7 @@ class EnsureUserIsActive
         // Redirect ke dashboard dengan pesan error yang jelas
         return redirect()
             ->route('dashboard')
-            ->with('error', 'Akun Anda belum diaktifkan oleh Verifikator. Harap tunggu proses aktivasi sebelum menggunakan fitur ini.');
+            ->with('error', 'Akun Anda belum diaktifkan oleh Admin. Harap tunggu proses aktivasi sebelum menggunakan fitur ini.');
     }
 
     /**

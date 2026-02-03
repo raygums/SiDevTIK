@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Services\AuthService; 
+use App\Services\AuthService;
+use App\Services\AuditLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,8 @@ use Illuminate\View\View;
 class AuthController extends Controller
 {
     public function __construct(
-        protected AuthService $authService
+        protected AuthService $authService,
+        protected AuditLogService $auditLogService
     ) {}
 
     /**
@@ -61,8 +63,33 @@ class AuthController extends Controller
             ->orWhere('email', $credentials['username'])
             ->first();
 
-        // Validasi user exists dan password benar
-        if (!$user || !Hash::check($credentials['password'], $user->kata_sandi)) {
+        // Validasi user exists
+        if (!$user) {
+            // Record failed login: User tidak ditemukan
+            $this->auditLogService->recordLoginLog(
+                userUuid: null,
+                status: 'GAGAL_NOT_FOUND',
+                request: $request,
+                keterangan: "Login attempt dengan username '{$credentials['username']}' - User tidak terdaftar"
+            );
+
+            return back()
+                ->withInput($request->only('username'))
+                ->withErrors([
+                    'username' => 'Username atau password yang Anda masukkan salah.',
+                ]);
+        }
+
+        // Validasi password benar
+        if (!Hash::check($credentials['password'], $user->kata_sandi)) {
+            // Record failed login: Password salah
+            $this->auditLogService->recordLoginLog(
+                userUuid: $user->UUID,
+                status: 'GAGAL_PASSWORD',
+                request: $request,
+                keterangan: "Password salah untuk user '{$user->usn}'"
+            );
+
             return back()
                 ->withInput($request->only('username'))
                 ->withErrors([
@@ -72,6 +99,14 @@ class AuthController extends Controller
 
         // Cek apakah user aktif
         if (!$user->a_aktif) {
+            // Record failed login: Akun suspended
+            $this->auditLogService->recordLoginLog(
+                userUuid: $user->UUID,
+                status: 'GAGAL_SUSPEND',
+                request: $request,
+                keterangan: "Akun suspended - User '{$user->usn}' tidak aktif"
+            );
+
             return back()
                 ->withInput($request->only('username'))
                 ->withErrors([
@@ -90,6 +125,14 @@ class AuthController extends Controller
         
         // Regenerate session untuk keamanan
         $request->session()->regenerate();
+
+        // Record successful login
+        $this->auditLogService->recordLoginLog(
+            userUuid: $user->UUID,
+            status: 'BERHASIL',
+            request: $request,
+            keterangan: 'Login berhasil via local authentication'
+        );
 
         // Log successful login
         Log::info('Local Login Success', [

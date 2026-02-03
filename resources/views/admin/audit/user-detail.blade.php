@@ -7,7 +7,7 @@
     
     {{-- Back Button & Header --}}
     <div class="mb-8">
-        <a href="{{ route('admin.audit.login') }}" 
+        <a href="{{ route('admin.audit.aktivitas') }}" 
            class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-myunila hover:underline">
             <x-icon name="arrow-left" class="h-4 w-4" />
             Kembali ke Log Login

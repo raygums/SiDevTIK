@@ -119,6 +119,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Relationship to Submissions (Pengajuan)
+     */
+    public function submissions()
+    {
+        return $this->hasMany(Submission::class, 'pengguna_uuid', 'UUID');
+    }
+
+    /**
+     * Alias for submissions relationship (backward compatibility)
+     */
+    public function pengajuan()
+    {
+        return $this->submissions();
+    }
+
+    /**
+     * Relationship to LoginLogs (Riwayat Login)
+     */
+    public function loginLogs()
+    {
+        return $this->hasMany(LoginLog::class, 'pengguna_uuid', 'UUID');
+    }
+
+    /**
      * Get user's role name (helper accessor)
      */
     public function getRoleAttribute(): string

@@ -21,8 +21,8 @@
                 'icon' => 'user-check',
             ],
             [
-                'title' => 'Log Aktivitas Login',
-                'route' => 'admin.audit.login',
+                'title' => 'Log Aktivitas',
+                'route' => 'admin.audit.aktivitas',
                 'icon' => 'clock',
             ],
             [
