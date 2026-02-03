@@ -515,4 +515,31 @@ class SubmissionController extends Controller
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Check domain availability (API endpoint)
+     */
+    public function checkDomainAvailability(Request $request)
+    {
+        $domain = $request->query('domain');
+        
+        if (empty($domain) || strlen($domain) < 2) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Domain minimal 2 karakter'
+            ]);
+        }
+
+        // Check if domain already exists in submissions
+        $exists = SubmissionDetail::where('nm_domain', 'ILIKE', $domain . '%')
+            ->orWhere('nm_domain', 'ILIKE', $domain . '.unila.ac.id')
+            ->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'domain' => $domain,
+            'message' => $exists ? 'Domain sudah digunakan' : 'Domain tersedia'
+        ]);
+    }
 }
+
