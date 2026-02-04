@@ -1,9 +1,10 @@
 <x-guest-layout>
     {{-- Mobile Logo (visible on small screens only) --}}
     <div class="mb-8 text-center lg:hidden">
-        <img src="{{ asset('images/logo-unila.png') }}" alt="Logo Unila" class="mx-auto mb-4 h-16 w-auto" onerror="this.style.display='none'">
-        <h1 class="text-2xl font-bold text-myunila">DomainTIK</h1>
-        <p class="mt-1 text-sm text-gray-600 font-medium">UPA TIK Universitas Lampung</p>
+        <img src="{{ asset('images/be-strong.png') }}" alt="Be Strong Unila" class="mx-auto mb-4 h-16 w-auto" onerror="this.style.display='none'">
+        <h1 class="text-2xl font-bold text-myunila">DOMAINTIK</h1>
+        <p class="mt-1 text-sm text-gray-500">Sistem Layanan Domain & Hosting</p>
+        <p class="text-xs text-gray-400">Universitas Lampung</p>
     </div>
 
     {{-- Success Message (After Registration) --}}

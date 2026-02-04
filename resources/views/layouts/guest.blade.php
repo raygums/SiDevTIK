@@ -32,20 +32,22 @@
 
             {{-- Hero Content --}}
             <div class="space-y-6">
-                <div class="flex items-center justify-center">
-                    <img src="{{ asset('images/logo-unila.png') }}" alt="Logo Unila" class="h-24 w-auto" onerror="this.style.display='none'">
+                <div class="flex items-center gap-4">
+                    <img src="{{ asset('images/be-strong.png') }}" alt="Be Strong" class="h-24 w-auto" onerror="this.style.display='none'">
+                    <div class="h-16 w-px bg-white/30"></div>
+                    <img src="{{ asset('images/logo-unila-text.png') }}" alt="Universitas Lampung" class="h-12 w-auto" onerror="this.style.display='none'">
                 </div>
 
                 <h1 class="text-4xl font-bold leading-tight text-white">
-                    DomainTIK
+                    DOMAINTIK
                 </h1>
                 
-                <p class="text-lg text-myunila-100 font-medium">
-                    UPA TIK Universitas Lampung
+                <p class="text-lg text-myunila-100">
+                    Sistem Layanan Domain & Hosting
                 </p>
 
                 <p class="text-base text-myunila-200">
-                    Portal terintegrasi untuk pengelolaan infrastruktur web akademik
+                    Portal terintegrasi Universitas Lampung untuk pengelolaan infrastruktur web akademik
                 </p>
 
                 <p class="text-sm text-myunila-200">
