@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('id')->primary();
             $table->uuid('user_id')->nullable()->index(); // Changed to UUID for akun.pengguna
             $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });

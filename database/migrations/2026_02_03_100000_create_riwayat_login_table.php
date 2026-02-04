@@ -77,16 +77,6 @@ return new class extends Migration
                 ->comment('IP Address user (IPv4/IPv6) - max 45 chars');
 
             /**
-             * Perangkat - User Agent String
-             * - Menyimpan informasi browser, OS, device
-             * - Text type untuk menampung user agent yang panjang
-             * - Nullable jika request tidak memiliki user agent
-             */
-            $table->text('perangkat')
-                ->nullable()
-                ->comment('User Agent string - Browser, OS, Device info');
-
-            /**
              * Status Akses - Enum untuk status login
              * Values:
              * - BERHASIL: Login sukses
