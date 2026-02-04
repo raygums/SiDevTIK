@@ -493,7 +493,7 @@
 
         {{-- Footer --}}
         <div class="footer">
-            <p>Dokumen ini digenerate secara otomatis oleh sistem Domaintik - UPT TIK Universitas Lampung</p>
+            <p>Dokumen ini digenerate secara otomatis oleh sistem DomainTIK - UPA TIK Universitas Lampung</p>
             <p>{{ config('app.url') }} | Tiket: {{ $submission->no_tiket }}</p>
         </div>
     </div>

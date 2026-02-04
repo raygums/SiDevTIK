@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') - DOMAINTIK</title>
+    <title>@yield('title', 'Dashboard') - DomainTIK</title>
+    
+    {{-- Favicon --}}
+    <link rel="icon" href="{{ asset('images/logo-unila.png') }}" type="image/png">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -29,7 +32,7 @@
                             class="rounded-lg p-2 text-gray-600 hover:bg-gray-100">
                             <x-icon name="bars-3" class="h-6 w-6" />
                         </button>
-                        <h1 class="text-lg font-bold text-myunila">DOMAINTIK</h1>
+                        <h1 class="text-lg font-bold text-myunila">DomainTIK</h1>
                     </div>
                     
                     <div class="flex items-center gap-2">

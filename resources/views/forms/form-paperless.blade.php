@@ -70,7 +70,7 @@
                                     Layanan Sub Domain
                                 @endif
                             </h1>
-                            <p class="text-sm text-white/80">UPT TIK Universitas Lampung</p>
+                            <p class="text-sm text-white/80">UPA TIK Universitas Lampung</p>
                         </div>
                     </div>
                     <div class="text-right text-white">
@@ -300,7 +300,7 @@
 
             {{-- Footer --}}
             <div class="border-t border-gray-200 bg-gray-50 px-6 py-4 text-center text-sm text-gray-500 print:bg-gray-100">
-                <p>Dokumen ini digenerate secara otomatis oleh sistem <strong>Domaintik</strong> - UPT TIK Universitas Lampung</p>
+                <p>Dokumen ini digenerate secara otomatis oleh sistem <strong>DomainTIK</strong> - UPA TIK Universitas Lampung</p>
                 <p class="mt-1">{{ config('app.url') }} | Tiket: {{ $submission->no_tiket }}</p>
             </div>
 

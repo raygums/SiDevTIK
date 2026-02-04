@@ -23,15 +23,17 @@
 
             <div class="relative z-10 w-full flex flex-col justify-center items-center text-center p-16">
                 <div class="space-y-8">
-                    <img src="{{ asset('images/be-strong.png') }}" alt="Logo" class="h-14 w-auto mx-auto drop-shadow-lg">
+                    <img src="{{ asset('images/logo-unila.png') }}" alt="Logo Unila" class="h-24 w-auto mx-auto drop-shadow-lg">
                     
                     <div class="space-y-4">
                         <h1 class="text-5xl font-bold text-white leading-tight">
-                            Sistem Layanan<br>
-                            Domain & Hosting
+                            DomainTIK
                         </h1>
+                        <p class="text-lg text-slate-200 max-w-md mx-auto font-medium">
+                            UPA TIK Universitas Lampung
+                        </p>
                         <p class="text-base text-slate-300 max-w-md mx-auto">
-                            Portal terintegrasi Universitas Lampung untuk pengelolaan infrastruktur web akademik.
+                            Portal terintegrasi untuk pengelolaan infrastruktur web akademik.
                         </p>
                     </div>
                 </div>
