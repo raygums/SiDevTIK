@@ -32,9 +32,9 @@ class PimpinanSeeder extends Seeder
         // Define pimpinan users
         $pimpinans = [
             [
-                'nm' => 'Prof. Dr. Karomani, M.Si.',
-                'usn' => '196505101990031001',
-                'email' => 'karomani@unila.ac.id',
+                'nm' => 'pimpinan',
+                'usn' => 'pimpinan',
+                'email' => 'pimpinan@unila.ac.id',
                 'ktp' => '1871000000000041',
                 'tgl_lahir' => '1965-05-10',
             ],

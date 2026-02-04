@@ -32,9 +32,9 @@ class EksekutorSeeder extends Seeder
         // Define eksekutor users
         $eksekutors = [
             [
-                'nm' => 'Andi Prasetyo',
-                'usn' => '199003202015011003',
-                'email' => 'andi.prasetyo@unila.ac.id',
+                'nm' => 'Eksekutor',
+                'usn' => 'eksekutor',
+                'email' => 'eksekutor@unila.ac.id',
                 'ktp' => '1871000000000031',
                 'tgl_lahir' => '1990-03-20',
             ],

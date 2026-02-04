@@ -32,9 +32,9 @@ class VerifikatorSeeder extends Seeder
         // Define verifikator users
         $verifikators = [
             [
-                'nm' => 'Siti Nurhaliza',
-                'usn' => '198702152011012002',
-                'email' => 'siti.nurhaliza@unila.ac.id',
+                'nm' => 'verifikator',
+                'usn' => 'verifikator',
+                'email' => 'verifikator@unila.ac.id',
                 'ktp' => '1871000000000021',
                 'tgl_lahir' => '1987-02-15',
             ],

@@ -32,7 +32,7 @@ class AdminSeeder extends Seeder
         // Define admin users
         $admins = [
             [
-                'nm' => 'Super Admin',
+                'nm' => 'Admin',
                 'usn' => 'admin',
                 'email' => 'admin@unila.ac.id',
                 'ktp' => '1871000000000001',
