@@ -149,7 +149,7 @@
                     </h3>
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div class="rounded-lg bg-gray-50 p-3">
-                            <p class="text-xs text-gray-500">Nama Organisasi</p>
+                            <p class="text-xs text-gray-500">Nama Lembaga / Organisasi / Kegiatan</p>
                             <p class="font-medium text-gray-900">{{ $keterangan['nama_organisasi'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
@@ -173,6 +173,10 @@
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Nama Lengkap</p>
                             <p class="font-medium text-gray-900">{{ $keterangan['admin']['name'] ?? '-' }}</p>
+                        </div>
+                        <div class="rounded-lg bg-gray-50 p-3">
+                            <p class="text-xs text-gray-500">Kategori</p>
+                            <p class="font-medium text-gray-900">{{ isset($keterangan['kategori_admin']) ? ucfirst($keterangan['kategori_admin']) : '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Jabatan</p>
@@ -221,8 +225,16 @@
                             <p class="font-medium text-gray-900">{{ $keterangan['tech']['name'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
+                            <p class="text-xs text-gray-500">Kategori</p>
+                            <p class="font-medium text-gray-900">{{ isset($keterangan['kategori_tech']) ? ucfirst($keterangan['kategori_tech']) : '-' }}</p>
+                        </div>
+                        <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">NIP/NPM</p>
                             <p class="font-medium text-gray-900">{{ $keterangan['tech']['nip'] ?? '-' }}</p>
+                        </div>
+                        <div class="rounded-lg bg-gray-50 p-3">
+                            <p class="text-xs text-gray-500">NIK/Passport</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['nik'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Email</p>
@@ -264,7 +276,7 @@
                         @if($serviceType === 'domain')
                             <div class="rounded-lg bg-myunila-50 p-4 sm:col-span-2">
                                 <p class="text-xs text-myunila-700">Sub Domain yang Diminta</p>
-                                <p class="font-mono text-lg font-bold text-myunila">{{ $submission->rincian?->nm_domain ?? '-' }}</p>
+                                <p class="font-mono text-lg font-bold text-myunila">{{ $submission->rincian?->nm_domain ?? '-' }}.unila.ac.id</p>
                             </div>
                         @elseif($serviceType === 'hosting')
                             <div class="rounded-lg bg-myunila-50 p-4">

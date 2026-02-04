@@ -32,7 +32,7 @@
                     <p class="mt-1 text-sm text-gray-500">Upload scan formulir yang sudah ditandatangani atasan (PDF)</p>
                 </div>
                 <div class="p-6">
-                    <div class="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center transition hover:border-myunila-300 hover:bg-myunila-50/50">
+                    <label class="relative block rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center transition cursor-pointer hover:border-myunila-300 hover:bg-myunila-50/50">
                         <input 
                             type="file" 
                             name="signed_form" 
@@ -51,7 +51,7 @@
                             </p>
                             <p class="mt-1 text-xs text-gray-500">Format: PDF, Maks. 5MB</p>
                         </div>
-                    </div>
+                    </label>
                     @error('signed_form')
                         <p class="mt-2 text-sm text-error">{{ $message }}</p>
                     @enderror
@@ -65,7 +65,7 @@
                     <p class="mt-1 text-sm text-gray-500">Upload KTM (mahasiswa) atau Karpeg (PNS/pegawai)</p>
                 </div>
                 <div class="p-6">
-                    <div class="relative rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center transition hover:border-myunila-300 hover:bg-myunila-50/50">
+                    <label class="relative block rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center transition cursor-pointer hover:border-myunila-300 hover:bg-myunila-50/50">
                         <input 
                             type="file" 
                             name="identity_attachment" 
@@ -84,7 +84,7 @@
                             </p>
                             <p class="mt-1 text-xs text-gray-500">Format: PDF, JPG, PNG, Maks. 5MB</p>
                         </div>
-                    </div>
+                    </label>
                     @error('identity_attachment')
                         <p class="mt-2 text-sm text-error">{{ $message }}</p>
                     @enderror

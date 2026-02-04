@@ -48,8 +48,21 @@ class FormGeneratorController extends Controller
             'vps' => 'VPS',
             default => 'Sub_Domain'
         };
+        
+        // Get tipe pengajuan from keterangan_keperluan
+        $keterangan = json_decode($submission->rincian?->keterangan_keperluan ?? '{}', true);
+        $tipePengajuan = $keterangan['tipe_pengajuan'] ?? 'pengajuan_baru';
+        $tipePengajuanLabel = match($tipePengajuan) {
+            'pengajuan_baru' => 'Pengajuan_Baru',
+            'perpanjangan' => 'Perpanjangan',
+            'perubahan_data' => 'Perubahan_Data',
+            'upgrade_downgrade' => 'Upgrade_Downgrade',
+            'penonaktifan' => 'Penonaktifan',
+            'laporan_masalah' => 'Laporan_Masalah',
+            default => 'Permohonan'
+        };
 
-        $filename = "Form_Permohonan_{$serviceName}_{$ticketNumber}.pdf";
+        $filename = "Form_{$tipePengajuanLabel}_{$serviceName}_{$ticketNumber}.pdf";
 
         $pdf = Pdf::loadView('forms.form-hardcopy', compact('submission'));
         
