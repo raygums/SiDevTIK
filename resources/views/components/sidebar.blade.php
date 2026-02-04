@@ -119,15 +119,11 @@
     {{-- Logo & Brand --}}
     <div class="flex h-16 items-center border-b border-gray-200 px-6">
         <a href="{{ route('home') }}" class="flex items-center gap-3 transition hover:opacity-80">
-            {{-- Logo Placeholder - Ganti dengan logo actual --}}
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-unila shadow-md">
-                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
-                </svg>
-            </div>
+            {{-- Logo Unila Resmi --}}
+            <img src="{{ asset('images/logo-unila.png') }}" alt="Logo Unila" class="h-10 w-10 rounded-lg shadow-md">
             <div>
-                <h1 class="text-lg font-bold text-myunila">DOMAINTIK</h1>
-                <p class="text-xs text-gray-500">UPT TIK Unila</p>
+                <h1 class="text-lg font-bold text-myunila">DomainTIK</h1>
+                <p class="text-xs text-gray-500">UPA TIK Universitas Lampung</p>
             </div>
         </a>
     </div>

@@ -17,7 +17,7 @@
     </main>
 
     <footer class="py-6 text-center text-sm text-gray-500">
-        &copy; {{ date('Y') }} UPT TIK Universitas Lampung
+        &copy; {{ date('Y') }} UPA TIK Universitas Lampung
     </footer>
 
 </body>
