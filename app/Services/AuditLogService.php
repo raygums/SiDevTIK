@@ -84,8 +84,7 @@ class AuditLogService
         string $status,
         ?\Illuminate\Http\Request $request = null,
         ?string $keterangan = null,
-        ?string $customIp = null,
-        ?string $customUserAgent = null
+        ?string $customIp = null
     ): ?LoginLog {
         try {
             // ==========================================
@@ -124,31 +123,6 @@ class AuditLogService
             $ipAddress = $this->sanitizeIpAddress($ipAddress);
 
             // ==========================================
-            // USER AGENT DETECTION
-            // ==========================================
-            
-            /**
-             * User Agent string berisi informasi:
-             * - Browser name & version
-             * - Operating system
-             * - Device type (desktop/mobile/tablet)
-             * - Engine version
-             * 
-             * Security Note:
-             * - User agent bisa di-spoof
-             * - Batasi panjang untuk prevent database overflow
-             * - Sanitasi untuk prevent XSS jika ditampilkan di UI
-             */
-            $userAgent = $customUserAgent;
-            
-            if (!$userAgent && $request) {
-                $userAgent = $request->header('User-Agent');
-            }
-            
-            // Sanitasi user agent
-            $userAgent = $this->sanitizeUserAgent($userAgent);
-
-            // ==========================================
             // CREATE LOG RECORD
             // ==========================================
             
@@ -162,14 +136,12 @@ class AuditLogService
              * Kita provide:
              * - pengguna_uuid (nullable)
              * - alamat_ip (nullable)
-             * - perangkat (nullable)
              * - status_akses (required)
              * - keterangan (nullable)
              */
             $log = LoginLog::create([
                 'pengguna_uuid' => $userUuid,
                 'alamat_ip'     => $ipAddress,
-                'perangkat'     => $userAgent,
                 'status_akses'  => $status,
                 'keterangan'    => $keterangan,
             ]);
@@ -228,33 +200,7 @@ class AuditLogService
         return null;
     }
 
-    /**
-     * Sanitize User Agent string untuk security
-     * 
-     * - Strip HTML tags
-     * - Batasi panjang max 1000 chars
-     * - Remove control characters
-     * 
-     * @param string|null $userAgent Raw user agent
-     * @return string|null Sanitized user agent atau null
-     */
-    private function sanitizeUserAgent(?string $userAgent): ?string
-    {
-        if (!$userAgent) {
-            return null;
-        }
 
-        // Strip HTML tags (prevent XSS)
-        $userAgent = strip_tags($userAgent);
-
-        // Remove control characters
-        $userAgent = preg_replace('/[\x00-\x1F\x7F]/u', '', $userAgent);
-
-        // Batasi panjang max 1000 chars
-        $userAgent = substr($userAgent, 0, 1000);
-
-        return trim($userAgent);
-    }
 
     // ==========================================
     // LOGIN HISTORY QUERIES - NEW VERSION

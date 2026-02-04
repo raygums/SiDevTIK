@@ -7,7 +7,10 @@ use App\Models\Peran;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * UserService - Centralized business logic untuk manajemen user
@@ -23,6 +26,121 @@ use Illuminate\Support\Facades\Log;
  */
 class UserService
 {
+    /**
+     * Register user baru (Registrasi Mandiri).
+     * 
+     * Business Logic:
+     * - User baru default role 'Pengguna' (bukan admin)
+     * - Status awal a_aktif = false (menunggu verifikasi)
+     * - id_creator diisi dengan UUID user itu sendiri (self-reference)
+     * - Password di-hash menggunakan bcrypt
+     * - Upload file KTP/KTM disimpan di storage/app/public/verifikasi
+     * 
+     * Security:
+     * - Semua data sudah divalidasi di RegisterRequest
+     * - Transaction untuk memastikan atomicity
+     * - Audit log untuk tracking
+     * 
+     * @param  array  $data
+     * @return array{success: bool, user: User|null, message: string}
+     */
+    public function register(array $data): array
+    {
+        try {
+            DB::beginTransaction();
+
+            // 1. Dapatkan UUID role 'Pengguna' dari tabel akun.peran
+            $peranPengguna = Peran::where('nm_peran', 'Pengguna')->first();
+
+            if (!$peranPengguna) {
+                DB::rollBack();
+                return [
+                    'success' => false,
+                    'user' => null,
+                    'message' => 'Role Pengguna tidak ditemukan dalam sistem.',
+                ];
+            }
+
+            // 2. Generate UUID untuk user baru
+            $userUuid = (string) Str::uuid();
+
+            // 3. Handle file upload KTP/KTM (jika ada)
+            $fileKtpKtmPath = null;
+            if (!empty($data['file_ktp_ktm'])) {
+                $file = $data['file_ktp_ktm'];
+                $filename = $userUuid . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $fileKtpKtmPath = $file->storeAs('verifikasi', $filename, 'public');
+            }
+
+            // 4. Prepare data untuk insert
+            $userData = [
+                'UUID' => $userUuid,
+                'nm' => $data['nm'],
+                'usn' => $data['usn'],
+                'email' => $data['email'],
+                'kata_sandi' => Hash::make($data['kata_sandi']),
+                'peran_uuid' => $peranPengguna->UUID,
+                'ktp' => $data['nomor_identitas'] ?? null, // Store nomor identitas di field ktp
+                'tgl_lahir' => $data['tgl_lahir'] ?? null,
+                'a_aktif' => false, // User baru wajib non-aktif (menunggu verifikasi)
+                'create_at' => now(),
+                'last_update' => now(),
+                'id_creator' => $userUuid, // Self-reference untuk registrasi mandiri
+                'id_updater' => $userUuid,
+            ];
+
+            // 5. Simpan custom attribute untuk file path (jika ada)
+            if ($fileKtpKtmPath) {
+                $userData['file_ktp_ktm_path'] = $fileKtpKtmPath;
+            }
+
+            // 6. Create user
+            $user = User::create($userData);
+
+            // 7. Audit log
+            Log::info('User Registered (Self-Registration)', [
+                'user_uuid' => $user->UUID,
+                'username' => $user->usn,
+                'email' => $user->email,
+                'peran' => $data['peran'] ?? 'Tidak disebutkan',
+                'role' => 'Pengguna',
+                'status' => 'Menunggu Verifikasi',
+                'has_file' => !empty($fileKtpKtmPath),
+            ]);
+
+            DB::commit();
+
+            return [
+                'success' => true,
+                'user' => $user,
+                'message' => 'Registrasi berhasil! Akun Anda menunggu verifikasi dari admin.',
+            ];
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Hapus file yang sudah diupload jika ada error
+            if (!empty($fileKtpKtmPath)) {
+                Storage::disk('public')->delete($fileKtpKtmPath);
+            }
+
+            Log::error('User Registration Failed', [
+                'data' => [
+                    'username' => $data['usn'] ?? 'unknown',
+                    'email' => $data['email'] ?? 'unknown',
+                ],
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return [
+                'success' => false,
+                'user' => null,
+                'message' => 'Terjadi kesalahan saat registrasi. Silakan coba lagi.',
+            ];
+        }
+    }
+
     /**
      * Get filtered and paginated user list with advanced filters.
      * 
@@ -321,4 +439,5 @@ class UserService
     {
         return $user->sso_id ? 'Akun SSO' : 'Akun Lokal';
     }
+
 }
