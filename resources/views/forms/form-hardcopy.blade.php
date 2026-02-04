@@ -550,7 +550,7 @@
                 @if($serviceType === 'domain')
                     <tr>
                         <td class="label">Sub Domain</td>
-                        <td class="value highlight">{{ $submission->rincian?->nm_domain ?? '-' }}</td>
+                        <td class="value highlight">{{ $submission->rincian?->nm_domain ?? '-' }}.unila.ac.id</td>
                     </tr>
                 @elseif($serviceType === 'hosting')
                     <tr>
