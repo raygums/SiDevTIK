@@ -8,7 +8,7 @@
     <title>@yield('title', 'Domaintik') - Layanan Domain & Hosting TIK Unila</title>
     
     {{-- Favicon --}}
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>">
+    <link rel="icon" href="{{ asset('images/logo-unila.png') }}" type="image/png">
     
     {{-- Fonts --}}
     <link rel="preconnect" href="https://fonts.bunny.net">

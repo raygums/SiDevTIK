@@ -252,12 +252,6 @@
                                                 <span>IP Address: <span class="font-mono">{{ $log->alamat_ip }}</span></span>
                                             </div>
                                             @endif
-                                            @if($log->perangkat)
-                                            <div class="flex items-center gap-2 text-gray-600">
-                                                <x-icon name="device-mobile" class="h-4 w-4 text-gray-400" />
-                                                <span class="text-xs">{{ Str::limit($log->perangkat, 60) }}</span>
-                                            </div>
-                                            @endif
                                         @else
                                             @if($log->catatan_log)
                                             <div class="flex items-start gap-2 text-gray-600">

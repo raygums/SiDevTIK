@@ -7,6 +7,38 @@
         <p class="text-xs text-gray-400">Universitas Lampung</p>
     </div>
 
+    {{-- Success Message (After Registration) --}}
+    @if (session('success') && session('registered'))
+        <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-green-800">Registrasi Berhasil!</h3>
+                    <div class="mt-2 text-sm text-green-700">
+                        <p>{{ session('success') }} Silakan login setelah akun Anda diverifikasi oleh admin.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- General Success/Error Messages --}}
+    @if (session('success') && !session('registered'))
+        <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4">
+            <p class="text-sm text-green-800">{{ session('success') }}</p>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+            <p class="text-sm text-red-800">{{ session('error') }}</p>
+        </div>
+    @endif
+
     {{-- Welcome Header --}}
     <div class="mb-8">
         <h2 class="text-3xl font-bold text-gray-900">Selamat Datang</h2>
@@ -109,5 +141,15 @@
             </svg>
             <span>LOGIN SSO UNILA</span>
         </a>
+    </div>
+
+    {{-- Register Link --}}
+    <div class="mt-6 rounded-lg bg-gray-50 p-4 text-center">
+        <p class="text-sm text-gray-600">
+            Belum punya akun? 
+            <a href="{{ route('register') }}" class="font-semibold text-myunila transition hover:text-myunila-700 hover:underline">
+                Daftar di sini
+            </a>
+        </p>
     </div>
 </x-guest-layout>
