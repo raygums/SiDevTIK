@@ -80,26 +80,26 @@
                     <div class="mt-4 grid gap-4 sm:grid-cols-4">
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">OS</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['vps_os'] ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['vps']['os'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">CPU</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['vps_cpu'] ?? '-' }} Core</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['vps']['cpu'] ?? '-' }} Core</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">RAM</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['vps_ram'] ?? '-' }} GB</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['vps']['ram'] ?? '-' }} GB</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Storage</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['vps_storage'] ?? '-' }} GB</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['vps']['storage'] ?? '-' }} GB</p>
                         </div>
                     </div>
                     @elseif($serviceType === 'hosting')
                     <div class="mt-4">
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Kuota Storage</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['hosting_quota'] ?? '-' }} MB</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['hosting']['quota'] ?? '-' }} MB</p>
                         </div>
                     </div>
                     @endif
@@ -111,15 +111,15 @@
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div class="rounded-lg border border-gray-200 p-4">
                             <p class="text-xs font-medium text-gray-500">Admin Contact</p>
-                            <p class="mt-1 text-sm text-gray-900">{{ $keterangan['admin_nama'] ?? '-' }}</p>
-                            <p class="text-sm text-gray-600">{{ $keterangan['admin_email'] ?? '-' }}</p>
-                            <p class="text-sm text-gray-600">{{ $keterangan['admin_hp'] ?? '-' }}</p>
+                            <p class="mt-1 text-sm text-gray-900">{{ $keterangan['admin']['name'] ?? '-' }}</p>
+                            <p class="text-sm text-gray-600">{{ $keterangan['admin']['email'] ?? '-' }}</p>
+                            <p class="text-sm text-gray-600">{{ $keterangan['admin']['phone'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg border border-gray-200 p-4">
                             <p class="text-xs font-medium text-gray-500">Tech Contact</p>
-                            <p class="mt-1 text-sm text-gray-900">{{ $keterangan['tech_nama'] ?? '-' }}</p>
-                            <p class="text-sm text-gray-600">{{ $keterangan['tech_email'] ?? '-' }}</p>
-                            <p class="text-sm text-gray-600">{{ $keterangan['tech_hp'] ?? '-' }}</p>
+                            <p class="mt-1 text-sm text-gray-900">{{ $keterangan['tech']['name'] ?? '-' }}</p>
+                            <p class="text-sm text-gray-600">{{ $keterangan['tech']['email'] ?? '-' }}</p>
+                            <p class="text-sm text-gray-600">{{ $keterangan['tech']['phone'] ?? '-' }}</p>
                         </div>
                     </div>
                 </div>

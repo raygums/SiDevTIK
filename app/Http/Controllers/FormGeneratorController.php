@@ -55,6 +55,15 @@ class FormGeneratorController extends Controller
         
         // Set paper size dan orientasi
         $pdf->setPaper('A4', 'portrait');
+        
+        // Disable cache untuk selalu generate fresh PDF
+        $pdf->setOptions([
+            'isRemoteEnabled' => true,
+            'chroot' => public_path(),
+            'enable_html5_parser' => true,
+            'enable_css_float' => true,
+            'enable_remote' => true,
+        ]);
 
         return $pdf->download($filename);
     }
@@ -70,6 +79,15 @@ class FormGeneratorController extends Controller
 
         $pdf = Pdf::loadView('forms.form-hardcopy', compact('submission'));
         $pdf->setPaper('A4', 'portrait');
+        
+        // Disable cache untuk selalu generate fresh PDF
+        $pdf->setOptions([
+            'isRemoteEnabled' => true,
+            'chroot' => public_path(),
+            'enable_html5_parser' => true,
+            'enable_css_float' => true,
+            'enable_remote' => true,
+        ]);
 
         return $pdf->stream("Form_{$ticketNumber}.pdf");
     }

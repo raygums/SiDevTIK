@@ -104,7 +104,7 @@
                 </div>
 
                 {{-- Existing Service Info (if not new submission) --}}
-                @if($tipePengajuan !== 'pengajuan_baru' && (!empty($keterangan['existing_service']) || !empty($keterangan['existing_ticket'])))
+                @if($tipePengajuan !== 'pengajuan_baru' && !empty($keterangan['existing']))
                 <div class="mb-6 rounded-xl border border-warning/30 bg-warning-light p-4">
                     <h3 class="mb-3 flex items-center gap-2 text-sm font-semibold text-gray-900">
                         <svg class="h-5 w-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,16 +113,28 @@
                         Informasi Layanan Existing
                     </h3>
                     <div class="grid gap-3 sm:grid-cols-2">
-                        @if(!empty($keterangan['existing_service']))
+                        @if(!empty($keterangan['existing']['domain']))
                         <div>
-                            <p class="text-xs text-gray-500">Layanan yang Dimaksud</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['existing_service'] }}</p>
+                            <p class="text-xs text-gray-500">Domain/Layanan yang Dimaksud</p>
+                            <p class="font-mono font-medium text-gray-900">{{ $keterangan['existing']['domain'] }}</p>
                         </div>
                         @endif
-                        @if(!empty($keterangan['existing_ticket']))
+                        @if(!empty($keterangan['existing']['ticket']))
                         <div>
                             <p class="text-xs text-gray-500">No. Tiket Sebelumnya</p>
-                            <p class="font-mono font-medium text-gray-900">{{ $keterangan['existing_ticket'] }}</p>
+                            <p class="font-mono font-medium text-gray-900">{{ $keterangan['existing']['ticket'] }}</p>
+                        </div>
+                        @endif
+                        @if(!empty($keterangan['existing']['expired']))
+                        <div>
+                            <p class="text-xs text-gray-500">Tanggal Expired</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['existing']['expired'] }}</p>
+                        </div>
+                        @endif
+                        @if(!empty($keterangan['existing']['notes']))
+                        <div class="sm:col-span-2">
+                            <p class="text-xs text-gray-500">Keterangan</p>
+                            <p class="font-medium text-gray-900 whitespace-pre-line">{{ $keterangan['existing']['notes'] }}</p>
                         </div>
                         @endif
                     </div>
@@ -151,47 +163,87 @@
                     </div>
                 </div>
 
-                {{-- Section 2: Kontak Admin --}}
+                {{-- Section 2: Penanggung Jawab Administratif --}}
                 <div class="mb-6">
                     <h3 class="mb-4 flex items-center gap-2 border-b border-gray-200 pb-2 text-base font-semibold text-gray-900">
                         <span class="flex h-6 w-6 items-center justify-center rounded-full bg-myunila text-xs font-bold text-white">2</span>
-                        Kontak Admin (Pengelola)
+                        Penanggung Jawab Administratif
                     </h3>
-                    <div class="grid gap-4 sm:grid-cols-3">
+                    <div class="grid gap-4 sm:grid-cols-2">
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Nama Lengkap</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['admin_nama'] ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['admin']['name'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
-                            <p class="text-xs text-gray-500">No. HP</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['admin_hp'] ?? '-' }}</p>
+                            <p class="text-xs text-gray-500">Jabatan</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['admin']['position'] ?? '-' }}</p>
+                        </div>
+                        <div class="rounded-lg bg-gray-50 p-3">
+                            <p class="text-xs text-gray-500">NIP/NIDN</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['admin']['nip'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Email</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['admin_email'] ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['admin']['email'] ?? '-' }}</p>
                         </div>
+                        <div class="rounded-lg bg-gray-50 p-3">
+                            <p class="text-xs text-gray-500">No. HP</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['admin']['phone'] ?? '-' }}</p>
+                        </div>
+                        <div class="rounded-lg bg-gray-50 p-3">
+                            <p class="text-xs text-gray-500">Telepon Kantor</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['admin']['telepon_kantor'] ?? '-' }}</p>
+                        </div>
+                        @if(!empty($keterangan['admin']['alamat_kantor']))
+                        <div class="rounded-lg bg-gray-50 p-3">
+                            <p class="text-xs text-gray-500">Alamat Kantor</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['admin']['alamat_kantor'] }}</p>
+                        </div>
+                        @endif
+                        @if(!empty($keterangan['admin']['alamat_rumah']))
+                        <div class="rounded-lg bg-gray-50 p-3">
+                            <p class="text-xs text-gray-500">Alamat Rumah</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['admin']['alamat_rumah'] }}</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
 
-                {{-- Section 3: Kontak Teknis --}}
+                {{-- Section 3: Penanggung Jawab Teknis --}}
                 <div class="mb-6">
                     <h3 class="mb-4 flex items-center gap-2 border-b border-gray-200 pb-2 text-base font-semibold text-gray-900">
                         <span class="flex h-6 w-6 items-center justify-center rounded-full bg-myunila text-xs font-bold text-white">3</span>
-                        Kontak Teknis (Pengelola Teknis)
+                        Penanggung Jawab Teknis
                     </h3>
-                    <div class="grid gap-4 sm:grid-cols-3">
+                    <div class="grid gap-4 sm:grid-cols-2">
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Nama Lengkap</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['tech_nama'] ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['name'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
-                            <p class="text-xs text-gray-500">No. HP</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['tech_hp'] ?? '-' }}</p>
+                            <p class="text-xs text-gray-500">NIP/NPM</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['nip'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Email</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['tech_email'] ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['email'] ?? '-' }}</p>
                         </div>
+                        <div class="rounded-lg bg-gray-50 p-3">
+                            <p class="text-xs text-gray-500">No. HP</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['phone'] ?? '-' }}</p>
+                        </div>
+                        @if(!empty($keterangan['tech']['alamat_kantor']))
+                        <div class="rounded-lg bg-gray-50 p-3">
+                            <p class="text-xs text-gray-500">Alamat Kantor</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['alamat_kantor'] }}</p>
+                        </div>
+                        @endif
+                        @if(!empty($keterangan['tech']['alamat_rumah']))
+                        <div class="rounded-lg bg-gray-50 p-3">
+                            <p class="text-xs text-gray-500">Alamat Rumah</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['alamat_rumah'] }}</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
 
@@ -212,7 +264,7 @@
                         @if($serviceType === 'domain')
                             <div class="rounded-lg bg-myunila-50 p-4 sm:col-span-2">
                                 <p class="text-xs text-myunila-700">Sub Domain yang Diminta</p>
-                                <p class="font-mono text-lg font-bold text-myunila">{{ $submission->rincian?->nm_domain ?? '-' }}.unila.ac.id</p>
+                                <p class="font-mono text-lg font-bold text-myunila">{{ $submission->rincian?->nm_domain ?? '-' }}</p>
                             </div>
                         @elseif($serviceType === 'hosting')
                             <div class="rounded-lg bg-myunila-50 p-4">
@@ -221,7 +273,7 @@
                             </div>
                             <div class="rounded-lg bg-gray-50 p-3">
                                 <p class="text-xs text-gray-500">Kuota Storage</p>
-                                <p class="font-medium text-gray-900">{{ $keterangan['hosting_quota'] ?? '-' }} MB</p>
+                                <p class="font-medium text-gray-900">{{ $keterangan['hosting']['quota'] ?? $submission->rincian?->kapasitas_penyimpanan ?? '-' }} MB</p>
                             </div>
                         @elseif($serviceType === 'vps')
                             <div class="rounded-lg bg-myunila-50 p-4 sm:col-span-2">
@@ -229,21 +281,27 @@
                                 <p class="font-mono text-lg font-bold text-myunila">{{ $submission->rincian?->nm_domain ?? '-' }}</p>
                             </div>
                             <div class="rounded-lg bg-gray-50 p-3">
-                                <p class="text-xs text-gray-500">Sistem Operasi</p>
-                                <p class="font-medium text-gray-900">{{ $keterangan['vps_os'] ?? '-' }}</p>
-                            </div>
-                            <div class="rounded-lg bg-gray-50 p-3">
                                 <p class="text-xs text-gray-500">CPU</p>
-                                <p class="font-medium text-gray-900">{{ $keterangan['vps_cpu'] ?? '-' }} Core</p>
+                                <p class="font-medium text-gray-900">{{ $keterangan['vps']['cpu'] ?? '-' }} Core</p>
                             </div>
                             <div class="rounded-lg bg-gray-50 p-3">
                                 <p class="text-xs text-gray-500">RAM</p>
-                                <p class="font-medium text-gray-900">{{ $keterangan['vps_ram'] ?? '-' }} GB</p>
+                                <p class="font-medium text-gray-900">{{ $keterangan['vps']['ram'] ?? '-' }} GB</p>
                             </div>
                             <div class="rounded-lg bg-gray-50 p-3">
                                 <p class="text-xs text-gray-500">Storage</p>
-                                <p class="font-medium text-gray-900">{{ $keterangan['vps_storage'] ?? '-' }} GB</p>
+                                <p class="font-medium text-gray-900">{{ $keterangan['vps']['storage'] ?? $submission->rincian?->kapasitas_penyimpanan ?? '-' }} GB</p>
                             </div>
+                            <div class="rounded-lg bg-gray-50 p-3">
+                                <p class="text-xs text-gray-500">Sistem Operasi</p>
+                                <p class="font-medium text-gray-900">{{ $keterangan['vps']['os'] ?? '-' }}</p>
+                            </div>
+                            @if(!empty($keterangan['vps']['purpose']))
+                            <div class="rounded-lg bg-gray-50 p-3 sm:col-span-2">
+                                <p class="text-xs text-gray-500">Tujuan Penggunaan VPS</p>
+                                <p class="font-medium text-gray-900 whitespace-pre-line">{{ $keterangan['vps']['purpose'] }}</p>
+                            </div>
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -287,10 +345,10 @@
                     <h4 class="mb-3 text-sm font-semibold text-gray-700">Diajukan Oleh</h4>
                     <div class="flex items-center gap-4">
                         <div class="flex h-12 w-12 items-center justify-center rounded-full bg-myunila text-lg font-bold text-white">
-                            {{ strtoupper(substr($submission->pengguna?->nm_user ?? 'U', 0, 1)) }}
+                            {{ strtoupper(substr($submission->pengguna?->nm ?? 'U', 0, 1)) }}
                         </div>
                         <div>
-                            <p class="font-medium text-gray-900">{{ $submission->pengguna?->nm_user ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $submission->pengguna?->nm ?? '-' }}</p>
                             <p class="text-sm text-gray-500">{{ $submission->pengguna?->email ?? '-' }}</p>
                         </div>
                     </div>
