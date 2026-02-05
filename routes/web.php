@@ -116,6 +116,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:eksekutor')->prefix('eksekutor')->name('eksekutor.')->group(function () {
         Route::get('/', [ExecutionController::class, 'index'])->name('index');
         Route::get('/riwayat', [ExecutionController::class, 'history'])->name('history');
+        Route::get('/log-pekerjaan', [ExecutionController::class, 'myHistory'])->name('my-history');
+        Route::get('/timeline/{submission}', [ExecutionController::class, 'timeline'])->name('timeline');
         Route::get('/{submission}', [ExecutionController::class, 'show'])->name('show');
         Route::post('/{submission}/accept', [ExecutionController::class, 'accept'])->name('accept');
         Route::post('/{submission}/complete', [ExecutionController::class, 'complete'])->name('complete');
