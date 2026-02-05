@@ -277,7 +277,6 @@
         @endif
 
         {{-- Pagination with Items Per Page --}}
-        @if($submissions->hasPages() || $submissions->total() > 10)
         <div class="border-t border-gray-200 bg-gray-50 px-6 py-4">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 {{-- Items Per Page Selector --}}
@@ -305,7 +304,6 @@
                 </div>
             </div>
         </div>
-        @endif
     </div>
 
 </div>
