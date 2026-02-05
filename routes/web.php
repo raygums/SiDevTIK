@@ -100,17 +100,16 @@ Route::middleware('auth')->group(function () {
 
     // --- Verifikator Routes ---
     Route::middleware('role:verifikator')->prefix('verifikator')->name('verifikator.')->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [DashboardController::class, 'verifikator'])->name('dashboard');
+        
         // Pengajuan Verification
-        Route::get('/', [VerificationController::class, 'index'])->name('index');
-        Route::get('/riwayat', [VerificationController::class, 'history'])->name('history');
+        Route::get('/daftar-pengajuan', [VerificationController::class, 'index'])->name('index');
+        Route::get('/riwayat-verifikasi', [VerificationController::class, 'history'])->name('history');
+        Route::get('/riwayat-saya', [VerificationController::class, 'myHistory'])->name('my-history');
         Route::get('/{submission}', [VerificationController::class, 'show'])->name('show');
         Route::post('/{submission}/approve', [VerificationController::class, 'approve'])->name('approve');
         Route::post('/{submission}/reject', [VerificationController::class, 'reject'])->name('reject');
-        
-        // User Management (Aktivasi Akun)
-        Route::get('/users', [\App\Http\Controllers\UserManagementController::class, 'index'])->name('users.index');
-        Route::post('/users/{uuid}/toggle', [\App\Http\Controllers\UserManagementController::class, 'toggleStatus'])->name('users.toggle');
-        Route::post('/users/bulk-activate', [\App\Http\Controllers\UserManagementController::class, 'bulkActivate'])->name('users.bulk-activate');
     });
 
     // --- Eksekutor Routes ---
