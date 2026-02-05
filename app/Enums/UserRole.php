@@ -8,4 +8,5 @@ enum UserRole: string
     case VERIFIKATOR = 'verifikator';
     case EKSEKUTOR = 'eksekutor';
     case ADMIN = 'admin';
+    case PIMPINAN = 'pimpinan';
 }

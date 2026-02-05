@@ -21,11 +21,11 @@ class PimpinanSeeder extends Seeder
     {
         $this->command->info('Creating pimpinan users...');
 
-        // Get Pengguna role (pimpinan adalah pengguna biasa)
-        $penggunaRole = Peran::where('nm_peran', 'Pengguna')->first();
+        // Get Pimpinan role (super admin)
+        $pimpinanRole = Peran::where('nm_peran', 'Pimpinan')->first();
         
-        if (!$penggunaRole) {
-            $this->command->error("Role 'Pengguna' not found! Cannot create pimpinan users.");
+        if (!$pimpinanRole) {
+            $this->command->error("Role 'Pimpinan' not found! Cannot create pimpinan users.");
             return;
         }
 
@@ -83,7 +83,7 @@ class PimpinanSeeder extends Seeder
                     'ktp' => $pimpinanData['ktp'],
                     'tgl_lahir' => $pimpinanData['tgl_lahir'],
                     'kata_sandi' => Hash::make('password'),
-                    'peran_uuid' => $penggunaRole->UUID,
+                    'peran_uuid' => $pimpinanRole->UUID,
                     'a_aktif' => true,
                     'sso_id' => null,
                     'create_at' => now(),

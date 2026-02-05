@@ -455,9 +455,9 @@ class SubmissionController extends Controller
             return;
         }
         
-        // Admin, Verifikator, Eksekutor can access all
+        // Admin, Pimpinan, Verifikator, Eksekutor can access all
         $userRole = $user->peran?->nm_peran ?? '';
-        if (in_array(strtolower($userRole), ['admin', 'verifikator', 'eksekutor'])) {
+        if (in_array(strtolower($userRole), ['admin', 'administrator', 'pimpinan', 'verifikator', 'eksekutor'])) {
             return;
         }
         
