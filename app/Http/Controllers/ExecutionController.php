@@ -14,40 +14,78 @@ use Illuminate\Http\RedirectResponse;
 class ExecutionController extends Controller
 {
     /**
-     * Dashboard Eksekutor - Daftar pengajuan yang perlu dieksekusi
+     * Daftar Tugas - Pengajuan yang perlu dieksekusi
      */
-    public function index(): View
+    public function index(Request $request): View
     {
+        // Get filters from request
+        $filters = [
+            'search' => $request->get('search'),
+            'layanan' => $request->get('layanan', 'all'),
+            'tanggal_dari' => $request->get('tanggal_dari'),
+            'tanggal_sampai' => $request->get('tanggal_sampai'),
+        ];
+
+        // Get per page from request
+        $perPage = (int) $request->get('per_page', 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
+
         // Ambil status yang sudah disetujui verifikator
         $pendingStatuses = StatusPengajuan::whereIn('nm_status', [
             'Disetujui Verifikator', 
             'Menunggu Eksekusi'
         ])->pluck('UUID');
 
-        $submissions = Submission::with(['pengguna', 'unitKerja', 'jenisLayanan', 'status', 'rincian'])
-            ->whereIn('status_uuid', $pendingStatuses)
-            ->orderBy('create_at', 'desc')
-            ->paginate(10);
+        $query = Submission::with(['pengguna', 'unitKerja', 'jenisLayanan', 'status', 'rincian'])
+            ->whereIn('status_uuid', $pendingStatuses);
 
-        // Pengajuan yang sedang dikerjakan oleh eksekutor ini
-        $inProgressStatus = StatusPengajuan::where('nm_status', 'Sedang Dikerjakan')->first();
-        $inProgress = collect();
-        if ($inProgressStatus) {
-            $inProgress = Submission::with(['pengguna', 'unitKerja', 'jenisLayanan', 'status', 'rincian'])
-                ->where('status_uuid', $inProgressStatus->UUID)
-                ->orderBy('last_update', 'desc')
-                ->get();
+        // Apply search filter
+        if ($filters['search']) {
+            $query->where(function($q) use ($filters) {
+                $q->where('no_tiket', 'like', '%' . $filters['search'] . '%')
+                  ->orWhereHas('pengguna', function($q) use ($filters) {
+                      $q->where('nm', 'like', '%' . $filters['search'] . '%');
+                  })
+                  ->orWhereHas('rincian', function($q) use ($filters) {
+                      $q->where('nm_domain', 'like', '%' . $filters['search'] . '%');
+                  });
+            });
         }
 
+        // Apply layanan filter
+        if ($filters['layanan'] !== 'all') {
+            $query->whereHas('jenisLayanan', function($q) use ($filters) {
+                $q->whereRaw('LOWER(nm_layanan) = ?', [strtolower($filters['layanan'])]);
+            });
+        }
+
+        // Apply date range filter
+        if ($filters['tanggal_dari']) {
+            $query->whereDate('create_at', '>=', $filters['tanggal_dari']);
+        }
+        if ($filters['tanggal_sampai']) {
+            $query->whereDate('create_at', '<=', $filters['tanggal_sampai']);
+        }
+
+        $submissions = $query->orderBy('last_update', 'desc')
+            ->paginate($perPage)
+            ->appends($request->except('page'));
+
         // Statistik
+        $inProgressStatus = StatusPengajuan::where('nm_status', 'Sedang Dikerjakan')->first();
+        $inProgressCount = 0;
+        if ($inProgressStatus) {
+            $inProgressCount = Submission::where('status_uuid', $inProgressStatus->UUID)->count();
+        }
+
         $stats = [
             'pending' => Submission::whereIn('status_uuid', $pendingStatuses)->count(),
-            'in_progress' => $inProgress->count(),
+            'in_progress' => $inProgressCount,
             'completed_today' => $this->getCompletedTodayCount(),
             'rejected_today' => $this->getRejectedTodayCount(),
         ];
 
-        return view('eksekutor.index', compact('submissions', 'inProgress', 'stats'));
+        return view('eksekutor.index', compact('submissions', 'stats', 'filters'));
     }
 
     /**
@@ -57,7 +95,19 @@ class ExecutionController extends Controller
     {
         $submission->load(['pengguna', 'unitKerja.category', 'jenisLayanan', 'status', 'rincian', 'riwayat.statusLama', 'riwayat.statusBaru', 'riwayat.creator']);
         
-        return view('eksekutor.show', compact('submission'));
+        // Get verification log (catatan dari verifikator)
+        $verificationLog = SubmissionLog::with(['creator.peran'])
+            ->where('pengajuan_uuid', $submission->UUID)
+            ->whereHas('statusBaru', function($q) {
+                $q->whereIn('nm_status', ['Disetujui Verifikator', 'Ditolak Verifikator']);
+            })
+            ->latest('create_at')
+            ->first();
+        
+        // Get all logs for timeline in sidebar
+        $logs = $submission->riwayat()->with(['statusBaru', 'creator'])->orderBy('create_at', 'desc')->get();
+        
+        return view('eksekutor.show', compact('submission', 'verificationLog', 'logs'));
     }
 
     /**
@@ -208,21 +258,158 @@ class ExecutionController extends Controller
     }
 
     /**
-     * Riwayat eksekusi
+     * Log Perubahan Status - Semua perubahan status oleh verifikator dan eksekutor
      */
-    public function history(): View
+    public function history(Request $request): View
     {
-        $completedStatus = StatusPengajuan::where('nm_status', 'Selesai')->first();
-        $rejectedStatus = StatusPengajuan::where('nm_status', 'Ditolak Eksekutor')->first();
+        // Get filters from request
+        $filters = [
+            'search' => $request->get('search'),
+            'layanan' => $request->get('layanan', 'all'),
+            'tanggal_dari' => $request->get('tanggal_dari'),
+            'tanggal_sampai' => $request->get('tanggal_sampai'),
+        ];
 
-        $statusIds = collect([$completedStatus?->UUID, $rejectedStatus?->UUID])->filter();
+        // Get per page from request
+        $perPage = (int) $request->get('per_page', 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
 
-        $submissions = Submission::with(['pengguna', 'unitKerja', 'jenisLayanan', 'status', 'rincian'])
-            ->whereIn('status_uuid', $statusIds)
-            ->orderBy('last_update', 'desc')
-            ->paginate(15);
+        // Status yang relevan untuk eksekutor (diproses oleh verifikator atau eksekutor)
+        $relevantStatuses = StatusPengajuan::whereIn('nm_status', [
+            'Disetujui Verifikator',
+            'Ditolak Verifikator', 
+            'Sedang Dikerjakan',
+            'Selesai',
+            'Ditolak Eksekutor'
+        ])->pluck('UUID');
 
-        return view('eksekutor.history', compact('submissions'));
+        $query = Submission::with(['pengguna', 'unitKerja', 'jenisLayanan', 'status', 'rincian', 'updater.peran'])
+            ->whereIn('status_uuid', $relevantStatuses);
+
+        // Apply search filter
+        if ($filters['search']) {
+            $query->where(function($q) use ($filters) {
+                $q->where('no_tiket', 'like', '%' . $filters['search'] . '%')
+                  ->orWhereHas('pengguna', function($q) use ($filters) {
+                      $q->where('nm', 'like', '%' . $filters['search'] . '%');
+                  });
+            });
+        }
+
+        // Apply layanan filter
+        if ($filters['layanan'] !== 'all') {
+            $query->whereHas('jenisLayanan', function($q) use ($filters) {
+                $q->whereRaw('LOWER(nm_layanan) = ?', [strtolower($filters['layanan'])]);
+            });
+        }
+
+        // Apply date range filter
+        if ($filters['tanggal_dari']) {
+            $query->whereDate('last_update', '>=', $filters['tanggal_dari']);
+        }
+        if ($filters['tanggal_sampai']) {
+            $query->whereDate('last_update', '<=', $filters['tanggal_sampai']);
+        }
+
+        $submissions = $query->orderBy('last_update', 'desc')
+            ->paginate($perPage)
+            ->appends($request->except('page'));
+
+        return view('eksekutor.history', compact('submissions', 'filters'));
+    }
+
+    /**
+     * Log Pekerjaan - Pengajuan yang diproses oleh eksekutor yang login
+     */
+    public function myHistory(Request $request): View
+    {
+        // Get filters from request
+        $filters = [
+            'search' => $request->get('search'),
+            'layanan' => $request->get('layanan', 'all'),
+            'status' => $request->get('status', 'all'),
+            'tanggal_dari' => $request->get('tanggal_dari'),
+            'tanggal_sampai' => $request->get('tanggal_sampai'),
+        ];
+
+        // Get per page from request
+        $perPage = (int) $request->get('per_page', 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
+
+        $query = Submission::with(['pengguna', 'unitKerja', 'jenisLayanan', 'status', 'rincian'])
+            ->where('id_updater', Auth::id());
+
+        // Apply search filter
+        if ($filters['search']) {
+            $query->where(function($q) use ($filters) {
+                $q->where('no_tiket', 'like', '%' . $filters['search'] . '%')
+                  ->orWhereHas('pengguna', function($q) use ($filters) {
+                      $q->where('nm', 'like', '%' . $filters['search'] . '%');
+                  });
+            });
+        }
+
+        // Apply layanan filter
+        if ($filters['layanan'] !== 'all') {
+            $query->whereHas('jenisLayanan', function($q) use ($filters) {
+                $q->whereRaw('LOWER(nm_layanan) = ?', [strtolower($filters['layanan'])]);
+            });
+        }
+
+        // Apply status filter
+        if ($filters['status'] !== 'all') {
+            $statusName = match($filters['status']) {
+                'sedang_dikerjakan' => 'Sedang Dikerjakan',
+                'selesai' => 'Selesai',
+                'ditolak' => 'Ditolak Eksekutor',
+                default => null,
+            };
+            if ($statusName) {
+                $query->whereHas('status', function($q) use ($statusName) {
+                    $q->where('nm_status', $statusName);
+                });
+            }
+        }
+
+        // Apply date range filter
+        if ($filters['tanggal_dari']) {
+            $query->whereDate('last_update', '>=', $filters['tanggal_dari']);
+        }
+        if ($filters['tanggal_sampai']) {
+            $query->whereDate('last_update', '<=', $filters['tanggal_sampai']);
+        }
+
+        $submissions = $query->orderBy('last_update', 'desc')
+            ->paginate($perPage)
+            ->appends($request->except('page'));
+
+        // Pengajuan yang sedang dikerjakan oleh eksekutor yang login
+        $inProgressStatus = StatusPengajuan::where('nm_status', 'Sedang Dikerjakan')->first();
+        $inProgress = collect();
+        if ($inProgressStatus) {
+            $inProgress = Submission::with(['pengguna', 'unitKerja', 'jenisLayanan', 'status', 'rincian'])
+                ->where('status_uuid', $inProgressStatus->UUID)
+                ->where('id_updater', Auth::id())
+                ->orderBy('last_update', 'desc')
+                ->get();
+        }
+
+        return view('eksekutor.my-history', compact('submissions', 'inProgress', 'filters'));
+    }
+
+    /**
+     * Timeline perubahan status pengajuan
+     */
+    public function timeline(Submission $submission): View
+    {
+        $submission->load(['pengguna', 'unitKerja', 'jenisLayanan', 'status', 'rincian']);
+
+        $logs = SubmissionLog::with(['statusLama', 'statusBaru', 'creator.peran'])
+            ->where('pengajuan_uuid', $submission->UUID)
+            ->orderBy('create_at', 'desc')
+            ->get();
+
+        return view('eksekutor.timeline', compact('submission', 'logs'));
     }
 
     /**
