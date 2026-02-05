@@ -92,14 +92,20 @@ class DatabaseSeeder extends Seeder
         }
 
         // ==========================================================
-        // 5. PERAN (ROLES) - 4 Role Utama
+        // 5. PERAN (ROLES) - 5 Role Utama
         // ==========================================================
+        $rolePimpinanId = Str::uuid();
         $roleAdminId = Str::uuid();
         $roleVerifikatorId = Str::uuid();
         $roleEksekutorId = Str::uuid();
         $rolePenggunaId = Str::uuid();
 
         DB::table('akun.peran')->insert([
+            [
+                'UUID' => $rolePimpinanId,
+                'nm_peran' => 'Pimpinan',
+                'a_aktif' => true
+            ],
             [
                 'UUID' => $roleAdminId,
                 'nm_peran' => 'Administrator',
