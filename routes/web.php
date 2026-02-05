@@ -123,4 +123,22 @@ Route::middleware('auth')->group(function () {
         Route::post('/{submission}/reject', [ExecutionController::class, 'reject'])->name('reject');
     });
 
+    // --- Pimpinan Routes ---
+    Route::middleware('role:pimpinan')->prefix('pimpinan')->name('pimpinan.')->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [\App\Http\Controllers\Pimpinan\PimpinanController::class, 'dashboard'])->name('dashboard');
+        
+        // User Management (All Roles)
+        Route::get('/users', [\App\Http\Controllers\Pimpinan\PimpinanController::class, 'users'])->name('users');
+        Route::get('/users/{uuid}', [\App\Http\Controllers\Pimpinan\PimpinanController::class, 'userDetail'])->name('user-detail');
+        Route::post('/users/{uuid}/toggle-status', [\App\Http\Controllers\Pimpinan\PimpinanController::class, 'toggleUserStatus'])->name('users.toggle-status');
+        Route::post('/users/{uuid}/change-role', [\App\Http\Controllers\Pimpinan\PimpinanController::class, 'changeUserRole'])->name('users.change-role');
+        Route::post('/users/bulk-activate', [\App\Http\Controllers\Pimpinan\PimpinanController::class, 'bulkActivate'])->name('users.bulk-activate');
+        Route::post('/users/bulk-deactivate', [\App\Http\Controllers\Pimpinan\PimpinanController::class, 'bulkDeactivate'])->name('users.bulk-deactivate');
+        
+        // Activity Logs
+        Route::get('/activity-logs', [\App\Http\Controllers\Pimpinan\PimpinanController::class, 'activityLogs'])->name('activity-logs');
+        Route::get('/activity-logs/{uuid}', [\App\Http\Controllers\Pimpinan\PimpinanController::class, 'activityDetail'])->name('activity-detail');
+    });
+
 });
