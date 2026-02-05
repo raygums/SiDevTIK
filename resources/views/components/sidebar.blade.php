@@ -7,8 +7,29 @@
     // Tentukan menu berdasarkan role
     $menus = [];
     
+    // Menu untuk Pimpinan (Super Admin)
+    if (str_contains(strtolower($role), 'pimpinan')) {
+        $menus = [
+            [
+                'title' => 'Dashboard',
+                'route' => 'pimpinan.dashboard',
+                'icon' => 'home',
+            ],
+            [
+                'title' => 'Manajemen Pengguna',
+                'route' => 'pimpinan.users',
+                'icon' => 'users',
+            ],
+            [
+                'title' => 'Log Aktivitas Sistem',
+                'route' => 'pimpinan.activity-logs',
+                'icon' => 'clock',
+            ],
+        ];
+    }
+    
     // Menu untuk Admin
-    if (str_contains(strtolower($role), 'admin')) {
+    elseif (str_contains(strtolower($role), 'admin')) {
         $menus = [
             [
                 'title' => 'Dashboard',
