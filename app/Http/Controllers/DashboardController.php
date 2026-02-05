@@ -135,6 +135,14 @@ class DashboardController extends Controller
     }
 
     /**
+     * Public method untuk dashboard verifikator (route baru)
+     */
+    public function verifikator()
+    {
+        return $this->verifikatorDashboard();
+    }
+
+    /**
      * Dashboard untuk Eksekutor
      */
     private function eksekutorDashboard()

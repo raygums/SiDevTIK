@@ -207,7 +207,7 @@ class VerificationController extends Controller
 
         $statusIds = collect([$approvedStatus?->UUID, $rejectedStatus?->UUID])->filter();
 
-        $query = Submission::with(['pengguna', 'unitKerja', 'jenisLayanan', 'status', 'rincian'])
+        $query = Submission::with(['pengguna', 'unitKerja', 'jenisLayanan', 'status', 'rincian', 'updater.peran'])
             ->whereIn('status_uuid', $statusIds)
             ->orWhereHas('riwayat', function($q) use ($statusIds) {
                 $q->whereIn('status_baru_uuid', $statusIds);
@@ -243,6 +243,65 @@ class VerificationController extends Controller
             ->appends($request->except('page'));
 
         return view('verifikator.history', compact('submissions', 'filters'));
+    }
+
+    /**
+     * Riwayat verifikasi yang dilakukan oleh user yang login
+     */
+    public function myHistory(Request $request): View
+    {
+        // Get filters from request
+        $filters = [
+            'search' => $request->get('search'),
+            'layanan' => $request->get('layanan', 'all'),
+            'tanggal_dari' => $request->get('tanggal_dari'),
+            'tanggal_sampai' => $request->get('tanggal_sampai'),
+        ];
+
+        // Get per page from request (default: 20, allowed: 10, 20, 50, 100)
+        $perPage = (int) $request->get('per_page', 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100]) ? $perPage : 20;
+
+        $approvedStatus = StatusPengajuan::where('nm_status', 'Disetujui Verifikator')->first();
+        $rejectedStatus = StatusPengajuan::where('nm_status', 'Ditolak Verifikator')->first();
+
+        $statusIds = collect([$approvedStatus?->UUID, $rejectedStatus?->UUID])->filter();
+
+        // Get submissions yang diverifikasi oleh user yang login
+        $query = Submission::with(['pengguna', 'unitKerja', 'jenisLayanan', 'status', 'rincian', 'updater'])
+            ->where('id_updater', Auth::id())
+            ->whereIn('status_uuid', $statusIds);
+
+        // Apply search filter
+        if ($filters['search']) {
+            $query->where(function($q) use ($filters) {
+                $q->where('no_tiket', 'like', '%' . $filters['search'] . '%')
+                  ->orWhereHas('pengguna', function($q) use ($filters) {
+                      $q->where('nm', 'like', '%' . $filters['search'] . '%');
+                  });
+            });
+        }
+
+        // Apply layanan filter
+        if ($filters['layanan'] !== 'all') {
+            $query->whereHas('jenisLayanan', function($q) use ($filters) {
+                $q->where('nm_layanan', $filters['layanan']);
+            });
+        }
+
+        // Apply date range filter
+        if ($filters['tanggal_dari']) {
+            $query->whereDate('last_update', '>=', $filters['tanggal_dari']);
+        }
+        if ($filters['tanggal_sampai']) {
+            $query->whereDate('last_update', '<=', $filters['tanggal_sampai']);
+        }
+
+        $submissions = $query->orderBy('last_update', 'desc')
+            ->paginate($perPage)
+            ->appends($request->except('page'));
+
+        return view('verifikator.my-history', compact('submissions', 'filters'));
     }
 
     /**
