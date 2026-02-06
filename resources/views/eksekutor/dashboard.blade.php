@@ -109,7 +109,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm text-gray-900">{{ $task->pengguna->nm ?? '-' }}</div>
-                                        <div class="text-sm text-gray-500">{{ $task->unitKerja->nm_unit ?? '-' }}</div>
+                                        <div class="text-sm text-gray-500">{{ $task->unitKerja->nm_lmbg ?? '-' }}</div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium

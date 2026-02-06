@@ -158,7 +158,7 @@
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3 sm:col-span-2">
                             <p class="text-xs text-gray-500">Unit Kerja</p>
-                            <p class="font-medium text-gray-900">{{ $submission->unitKerja?->nm_unit ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $submission->unitKerja?->nm_lmbg ?? '-' }}</p>
                         </div>
                     </div>
                 </div>

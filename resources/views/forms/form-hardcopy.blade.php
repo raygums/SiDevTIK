@@ -416,7 +416,7 @@
                 </tr>
                 <tr>
                     <td class="label">Unit Kerja</td>
-                    <td class="value">{{ $submission->unitKerja?->nm_unit ?? '-' }}</td>
+                    <td class="value">{{ $submission->unitKerja?->nm_lmbg ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">Kategori Unit</td>

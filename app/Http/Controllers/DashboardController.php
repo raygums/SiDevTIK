@@ -131,7 +131,7 @@ class DashboardController extends Controller
 
         // Pengajuan yang perlu diverifikasi
         $pendingSubmissions = Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Diajukan'))
-            ->with(['pengguna', 'unitKerja', 'jenisLayanan', 'status'])
+            ->with(['pengguna', 'unitKerja', 'jenisLayanan', 'status', 'rincian'])
             ->latest('tgl_pengajuan')
             ->take(5)
             ->get();

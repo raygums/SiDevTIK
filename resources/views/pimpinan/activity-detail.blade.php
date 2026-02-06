@@ -147,7 +147,7 @@
             <div class="flex items-center justify-between px-6 py-4">
                 <span class="text-sm text-gray-500">Unit Kerja</span>
                 <div class="text-right">
-                    <p class="font-medium text-gray-900">{{ $log->pengajuan->unitKerja->nm_unit }}</p>
+                    <p class="font-medium text-gray-900">{{ $log->pengajuan->unitKerja->nm_lmbg }}</p>
                     <p class="text-sm text-gray-500">{{ $log->pengajuan->unitKerja->category?->nm_kategori_unit ?? '-' }}</p>
                 </div>
             </div>
