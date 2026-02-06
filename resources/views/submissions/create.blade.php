@@ -471,122 +471,123 @@
                         </div>
 
                         <div class="md:col-span-2">
-                            <label for="tech_name" class="mb-1 block text-sm font-medium text-gray-700">
+                            <label for="teknis_nama" class="mb-1 block text-sm font-medium text-gray-700">
                                 Nama <span class="text-error">*</span>
                             </label>
                             <input 
                                 type="text" 
-                                name="tech_name" 
-                                id="tech_name"
-                                value="{{ old('tech_name') }}"
+                                name="teknis_nama" 
+                                id="teknis_nama"
+                                value="{{ old('teknis_nama') }}"
                                 placeholder="Nama lengkap pengelola teknis"
                                 required
-                                data-user-name="{{ $user->name ?? '' }}"
-                                class="form-input @error('tech_name') form-input-error @enderror"
+                                data-user-name="{{ $user->nm ?? '' }}"
+                                class="form-input @error('teknis_nama') form-input-error @enderror"
                             >
-                            @error('tech_name')
+                            @error('teknis_nama')
                                 <p class="mt-1 text-sm text-error">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div>
-                            <label for="tech_nip" id="tech_nip_label" class="mb-1 block text-sm font-medium text-gray-700">
+                            <label for="teknis_nip" id="teknis_nip_label" class="mb-1 block text-sm font-medium text-gray-700">
                                 NPM <span class="text-error">*</span>
                             </label>
                             <input 
                                 type="text" 
-                                name="tech_nip" 
-                                id="tech_nip"
-                                value="{{ old('tech_nip') }}"
+                                name="teknis_nip" 
+                                id="teknis_nip"
+                                value="{{ old('teknis_nip') }}"
                                 placeholder="NPM"
                                 required
-                                data-user-nip="{{ $user->nomor_identitas ?? '' }}"
-                                class="form-input @error('tech_nip') form-input-error @enderror"
+                                data-user-nip="{{ $user->usn ?? '' }}"
+                                class="form-input @error('teknis_nip') form-input-error @enderror"
                             >
-                            @error('tech_nip')
+                            @error('teknis_nip')
                                 <p class="mt-1 text-sm text-error">{{ $message }}</p>
                             @enderror
                         </div>
                         
                         <div>
-                            <label for="tech_nik" class="mb-1 block text-sm font-medium text-gray-700">
+                            <label for="teknis_nik" class="mb-1 block text-sm font-medium text-gray-700">
                                 NIK / Passport <span class="text-error">*</span>
                             </label>
                             <input 
                                 type="text" 
-                                name="tech_nik" 
-                                id="tech_nik"
-                                value="{{ old('tech_nik') }}"
+                                name="teknis_nik" 
+                                id="teknis_nik"
+                                value="{{ old('teknis_nik') }}"
                                 placeholder="Nomor NIK atau Passport"
                                 required
-                                class="form-input @error('tech_nik') form-input-error @enderror"
+                                data-user-ktp="{{ $user->ktp ?? '' }}"
+                                class="form-input @error('teknis_nik') form-input-error @enderror"
                             >
-                            @error('tech_nik')
+                            @error('teknis_nik')
                                 <p class="mt-1 text-sm text-error">{{ $message }}</p>
                             @enderror
                         </div>
                         
                         <div>
-                            <label for="tech_phone" class="mb-1 block text-sm font-medium text-gray-700">
+                            <label for="teknis_telepon" class="mb-1 block text-sm font-medium text-gray-700">
                                 No. Telepon <span class="text-error">*</span>
                             </label>
                             <input 
                                 type="tel" 
-                                name="tech_phone" 
-                                id="tech_phone"
-                                value="{{ old('tech_phone') }}"
+                                name="teknis_telepon" 
+                                id="teknis_telepon"
+                                value="{{ old('teknis_telepon') }}"
                                 placeholder="081234567890"
                                 required
-                                class="form-input @error('tech_phone') form-input-error @enderror"
+                                class="form-input @error('teknis_telepon') form-input-error @enderror"
                             >
-                            @error('tech_phone')
+                            @error('teknis_telepon')
                                 <p class="mt-1 text-sm text-error">{{ $message }}</p>
                             @enderror
                         </div>
                         
                         <div>
-                            <label for="tech_alamat_kantor" class="mb-1 block text-sm font-medium text-gray-700">
+                            <label for="teknis_alamat_kantor" class="mb-1 block text-sm font-medium text-gray-700">
                                 Alamat Kantor
                             </label>
                             <input 
                                 type="text" 
-                                name="tech_alamat_kantor" 
-                                id="tech_alamat_kantor"
-                                value="{{ old('tech_alamat_kantor') }}"
+                                name="teknis_alamat_kantor" 
+                                id="teknis_alamat_kantor"
+                                value="{{ old('teknis_alamat_kantor') }}"
                                 placeholder="Alamat kantor/kampus"
                                 class="form-input"
                             >
                         </div>
                         
                         <div>
-                            <label for="tech_alamat_rumah" class="mb-1 block text-sm font-medium text-gray-700">
+                            <label for="teknis_alamat_rumah" class="mb-1 block text-sm font-medium text-gray-700">
                                 Alamat Rumah
                             </label>
                             <input 
                                 type="text" 
-                                name="tech_alamat_rumah" 
-                                id="tech_alamat_rumah"
-                                value="{{ old('tech_alamat_rumah') }}"
+                                name="teknis_alamat_rumah" 
+                                id="teknis_alamat_rumah"
+                                value="{{ old('teknis_alamat_rumah') }}"
                                 placeholder="Alamat rumah"
                                 class="form-input"
                             >
                         </div>
                         
                         <div class="md:col-span-2">
-                            <label for="tech_email" class="mb-1 block text-sm font-medium text-gray-700">
+                            <label for="teknis_email" class="mb-1 block text-sm font-medium text-gray-700">
                                 Email <span class="text-error">*</span>
                             </label>
                             <input 
                                 type="email" 
-                                name="tech_email" 
-                                id="tech_email"
-                                value="{{ old('tech_email') }}"
+                                name="teknis_email" 
+                                id="teknis_email"
+                                value="{{ old('teknis_email') }}"
                                 placeholder="email@students.unila.ac.id"
                                 required
                                 data-user-email="{{ $user->email ?? '' }}"
-                                class="form-input @error('tech_email') form-input-error @enderror"
+                                class="form-input @error('teknis_email') form-input-error @enderror"
                             >
-                            @error('tech_email')
+                            @error('teknis_email')
                                 <p class="mt-1 text-sm text-error">{{ $message }}</p>
                             @enderror
                         </div>
@@ -885,18 +886,18 @@
 // Function to update tech identity label based on kategori_teknis selection
 function updateTechIdentityLabel() {
     const kategoriTech = document.querySelector('input[name="kategori_teknis"]:checked')?.value;
-    const techNipLabel = document.getElementById('tech_nip_label');
-    const techNipInput = document.getElementById('tech_nip');
+    const teknisNipLabel = document.getElementById('teknis_nip_label');
+    const teknisNipInput = document.getElementById('teknis_nip');
     
     if (kategoriTech === 'mahasiswa') {
-        techNipLabel.innerHTML = 'NPM <span class="text-error">*</span>';
-        techNipInput.placeholder = 'NPM';
+        teknisNipLabel.innerHTML = 'NPM <span class="text-error">*</span>';
+        teknisNipInput.placeholder = 'NPM';
     } else if (kategoriTech === 'dosen') {
-        techNipLabel.innerHTML = 'NIP/NIDN <span class="text-error">*</span>';
-        techNipInput.placeholder = 'NIP/NIDN';
+        teknisNipLabel.innerHTML = 'NIP/NIDN <span class="text-error">*</span>';
+        teknisNipInput.placeholder = 'NIP/NIDN';
     } else if (kategoriTech === 'tendik') {
-        techNipLabel.innerHTML = 'NIP/NIDN <span class="text-error">*</span>';
-        techNipInput.placeholder = 'NIP/NIDN';
+        teknisNipLabel.innerHTML = 'NIP/NIDN <span class="text-error">*</span>';
+        teknisNipInput.placeholder = 'NIP/NIDN';
     }
 }
 
@@ -905,20 +906,23 @@ document.addEventListener('DOMContentLoaded', function() {
     updateTechIdentityLabel();
     
     const fillCheckbox = document.getElementById('fill_from_user');
-    const techName = document.getElementById('tech_name');
-    const techNip = document.getElementById('tech_nip');
-    const techEmail = document.getElementById('tech_email');
+    const teknisNama = document.getElementById('teknis_nama');
+    const teknisNip = document.getElementById('teknis_nip');
+    const teknisNik = document.getElementById('teknis_nik');
+    const teknisEmail = document.getElementById('teknis_email');
     
     // Auto-fill from user data
     fillCheckbox?.addEventListener('change', function() {
         if (this.checked) {
-            techName.value = techName.dataset.userName || '';
-            techNip.value = techNip.dataset.userNip || '';
-            techEmail.value = techEmail.dataset.userEmail || '';
+            teknisNama.value = teknisNama.dataset.userName || '';
+            teknisNip.value = teknisNip.dataset.userNip || '';
+            teknisNik.value = teknisNik.dataset.userKtp || '';
+            teknisEmail.value = teknisEmail.dataset.userEmail || '';
         } else {
-            techName.value = '';
-            techNip.value = '';
-            techEmail.value = '';
+            teknisNama.value = '';
+            teknisNip.value = '';
+            teknisNik.value = '';
+            teknisEmail.value = '';
         }
     });
 
@@ -1153,25 +1157,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     
                     // Auto-fill tech contact
-                    const techName = document.getElementById('tech_name');
-                    const techNip = document.getElementById('tech_nip');
-                    const techNik = document.getElementById('tech_nik');
-                    const techEmail = document.getElementById('tech_email');
-                    const techPhone = document.getElementById('tech_phone');
-                    const techAlamatKantor = document.getElementById('tech_alamat_kantor');
-                    const techAlamatRumah = document.getElementById('tech_alamat_rumah');
+                    const teknisNama = document.getElementById('teknis_nama');
+                    const teknisNip = document.getElementById('teknis_nip');
+                    const teknisNik = document.getElementById('teknis_nik');
+                    const teknisEmail = document.getElementById('teknis_email');
+                    const teknisTelepon = document.getElementById('teknis_telepon');
+                    const teknisAlamatKantor = document.getElementById('teknis_alamat_kantor');
+                    const teknisAlamatRumah = document.getElementById('teknis_alamat_rumah');
                     
-                    if (techName) techName.value = data.tech_name || '';
-                    if (techNip) techNip.value = data.tech_nip || '';
-                    if (techNik) techNik.value = data.tech_nik || '';
-                    if (techEmail) techEmail.value = data.tech_email || '';
-                    if (techPhone) techPhone.value = data.tech_phone || '';
-                    if (techAlamatKantor) techAlamatKantor.value = data.tech_alamat_kantor || '';
-                    if (techAlamatRumah) techAlamatRumah.value = data.tech_alamat_rumah || '';
+                    if (teknisNama) teknisNama.value = data.teknis_nama || '';
+                    if (teknisNip) teknisNip.value = data.teknis_nip || '';
+                    if (teknisNik) teknisNik.value = data.teknis_nik || '';
+                    if (teknisEmail) teknisEmail.value = data.teknis_email || '';
+                    if (teknisTelepon) teknisTelepon.value = data.teknis_telepon || '';
+                    if (teknisAlamatKantor) teknisAlamatKantor.value = data.teknis_alamat_kantor || '';
+                    if (teknisAlamatRumah) teknisAlamatRumah.value = data.teknis_alamat_rumah || '';
                     
                     // Auto-fill kategori tech
-                    if (data.kategori_tech) {
-                        const kategoriTechRadio = document.querySelector(`input[name="kategori_teknis"][value="${data.kategori_tech}"]`);
+                    if (data.kategori_teknis) {
+                        const kategoriTechRadio = document.querySelector(`input[name="kategori_teknis"][value="${data.kategori_teknis}"]`);
                         if (kategoriTechRadio) {
                             kategoriTechRadio.checked = true;
                             // Update label dinamis

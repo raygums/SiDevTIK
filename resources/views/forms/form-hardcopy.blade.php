@@ -482,35 +482,35 @@
             <table class="data-table">
                 <tr>
                     <td class="label">Nama Lengkap</td>
-                    <td class="value">{{ $keterangan['tech']['name'] ?? '-' }}</td>
+                    <td class="value">{{ $keterangan['teknis']['name'] ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">Kategori</td>
-                    <td class="value">{{ isset($keterangan['kategori_tech']) ? ucfirst($keterangan['kategori_tech']) : '-' }}</td>
+                    <td class="value">{{ isset($keterangan['kategori_teknis']) ? ucfirst($keterangan['kategori_teknis']) : '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">NIP/NPM</td>
-                    <td class="value">{{ $keterangan['tech']['nip'] ?? '-' }}</td>
+                    <td class="value">{{ $keterangan['teknis']['nip'] ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">NIK/Passport</td>
-                    <td class="value">{{ $keterangan['tech']['nik'] ?? '-' }}</td>
+                    <td class="value">{{ $keterangan['teknis']['nik'] ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">Email</td>
-                    <td class="value">{{ $keterangan['tech']['email'] ?? '-' }}</td>
+                    <td class="value">{{ $keterangan['teknis']['email'] ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">No. HP/WA</td>
-                    <td class="value">{{ $keterangan['tech']['phone'] ?? '-' }}</td>
+                    <td class="value">{{ $keterangan['teknis']['phone'] ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">Alamat Kantor</td>
-                    <td class="value">{{ $keterangan['tech']['alamat_kantor'] ?? '-' }}</td>
+                    <td class="value">{{ $keterangan['teknis']['alamat_kantor'] ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">Alamat Rumah</td>
-                    <td class="value">{{ $keterangan['tech']['alamat_rumah'] ?? '-' }}</td>
+                    <td class="value">{{ $keterangan['teknis']['alamat_rumah'] ?? '-' }}</td>
                 </tr>
             </table>
         </div>

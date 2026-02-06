@@ -121,9 +121,9 @@
                     </div>
                     <div class="rounded-lg border border-gray-200 p-4">
                         <p class="text-xs font-medium text-gray-500">Tech Contact</p>
-                        <p class="mt-1 text-sm text-gray-900">{{ $keterangan['tech']['name'] ?? '-' }}</p>
-                        <p class="text-sm text-gray-600">{{ $keterangan['tech']['email'] ?? '-' }}</p>
-                        <p class="text-sm text-gray-600">{{ $keterangan['tech']['phone'] ?? '-' }}</p>
+                        <p class="mt-1 text-sm text-gray-900">{{ $keterangan['teknis']['name'] ?? '-' }}</p>
+                        <p class="text-sm text-gray-600">{{ $keterangan['teknis']['email'] ?? '-' }}</p>
+                        <p class="text-sm text-gray-600">{{ $keterangan['teknis']['phone'] ?? '-' }}</p>
                     </div>
                 </div>
             </div>

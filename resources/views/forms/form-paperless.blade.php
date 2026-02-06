@@ -222,38 +222,38 @@
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Nama Lengkap</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['name'] ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['teknis']['name'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Kategori</p>
-                            <p class="font-medium text-gray-900">{{ isset($keterangan['kategori_tech']) ? ucfirst($keterangan['kategori_tech']) : '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ isset($keterangan['kategori_teknis']) ? ucfirst($keterangan['kategori_teknis']) : '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">NIP/NPM</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['nip'] ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['teknis']['nip'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">NIK/Passport</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['nik'] ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['teknis']['nik'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Email</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['email'] ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['teknis']['email'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">No. HP</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['phone'] ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['teknis']['phone'] ?? '-' }}</p>
                         </div>
-                        @if(!empty($keterangan['tech']['alamat_kantor']))
+                        @if(!empty($keterangan['teknis']['alamat_kantor']))
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Alamat Kantor</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['alamat_kantor'] }}</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['teknis']['alamat_kantor'] }}</p>
                         </div>
                         @endif
-                        @if(!empty($keterangan['tech']['alamat_rumah']))
+                        @if(!empty($keterangan['teknis']['alamat_rumah']))
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Alamat Rumah</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['tech']['alamat_rumah'] }}</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['teknis']['alamat_rumah'] }}</p>
                         </div>
                         @endif
                     </div>
