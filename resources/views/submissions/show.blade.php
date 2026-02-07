@@ -214,30 +214,30 @@
                     @endif
 
                     {{-- Tech Contact --}}
-                    @if(!empty($keterangan['tech']))
+                    @if(!empty($keterangan['teknis']))
                     <div class="border-t border-gray-200 px-6 py-4">
                         <h3 class="text-sm font-semibold text-myunila mb-3">Penanggung Jawab Teknis</h3>
                         <div class="grid gap-3 sm:grid-cols-2 text-sm">
                             <div>
                                 <span class="text-gray-500">Nama:</span>
-                                <span class="font-medium text-gray-900">{{ $keterangan['tech']['name'] ?? '-' }}</span>
+                                <span class="font-medium text-gray-900">{{ $keterangan['teknis']['name'] ?? '-' }}</span>
                             </div>
                             <div>
                                 <span class="text-gray-500">NIP/NIM:</span>
-                                <span class="font-medium text-gray-900">{{ $keterangan['tech']['nip'] ?? '-' }}</span>
+                                <span class="font-medium text-gray-900">{{ $keterangan['teknis']['nip'] ?? '-' }}</span>
                             </div>
                             <div>
                                 <span class="text-gray-500">Email:</span>
-                                <span class="font-medium text-gray-900">{{ $keterangan['tech']['email'] ?? '-' }}</span>
+                                <span class="font-medium text-gray-900">{{ $keterangan['teknis']['email'] ?? '-' }}</span>
                             </div>
                             <div>
                                 <span class="text-gray-500">Telepon:</span>
-                                <span class="font-medium text-gray-900">{{ $keterangan['tech']['phone'] ?? '-' }}</span>
+                                <span class="font-medium text-gray-900">{{ $keterangan['teknis']['phone'] ?? '-' }}</span>
                             </div>
-                            @if(!empty($keterangan['tech']['alamat_kantor']))
+                            @if(!empty($keterangan['teknis']['alamat_kantor']))
                             <div class="sm:col-span-2">
                                 <span class="text-gray-500">Alamat Kantor:</span>
-                                <span class="font-medium text-gray-900">{{ $keterangan['tech']['alamat_kantor'] }}</span>
+                                <span class="font-medium text-gray-900">{{ $keterangan['teknis']['alamat_kantor'] }}</span>
                             </div>
                             @endif
                         </div>

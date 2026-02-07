@@ -300,27 +300,27 @@
         <table class="form-table">
             <tr>
                 <td class="label">Nama</td>
-                <td class="value">{{ $metadata['tech']['name'] ?? '-' }}</td>
+                <td class="value">{{ $metadata['teknis']['name'] ?? '-' }}</td>
             </tr>
             <tr>
                 <td class="label">NIP / NIM</td>
-                <td class="value">{{ $metadata['tech']['nip'] ?? '-' }}</td>
+                <td class="value">{{ $metadata['teknis']['nip'] ?? '-' }}</td>
             </tr>
             <tr>
                 <td class="label">Alamat Kantor</td>
-                <td class="value">{{ $metadata['tech']['alamat_kantor'] ?? '-' }}</td>
+                <td class="value">{{ $metadata['teknis']['alamat_kantor'] ?? '-' }}</td>
             </tr>
             <tr>
                 <td class="label">Alamat Rumah</td>
-                <td class="value">{{ $metadata['tech']['alamat_rumah'] ?? '-' }}</td>
+                <td class="value">{{ $metadata['teknis']['alamat_rumah'] ?? '-' }}</td>
             </tr>
             <tr>
                 <td class="label">Email</td>
-                <td class="value">{{ $metadata['tech']['email'] ?? '-' }}</td>
+                <td class="value">{{ $metadata['teknis']['email'] ?? '-' }}</td>
             </tr>
             <tr>
                 <td class="label">No. Telepon</td>
-                <td class="value">{{ $metadata['tech']['phone'] ?? '-' }}</td>
+                <td class="value">{{ $metadata['teknis']['phone'] ?? '-' }}</td>
             </tr>
         </table>
     </div>

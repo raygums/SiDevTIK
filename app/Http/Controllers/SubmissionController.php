@@ -81,12 +81,12 @@ class SubmissionController extends Controller
             'admin_email' => 'required|email|max:255',
             
             // Data Penanggung Jawab Teknis
-            'tech_name' => 'required|string|max:255',
-            'tech_nip' => 'required|string|max:50',
-            'tech_phone' => 'required|string|max:20',
-            'tech_alamat_kantor' => 'nullable|string|max:255',
-            'tech_alamat_rumah' => 'nullable|string|max:255',
-            'tech_email' => 'required|email|max:255',
+            'teknis_name' => 'required|string|max:255',
+            'teknis_nip' => 'required|string|max:50',
+            'teknis_phone' => 'required|string|max:20',
+            'teknis_alamat_kantor' => 'nullable|string|max:255',
+            'teknis_alamat_rumah' => 'nullable|string|max:255',
+            'teknis_email' => 'required|email|max:255',
             
             // Hidden fields for DB compatibility
             'unit_id' => 'nullable',
@@ -145,10 +145,10 @@ class SubmissionController extends Controller
             'admin_responsible_position.required' => 'Jabatan penanggung jawab administratif wajib diisi.',
             'admin_responsible_phone.required' => 'Nomor telepon rumah/HP penanggung jawab administratif wajib diisi.',
             'admin_email.required' => 'Email penanggung jawab administratif wajib diisi.',
-            'tech_name.required' => 'Nama penanggung jawab teknis wajib diisi.',
-            'tech_nip.required' => 'NIP/NIM penanggung jawab teknis wajib diisi.',
-            'tech_phone.required' => 'Nomor telepon penanggung jawab teknis wajib diisi.',
-            'tech_email.required' => 'Email penanggung jawab teknis wajib diisi.',
+            'teknis_name.required' => 'Nama penanggung jawab teknis wajib diisi.',
+            'teknis_nip.required' => 'NIP/NIM penanggung jawab teknis wajib diisi.',
+            'teknis_phone.required' => 'Nomor telepon penanggung jawab teknis wajib diisi.',
+            'teknis_email.required' => 'Email penanggung jawab teknis wajib diisi.',
             'requested_domain.required' => 'Nama sub domain wajib diisi.',
             'requested_domain.min' => 'Nama sub domain minimal 2 karakter.',
             'requested_domain.max' => 'Nama sub domain maksimal 12 karakter.',
@@ -268,13 +268,13 @@ class SubmissionController extends Controller
                 'email' => $validated['admin_email'],
                 'phone' => $validated['admin_responsible_phone'],
             ],
-            'tech' => [
-                'name' => $validated['tech_name'],
-                'nip' => $validated['tech_nip'],
-                'alamat_kantor' => $validated['tech_alamat_kantor'] ?? null,
-                'alamat_rumah' => $validated['tech_alamat_rumah'] ?? null,
-                'email' => $validated['tech_email'],
-                'phone' => $validated['tech_phone'],
+            'teknis' => [
+                'name' => $validated['teknis_name'],
+                'nip' => $validated['teknis_nip'],
+                'alamat_kantor' => $validated['teknis_alamat_kantor'] ?? null,
+                'alamat_rumah' => $validated['teknis_alamat_rumah'] ?? null,
+                'email' => $validated['teknis_email'],
+                'phone' => $validated['teknis_phone'],
             ],
             'password_hint' => $validated['admin_password'] ?? null,
         ];
@@ -585,14 +585,14 @@ class SubmissionController extends Controller
                 'kategori_admin' => $keterangan['kategori_admin'] ?? '',
                 
                 // Tech contact
-                'tech_name' => $keterangan['tech']['name'] ?? '',
-                'tech_nip' => $keterangan['tech']['nip'] ?? '',
-                'tech_nik' => $keterangan['tech']['nik'] ?? '',
-                'tech_email' => $keterangan['tech']['email'] ?? '',
-                'tech_phone' => $keterangan['tech']['phone'] ?? '',
-                'tech_alamat_kantor' => $keterangan['tech']['alamat_kantor'] ?? '',
-                'tech_alamat_rumah' => $keterangan['tech']['alamat_rumah'] ?? '',
-                'kategori_tech' => $keterangan['kategori_tech'] ?? '',
+                'teknis_name' => $keterangan['teknis']['name'] ?? '',
+                'teknis_nip' => $keterangan['teknis']['nip'] ?? '',
+                'teknis_nik' => $keterangan['teknis']['nik'] ?? '',
+                'teknis_email' => $keterangan['teknis']['email'] ?? '',
+                'teknis_phone' => $keterangan['teknis']['phone'] ?? '',
+                'teknis_alamat_kantor' => $keterangan['teknis']['alamat_kantor'] ?? '',
+                'teknis_alamat_rumah' => $keterangan['teknis']['alamat_rumah'] ?? '',
+                'kategori_teknis' => $keterangan['kategori_teknis'] ?? '',
                 
                 // VPS specs (if applicable)
                 'vps_cpu' => $keterangan['vps']['cpu'] ?? '',

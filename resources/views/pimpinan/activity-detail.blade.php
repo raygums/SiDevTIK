@@ -187,11 +187,11 @@
                 </div>
                 @endif
 
-                @if(!empty($keterangan['tech']['name']))
+                @if(!empty($keterangan['teknis']['name']))
                 <div class="rounded-lg bg-gray-50 p-3">
                     <p class="text-xs text-gray-500">Penanggung Jawab Teknis</p>
-                    <p class="font-medium text-gray-900">{{ $keterangan['tech']['name'] }}</p>
-                    <p class="text-sm text-gray-500">{{ $keterangan['tech']['email'] ?? '' }}</p>
+                    <p class="font-medium text-gray-900">{{ $keterangan['teknis']['name'] }}</p>
+                    <p class="text-sm text-gray-500">{{ $keterangan['teknis']['email'] ?? '' }}</p>
                 </div>
                 @endif
 

@@ -119,7 +119,7 @@
                 </div>
                 <div class="flex justify-between px-6 py-4">
                     <span class="text-gray-600">Penanggung Jawab Teknis</span>
-                    <span class="font-medium text-gray-900">{{ $metadata['tech']['name'] ?? '-' }}</span>
+                    <span class="font-medium text-gray-900">{{ $metadata['teknis']['name'] ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between px-6 py-4">
                     <span class="text-gray-600">Status</span>
