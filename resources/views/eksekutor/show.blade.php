@@ -114,18 +114,29 @@
                 <h3 class="mb-3 font-semibold text-gray-900">Kontak</h3>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="rounded-lg border border-gray-200 p-4">
-                        <p class="text-xs font-medium text-gray-500">Admin Contact</p>
+                        <p class="text-xs font-medium text-gray-500">Penanggung Jawab Administratif</p>
                         <p class="mt-1 text-sm text-gray-900">{{ $keterangan['admin']['name'] ?? '-' }}</p>
                         <p class="text-sm text-gray-600">{{ $keterangan['admin']['email'] ?? '-' }}</p>
                         <p class="text-sm text-gray-600">{{ $keterangan['admin']['phone'] ?? '-' }}</p>
                     </div>
                     <div class="rounded-lg border border-gray-200 p-4">
-                        <p class="text-xs font-medium text-gray-500">Tech Contact</p>
+                        <p class="text-xs font-medium text-gray-500">Penanggung Jawab Teknis</p>
                         <p class="mt-1 text-sm text-gray-900">{{ $keterangan['teknis']['name'] ?? '-' }}</p>
                         <p class="text-sm text-gray-600">{{ $keterangan['teknis']['email'] ?? '-' }}</p>
                         <p class="text-sm text-gray-600">{{ $keterangan['teknis']['phone'] ?? '-' }}</p>
                     </div>
                 </div>
+            </div>
+
+            {{-- Lihat Dokumen Formulir --}}
+            <div>
+                <h3 class="mb-3 font-semibold text-gray-900">Dokumen</h3>
+                <a href="{{ route('forms.hardcopy.preview', $submission->no_tiket) }}" target="_blank"
+                   class="inline-flex items-center gap-2 rounded-lg border border-myunila bg-myunila-50 px-4 py-2.5 text-sm font-medium text-myunila transition hover:bg-myunila hover:text-white">
+                    <x-icon name="document-text" class="h-5 w-5" />
+                    Lihat Formulir Lengkap
+                    <x-icon name="external-link" class="h-4 w-4" />
+                </a>
             </div>
 
             {{-- Tujuan Penggunaan --}}
@@ -208,17 +219,6 @@
                 </div>
             </div>
             @endif
-
-            {{-- Lihat Dokumen Formulir --}}
-            <div>
-                <h3 class="mb-3 font-semibold text-gray-900">Dokumen</h3>
-                <a href="{{ route('forms.hardcopy.preview', $submission->no_tiket) }}" target="_blank"
-                   class="inline-flex items-center gap-2 rounded-lg border border-myunila bg-myunila-50 px-4 py-2.5 text-sm font-medium text-myunila transition hover:bg-myunila hover:text-white">
-                    <x-icon name="document-text" class="h-5 w-5" />
-                    Lihat Formulir Lengkap
-                    <x-icon name="external-link" class="h-4 w-4" />
-                </a>
-            </div>
         </div>
     </div>
 

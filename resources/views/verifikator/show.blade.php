@@ -107,18 +107,29 @@
                     <h3 class="mb-3 font-semibold text-gray-900">Kontak</h3>
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div class="rounded-lg border border-gray-200 p-4">
-                            <p class="text-xs font-medium text-gray-500">Admin Contact</p>
+                            <p class="text-xs font-medium text-gray-500">Penanggung Jawab Administratif</p>
                             <p class="mt-1 text-sm text-gray-900">{{ $keterangan['admin']['name'] ?? '-' }}</p>
                             <p class="text-sm text-gray-600">{{ $keterangan['admin']['email'] ?? '-' }}</p>
                             <p class="text-sm text-gray-600">{{ $keterangan['admin']['phone'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg border border-gray-200 p-4">
-                            <p class="text-xs font-medium text-gray-500">Tech Contact</p>
+                            <p class="text-xs font-medium text-gray-500">Penanggung Jawab Teknis</p>
                             <p class="mt-1 text-sm text-gray-900">{{ $keterangan['teknis']['name'] ?? '-' }}</p>
                             <p class="text-sm text-gray-600">{{ $keterangan['teknis']['email'] ?? '-' }}</p>
                             <p class="text-sm text-gray-600">{{ $keterangan['teknis']['phone'] ?? '-' }}</p>
                         </div>
                     </div>
+                </div>
+
+                {{-- Lihat Dokumen Formulir --}}
+                <div>
+                    <h3 class="mb-3 font-semibold text-gray-900">Dokumen</h3>
+                    <a href="{{ route('forms.hardcopy.preview', $submission->no_tiket) }}" target="_blank"
+                       class="inline-flex items-center gap-2 rounded-lg border border-myunila bg-myunila-50 px-4 py-2.5 text-sm font-medium text-myunila transition hover:bg-myunila hover:text-white">
+                        <x-icon name="document-text" class="h-5 w-5" />
+                        Lihat Formulir Lengkap
+                        <x-icon name="external-link" class="h-4 w-4" />
+                    </a>
                 </div>
 
                 {{-- Tujuan Penggunaan --}}
@@ -131,21 +142,50 @@
                 </div>
                 @endif
 
-                {{-- Riwayat --}}
+                {{-- Riwayat Status Timeline --}}
                 @if($submission->riwayat->isNotEmpty())
                 <div>
-                    <h3 class="mb-3 font-semibold text-gray-900">Riwayat Pengajuan</h3>
-                    <div class="space-y-2">
+                    <h3 class="mb-4 font-semibold text-gray-900">Riwayat Status</h3>
+                    <div class="relative space-y-0">
                         @foreach($submission->riwayat as $log)
-                        <div class="flex items-start gap-3 rounded-lg border border-gray-200 p-3">
-                            <div class="flex-shrink-0 mt-0.5">
-                                <div class="h-2 w-2 rounded-full bg-myunila"></div>
+                        <div class="relative flex gap-3 pb-6 last:pb-0">
+                            {{-- Timeline Line --}}
+                            @if(!$loop->last)
+                            <div class="absolute left-3 top-6 -bottom-0 w-0.5 bg-gray-200"></div>
+                            @endif
+
+                            {{-- Icon --}}
+                            <div class="relative z-10 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full 
+                                @if($log->status?->nm_status === 'Selesai') bg-success text-white
+                                @elseif(str_contains($log->status?->nm_status ?? '', 'Ditolak')) bg-danger text-white
+                                @elseif($log->status?->nm_status === 'Sedang Dikerjakan') bg-info text-white
+                                @elseif(str_contains($log->status?->nm_status ?? '', 'Disetujui')) bg-warning text-white
+                                @else bg-myunila text-white
+                                @endif">
+                                @if($log->status?->nm_status === 'Selesai')
+                                <x-icon name="check" class="h-3 w-3" />
+                                @elseif(str_contains($log->status?->nm_status ?? '', 'Ditolak'))
+                                <x-icon name="x-mark" class="h-3 w-3" />
+                                @elseif($log->status?->nm_status === 'Sedang Dikerjakan')
+                                <x-icon name="cog" class="h-3 w-3" />
+                                @elseif(str_contains($log->status?->nm_status ?? '', 'Disetujui'))
+                                <x-icon name="check-circle" class="h-3 w-3" />
+                                @else
+                                <x-icon name="clock" class="h-3 w-3" />
+                                @endif
                             </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-gray-900">{{ $log->status?->nm_status ?? '-' }}</p>
-                                <p class="text-xs text-gray-500">{{ $log->create_at?->format('d M Y, H:i') }}</p>
+
+                            {{-- Content --}}
+                            <div class="flex-1 pt-0.5">
+                                <p class="text-sm font-semibold text-gray-900">{{ $log->status?->nm_status ?? '-' }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5">
+                                    {{ $log->create_at?->format('d M Y, H:i') }}
+                                    @if($log->creator)
+                                    • {{ $log->creator->nm }}
+                                    @endif
+                                </p>
                                 @if($log->catatan_log)
-                                <p class="mt-1 text-sm text-gray-600">{{ $log->catatan_log }}</p>
+                                <p class="mt-2 text-sm text-gray-600 rounded bg-gray-50 p-2">{{ $log->catatan_log }}</p>
                                 @endif
                             </div>
                         </div>
