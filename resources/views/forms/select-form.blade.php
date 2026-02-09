@@ -100,103 +100,55 @@
             </div>
         </div>
 
-        {{-- Form Options --}}
+        {{-- Langkah Selanjutnya --}}
         <div class="grid gap-6 md:grid-cols-2">
-            {{-- Option 1: Paperless Form --}}
-            <div class="group relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-myunila hover:shadow-lg">
-                <div class="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-unila text-white">
-                    <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
+            {{-- Button 1: Format Dokumen Pengajuan --}}
+            <a href="{{ route('forms.paperless', $submission->no_tiket) }}" 
+               class="group block rounded-2xl border-2 border-gray-200 bg-white p-8 shadow-sm transition-all hover:border-myunila hover:shadow-xl hover:-translate-y-1">
+                <div class="flex flex-col items-center text-center">
+                    <div class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-unila text-white shadow-lg">
+                        <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="mb-3 text-xl font-bold text-gray-900 group-hover:text-myunila transition">
+                        Format Dokumen Pengajuan
+                    </h3>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        Lihat form paperless dan download PDF untuk ditandatangani atasan
+                    </p>
+                    <div class="mt-6 flex items-center gap-2 text-myunila font-semibold">
+                        <span>Lihat Format</span>
+                        <svg class="h-5 w-5 transition group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </div>
                 </div>
-                <h3 class="mb-2 text-lg font-bold text-gray-900">Form Paperless</h3>
-                <p class="mb-4 text-sm text-gray-600">
-                    Form digital untuk pengajuan ke TIK. Dapat dilihat langsung di browser dan dicetak jika diperlukan.
-                </p>
-                <ul class="mb-6 space-y-2 text-sm text-gray-600">
-                    <li class="flex items-center gap-2">
-                        <svg class="h-5 w-5 text-success" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                        Proses cepat & efisien
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <svg class="h-5 w-5 text-success" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                        Terintegrasi dengan sistem
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <svg class="h-5 w-5 text-success" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                        Bisa dicetak langsung (Ctrl+P)
-                    </li>
-                </ul>
-                <a href="{{ route('forms.paperless', $submission->no_tiket) }}" 
-                   class="btn-primary w-full justify-center inline-flex items-center gap-2">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                    </svg>
-                    Lihat Form Paperless
-                </a>
-            </div>
+            </a>
 
-            {{-- Option 2: Hardcopy Form --}}
-            <div class="group relative overflow-hidden rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-info hover:shadow-lg">
-                <div class="absolute -right-3 -top-3 rotate-12">
-                    <span class="inline-block rounded-full bg-warning-light px-3 py-1 text-xs font-semibold text-warning">
-                        PDF
-                    </span>
+            {{-- Button 2: Upload Dokumen --}}
+            <a href="{{ route('submissions.upload', $submission) }}" 
+               class="group block rounded-2xl border-2 border-gray-200 bg-white p-8 shadow-sm transition-all hover:border-success hover:shadow-xl hover:-translate-y-1">
+                <div class="flex flex-col items-center text-center">
+                    <div class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-success text-white shadow-lg">
+                        <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                    </div>
+                    <h3 class="mb-3 text-xl font-bold text-gray-900 group-hover:text-success transition">
+                        Upload Dokumen
+                    </h3>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        Upload formulir yang sudah ditandatangani atasan (PDF/Scan)
+                    </p>
+                    <div class="mt-6 flex items-center gap-2 text-success font-semibold">
+                        <span>Upload File</span>
+                        <svg class="h-5 w-5 transition group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </div>
                 </div>
-                <div class="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-info text-white">
-                    <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-                <h3 class="mb-2 text-lg font-bold text-gray-900">Form Hardcopy (PDF)</h3>
-                <p class="mb-4 text-sm text-gray-600">
-                    Form resmi dalam format PDF untuk ditandatangani dan diserahkan ke atasan (Kajur/Dekan/Wakil Rektor).
-                </p>
-                <ul class="mb-6 space-y-2 text-sm text-gray-600">
-                    <li class="flex items-center gap-2">
-                        <svg class="h-5 w-5 text-success" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                        Format resmi dengan kop surat
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <svg class="h-5 w-5 text-success" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                        Kolom tanda tangan atasan
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <svg class="h-5 w-5 text-success" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                        Siap cetak & arsip
-                    </li>
-                </ul>
-                <div class="flex gap-2">
-                    <a href="{{ route('forms.hardcopy.preview', $submission->no_tiket) }}" 
-                       class="btn-secondary flex-1 justify-center inline-flex items-center gap-2" target="_blank">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                        </svg>
-                        Preview
-                    </a>
-                    <a href="{{ route('forms.hardcopy.download', $submission->no_tiket) }}" 
-                       class="flex-1 justify-center inline-flex items-center gap-2 rounded-xl bg-info px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-info/90">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                        </svg>
-                        Download
-                    </a>
-                </div>
-            </div>
+            </a>
         </div>
 
         {{-- Info Box --}}
@@ -208,31 +160,22 @@
                 <div class="text-sm text-gray-700">
                     <p class="font-semibold text-gray-900">Langkah Selanjutnya</p>
                     <ol class="mt-2 list-inside list-decimal space-y-1">
-                        <li><strong>Download PDF Hardcopy</strong> dan cetak formulir</li>
-                        <li>Minta <strong>tanda tangan basah</strong> dari atasan (Kajur/Dekan/Wakil Rektor)</li>
+                        <li>Lihat dan download <strong>format dokumen</strong> dari sistem</li>
+                        <li>Cetak dan minta <strong>tanda tangan</strong> dari atasan</li>
                         <li>Scan formulir yang sudah ditandatangani</li>
-                        <li>Upload scan formulir ke sistem</li>
+                        <li><strong>Upload</strong> scan formulir ke sistem</li>
                     </ol>
-                    <p class="mt-3 text-xs text-gray-500">
-                        <strong>Catatan:</strong> Form Paperless dan Hardcopy berisi data yang sama. Paperless untuk sistem internal TIK, Hardcopy untuk persetujuan atasan.
-                    </p>
                 </div>
             </div>
         </div>
 
-        {{-- Action Buttons --}}
-        <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+        {{-- Back Button --}}
+        <div class="mt-8 flex justify-center">
             <a href="{{ route('submissions.index') }}" class="btn-secondary inline-flex items-center gap-2">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
-                Lihat Daftar Pengajuan
-            </a>
-            <a href="{{ route('submissions.upload', $submission) }}" class="btn-primary inline-flex items-center gap-2">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-                </svg>
-                Upload Dokumen
+                Kembali ke Daftar Pengajuan
             </a>
         </div>
     </div>

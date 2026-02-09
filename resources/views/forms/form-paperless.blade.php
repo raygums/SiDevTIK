@@ -276,7 +276,7 @@
                         @if($serviceType === 'domain')
                             <div class="rounded-lg bg-myunila-50 p-4 sm:col-span-2">
                                 <p class="text-xs text-myunila-700">Sub Domain yang Diminta</p>
-                                <p class="font-mono text-lg font-bold text-myunila">{{ $submission->rincian?->nm_domain ?? '-' }}.unila.ac.id</p>
+                                <p class="font-mono text-lg font-bold text-myunila">{{ $submission->rincian?->nm_domain ?? '-' }}</p>
                             </div>
                         @elseif($serviceType === 'hosting')
                             <div class="rounded-lg bg-myunila-50 p-4">

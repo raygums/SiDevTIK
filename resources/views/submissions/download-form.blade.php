@@ -14,7 +14,7 @@
                 </svg>
             </div>
             <h1 class="mb-2 text-2xl font-bold text-gray-900">Formulir Berhasil Dibuat!</h1>
-            <p class="text-gray-600">Nomor Tiket: <strong class="font-mono text-success">{{ $submission->ticket_number }}</strong></p>
+            <p class="text-gray-600">Nomor Tiket: <strong class="font-mono text-success">{{ $submission->no_tiket }}</strong></p>
         </div>
 
         {{-- Steps Card --}}
@@ -47,9 +47,12 @@
                             <p class="mt-1 text-sm text-gray-600">
                                 Cetak formulir dan minta <strong>tanda tangan basah</strong> dari:
                             </p>
+                            @php
+                                $keteranganStep = json_decode($submission->rincian?->keterangan_keperluan ?? '{}', true);
+                            @endphp
                             <ul class="mt-2 list-inside list-disc text-sm text-gray-600 space-y-1">
                                 <li><strong>Kepala Divisi Pusat Infrastruktur TIK</strong> (Mengetahui)</li>
-                                <li><strong>{{ $submission->admin_responsible_name }}</strong> - {{ $submission->admin_responsible_position }} (Pelanggan)</li>
+                                <li><strong>{{ $keteranganStep['admin']['name'] ?? 'Penanggung Jawab' }}</strong> - {{ $keteranganStep['admin']['position'] ?? 'Pelanggan' }} (Pelanggan)</li>
                             </ul>
                         </div>
                     </div>
@@ -85,8 +88,8 @@
         </div>
 
         @php
-            $metadata = is_array($submission->metadata) ? $submission->metadata : json_decode($submission->metadata ?? '{}', true);
-            $jenisLabels = [
+            $keterangan = json_decode($submission->rincian?->keterangan_keperluan ?? '{}', true);
+            $kategoriLabels = [
                 'lembaga_fakultas' => 'Lembaga / Fakultas / Jurusan',
                 'kegiatan_lembaga' => 'Kegiatan Lembaga / Fakultas / Jurusan',
                 'organisasi_mahasiswa' => 'Organisasi Mahasiswa',
@@ -102,30 +105,30 @@
             </div>
             <div class="divide-y divide-gray-100">
                 <div class="flex justify-between px-6 py-4">
-                    <span class="text-gray-600">Jenis Domain</span>
-                    <span class="font-medium text-gray-900">{{ $jenisLabels[$metadata['jenis_domain'] ?? ''] ?? 'Domain' }}</span>
+                    <span class="text-gray-600">Kategori Pemohon</span>
+                    <span class="font-medium text-gray-900">{{ $kategoriLabels[$keterangan['kategori_pemohon'] ?? ''] ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between px-6 py-4">
                     <span class="text-gray-600">Nama Lembaga/Organisasi</span>
-                    <span class="font-medium text-gray-900">{{ $metadata['nama_organisasi'] ?? $submission->application_name }}</span>
+                    <span class="font-medium text-gray-900">{{ $keterangan['nama_organisasi'] ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between px-6 py-4">
                     <span class="text-gray-600">Sub Domain Diminta</span>
-                    <span class="font-mono font-medium text-myunila">{{ $submission->details->first()?->requested_domain }}.unila.ac.id</span>
+                    <span class="font-mono font-medium text-myunila">{{ $submission->rincian?->nm_domain ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between px-6 py-4">
                     <span class="text-gray-600">Penanggung Jawab Administratif</span>
-                    <span class="font-medium text-gray-900">{{ $submission->admin_responsible_name }}</span>
+                    <span class="font-medium text-gray-900">{{ $keterangan['admin']['name'] ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between px-6 py-4">
                     <span class="text-gray-600">Penanggung Jawab Teknis</span>
-                    <span class="font-medium text-gray-900">{{ $metadata['teknis']['name'] ?? '-' }}</span>
+                    <span class="font-medium text-gray-900">{{ $keterangan['teknis']['name'] ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between px-6 py-4">
                     <span class="text-gray-600">Status</span>
                     <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
                         <span class="h-2 w-2 rounded-full bg-gray-400"></span>
-                        {{ $submission->status_label }}
+                        {{ $submission->status?->nm_status ?? 'Draft' }}
                     </span>
                 </div>
             </div>

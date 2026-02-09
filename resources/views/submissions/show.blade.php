@@ -297,64 +297,142 @@
                         <h2 class="font-semibold text-gray-900">Dokumen Upload</h2>
                     </div>
                     <div class="p-6">
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            {{-- Signed Form --}}
-                            <div class="rounded-xl border border-gray-200 p-4">
-                                <div class="flex items-start gap-3">
-                                    <div class="flex h-10 w-10 items-center justify-center rounded-lg {{ !empty($fileLampiran['signed_form']) ? 'bg-success-light text-success' : 'bg-gray-100 text-gray-400' }}">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <p class="font-medium text-gray-900">Formulir Bertanda Tangan</p>
-                                        @if(!empty($fileLampiran['signed_form']))
-                                            <a href="{{ asset('storage/' . $fileLampiran['signed_form']) }}" target="_blank" class="text-sm text-myunila hover:underline inline-flex items-center gap-1">
-                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                </svg>
-                                                Lihat Dokumen
-                                            </a>
-                                        @else
-                                            <p class="text-sm text-gray-500">Belum diupload</p>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            {{-- Identity --}}
-                            <div class="rounded-xl border border-gray-200 p-4">
-                                <div class="flex items-start gap-3">
-                                    <div class="flex h-10 w-10 items-center justify-center rounded-lg {{ !empty($fileLampiran['identity']) ? 'bg-success-light text-success' : 'bg-gray-100 text-gray-400' }}">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
-                                        </svg>
-                                    </div>
-                                    <div class="flex-1">
-                                        <p class="font-medium text-gray-900">Identitas (KTM/Karpeg)</p>
-                                        @if(!empty($fileLampiran['identity']))
-                                            <a href="{{ asset('storage/' . $fileLampiran['identity']) }}" target="_blank" class="text-sm text-myunila hover:underline inline-flex items-center gap-1">
-                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                </svg>
-                                                Lihat Dokumen
-                                            </a>
-                                        @else
-                                            <p class="text-sm text-gray-500">Belum diupload</p>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
                         @if(strtolower($submission->status?->nm_status ?? '') === 'draft')
-                            <div class="mt-4">
-                                <a href="{{ route('submissions.upload', $submission) }}" class="btn-primary inline-flex items-center gap-2">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-                                    </svg>
-                                    Upload Dokumen
-                                </a>
+                            {{-- Upload Form --}}
+                            <form action="{{ route('submissions.upload.store', $submission) }}" method="POST" enctype="multipart/form-data" id="uploadForm">
+                                @csrf
+                                
+                                {{-- Error Messages --}}
+                                @if($errors->any())
+                                    <div class="mb-4 rounded-lg bg-error-light border border-error p-4">
+                                        <div class="flex gap-3">
+                                            <svg class="h-5 w-5 text-error flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                            </svg>
+                                            <div class="flex-1">
+                                                <h3 class="text-sm font-semibold text-error">Terjadi kesalahan:</h3>
+                                                <ul class="mt-1 text-sm text-error list-disc list-inside">
+                                                    @foreach($errors->all() as $error)
+                                                        <li>{{ $error }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+                                
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    {{-- Signed Form Card Button --}}
+                                    <div onclick="document.getElementById('signed_form_input').click()" 
+                                         class="rounded-xl border-2 border-dashed border-gray-300 p-6 cursor-pointer hover:border-myunila hover:bg-myunila-50 transition-all group">
+                                        <div class="flex flex-col items-center text-center">
+                                            <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-100 text-gray-400 group-hover:bg-myunila group-hover:text-white transition mb-3">
+                                                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                </svg>
+                                            </div>
+                                            <p class="font-semibold text-gray-900 mb-1">Formulir Bertanda Tangan</p>
+                                            <p class="text-sm text-gray-500" id="signed_form_status">
+                                                @if(!empty($fileLampiran['signed_form']))
+                                                    <span class="text-success">✓ Sudah diupload</span>
+                                                @else
+                                                    Klik untuk upload
+                                                @endif
+                                            </p>
+                                            <p class="text-xs text-gray-400 mt-1" id="signed_form_name"></p>
+                                        </div>
+                                        <input type="file" id="signed_form_input" name="signed_form" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="updateFileStatus('signed_form')" {{ !empty($fileLampiran['signed_form']) ? '' : 'required' }}>
+                                    </div>
+                                    
+                                    {{-- Identity Card Button --}}
+                                    <div onclick="document.getElementById('identity_input').click()" 
+                                         class="rounded-xl border-2 border-dashed border-gray-300 p-6 cursor-pointer hover:border-myunila hover:bg-myunila-50 transition-all group">
+                                        <div class="flex flex-col items-center text-center">
+                                            <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-100 text-gray-400 group-hover:bg-myunila group-hover:text-white transition mb-3">
+                                                <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                                                </svg>
+                                            </div>
+                                            <p class="font-semibold text-gray-900 mb-1">Identitas (KTM/Karpeg)</p>
+                                            <p class="text-sm text-gray-500" id="identity_status">
+                                                @if(!empty($fileLampiran['identity']))
+                                                    <span class="text-success">✓ Sudah diupload</span>
+                                                @else
+                                                    Klik untuk upload
+                                                @endif
+                                            </p>
+                                            <p class="text-xs text-gray-400 mt-1" id="identity_name"></p>
+                                        </div>
+                                        <input type="file" id="identity_input" name="identity_attachment" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="updateFileStatus('identity')" {{ !empty($fileLampiran['identity']) ? '' : 'required' }}>
+                                    </div>
+                                </div>
+                                
+                                {{-- Submit Button --}}
+                                <div class="mt-6">
+                                    <button type="submit" class="btn-primary inline-flex items-center gap-2 w-full justify-center opacity-50 cursor-not-allowed" id="submitBtn" disabled>
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                        </svg>
+                                        Upload & Kirimkan Pengajuan
+                                    </button>
+                                    <p class="text-xs text-gray-500 text-center mt-2">
+                                        Pilih kedua file terlebih dahulu untuk mengaktifkan tombol
+                                    </p>
+                                    <p class="text-xs text-gray-400 text-center">
+                                        Format: PDF, JPG, PNG (Max 5MB per file)
+                                    </p>
+                                </div>
+                            </form>
+                        @else
+                            {{-- View Only Mode --}}
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                {{-- Signed Form --}}
+                                <div class="rounded-xl border border-gray-200 p-4">
+                                    <div class="flex items-start gap-3">
+                                        <div class="flex h-10 w-10 items-center justify-center rounded-lg {{ !empty($fileLampiran['signed_form']) ? 'bg-success-light text-success' : 'bg-gray-100 text-gray-400' }}">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="font-medium text-gray-900">Formulir Bertanda Tangan</p>
+                                            @if(!empty($fileLampiran['signed_form']))
+                                                <a href="{{ asset('storage/' . $fileLampiran['signed_form']) }}" target="_blank" class="text-sm text-myunila hover:underline inline-flex items-center gap-1">
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                    </svg>
+                                                    Lihat Dokumen
+                                                </a>
+                                            @else
+                                                <p class="text-sm text-gray-500">Belum diupload</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {{-- Identity --}}
+                                <div class="rounded-xl border border-gray-200 p-4">
+                                    <div class="flex items-start gap-3">
+                                        <div class="flex h-10 w-10 items-center justify-center rounded-lg {{ !empty($fileLampiran['identity']) ? 'bg-success-light text-success' : 'bg-gray-100 text-gray-400' }}">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="font-medium text-gray-900">Identitas (KTM/Karpeg)</p>
+                                            @if(!empty($fileLampiran['identity']))
+                                                <a href="{{ asset('storage/' . $fileLampiran['identity']) }}" target="_blank" class="text-sm text-myunila hover:underline inline-flex items-center gap-1">
+                                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                    </svg>
+                                                    Lihat Dokumen
+                                                </a>
+                                            @else
+                                                <p class="text-sm text-gray-500">Belum diupload</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         @endif
                     </div>
@@ -443,4 +521,90 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    // Update file status when file is selected
+    function updateFileStatus(type) {
+        const input = document.getElementById(type + '_input');
+        const statusEl = document.getElementById(type + '_status');
+        const nameEl = document.getElementById(type + '_name');
+        
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const fileName = file.name;
+            const fileSize = (file.size / 1024 / 1024).toFixed(2); // Convert to MB
+            
+            // Validate file size
+            if (file.size > 5 * 1024 * 1024) { // 5MB
+                statusEl.innerHTML = '<span class="text-error">⚠ File terlalu besar (max 5MB)</span>';
+                nameEl.textContent = '';
+                input.value = ''; // Clear the input
+                checkSubmitButton();
+                return;
+            }
+            
+            // Update status
+            statusEl.innerHTML = '<span class="text-success">✓ File terpilih</span>';
+            nameEl.textContent = fileName + ' (' + fileSize + ' MB)';
+            
+            // Check if both files are selected
+            checkSubmitButton();
+        }
+    }
+    
+    // Enable submit button only when both files are selected
+    function checkSubmitButton() {
+        const signedFormInput = document.getElementById('signed_form_input');
+        const identityInput = document.getElementById('identity_input');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        if (signedFormInput && identityInput && submitBtn) {
+            const hasSignedForm = signedFormInput.files && signedFormInput.files.length > 0;
+            const hasIdentity = identityInput.files && identityInput.files.length > 0;
+            
+            // Check if files already uploaded (not required)
+            const signedFormNotRequired = !signedFormInput.hasAttribute('required');
+            const identityNotRequired = !identityInput.hasAttribute('required');
+            
+            // Enable button if both files are selected OR both already uploaded
+            if ((hasSignedForm && hasIdentity) || (signedFormNotRequired && identityNotRequired)) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+    }
+    
+    // Check on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        checkSubmitButton();
+        
+        // Prevent card click from triggering when clicking the file input itself
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            input.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+        
+        // Add form submit handler for debugging and loading state
+        const form = document.getElementById('uploadForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                console.log('Form is submitting...');
+                
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Mengupload...';
+                }
+            });
+        }
+    });
+</script>
+@endpush
+
 @endsection

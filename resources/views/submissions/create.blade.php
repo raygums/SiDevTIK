@@ -831,51 +831,80 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900">Langkah Selanjutnya</h3>
+                        <h3 class="font-semibold text-gray-900">Langkah Terakhir - Pilih Aksi</h3>
                         <p class="mt-1 text-sm text-gray-700">
-                            Setelah submit, sistem akan otomatis membuat <strong>2 formulir</strong>:
+                            Setelah form tersimpan, Anda bisa langsung:
                         </p>
-                        <div class="mt-3 grid gap-3 sm:grid-cols-2">
-                            <div class="rounded-lg border border-myunila/20 bg-white p-3">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <svg class="h-5 w-5 text-myunila" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                    </svg>
-                                    <span class="font-medium text-gray-900">Paperless (Digital)</span>
-                                </div>
-                                <p class="text-xs text-gray-600">Untuk administrasi internal TIK. Tersimpan otomatis di sistem.</p>
-                            </div>
-                            <div class="rounded-lg border border-myunila/20 bg-white p-3">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <svg class="h-5 w-5 text-myunila" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                    </svg>
-                                    <span class="font-medium text-gray-900">Hardcopy (PDF)</span>
-                                </div>
-                                <p class="text-xs text-gray-600">Untuk dicetak & ditandatangani atasan (Kajur/Dekan/Wakil Rektor).</p>
-                            </div>
-                        </div>
-                        <ol class="mt-4 list-inside list-decimal space-y-1 text-sm text-gray-700">
-                            <li>Download formulir PDF yang sudah terisi otomatis</li>
-                            <li>Cetak formulir dan minta <strong>tanda tangan basah</strong> dari atasan</li>
-                            <li>Scan formulir yang sudah ditandatangani</li>
-                            <li>Upload scan formulir beserta foto/scan identitas (KTM/Karpeg)</li>
-                        </ol>
+                        <ul class="mt-2 list-inside list-disc space-y-1 text-sm text-gray-700">
+                            <li><strong>Lihat format dokumen</strong> dan download PDF untuk ditandatangani</li>
+                            <li><strong>Upload dokumen</strong> yang sudah ditandatangani atasan</li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
-            {{-- Submit Button --}}
-            <div class="flex items-center justify-end gap-4">
-                <a href="{{ url('/') }}" class="btn-secondary">
-                    Batal
-                </a>
-                <button type="submit" class="btn-primary inline-flex items-center gap-2">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    Buat Formulir Pengajuan
-                </button>
+            {{-- Action Buttons --}}
+            <div class="space-y-4">
+                {{-- 2 Tombol Besar --}}
+                <div class="grid gap-6 md:grid-cols-2">
+                    {{-- Button 1: Format Dokumen Pengajuan --}}
+                    <button type="submit" name="redirect_to" value="paperless" 
+                       class="group block rounded-2xl border-2 border-gray-200 bg-white p-8 shadow-sm transition-all hover:border-myunila hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-unila text-white shadow-lg">
+                                <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                            </div>
+                            <h3 class="mb-3 text-xl font-bold text-gray-900 group-hover:text-myunila transition">
+                                Format Dokumen Pengajuan
+                            </h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Lihat form paperless dan download PDF untuk ditandatangani atasan
+                            </p>
+                            <div class="mt-6 flex items-center gap-2 text-myunila font-semibold">
+                                <span>Simpan & Lihat Format</span>
+                                <svg class="h-5 w-5 transition group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </button>
+
+                    {{-- Button 2: Upload Dokumen --}}
+                    <button type="submit" name="redirect_to" value="upload" 
+                       class="group block rounded-2xl border-2 border-gray-200 bg-white p-8 shadow-sm transition-all hover:border-success hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+                        <div class="flex flex-col items-center text-center">
+                            <div class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-success text-white shadow-lg">
+                                <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                </svg>
+                            </div>
+                            <h3 class="mb-3 text-xl font-bold text-gray-900 group-hover:text-success transition">
+                                Upload Dokumen
+                            </h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Upload formulir yang sudah ditandatangani atasan (PDF/Scan)
+                            </p>
+                            <div class="mt-6 flex items-center gap-2 text-success font-semibold">
+                                <span>Simpan & Upload File</span>
+                                <svg class="h-5 w-5 transition group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+
+                {{-- Tombol Batal --}}
+                <div class="flex justify-center">
+                    <a href="{{ url('/') }}" class="btn-secondary inline-flex items-center gap-2">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Batal
+                    </a>
+                </div>
             </div>
         </form>
     </div>

@@ -239,9 +239,22 @@ class SubmissionController extends Controller
 
             DB::commit();
 
-            return redirect()
-                ->route('forms.select', $submission->no_tiket)
-                ->with('success', 'Formulir berhasil dibuat! Silakan pilih jenis form yang ingin digenerate.');
+            // Handle redirect based on user choice
+            $redirectTo = $request->input('redirect_to');
+            
+            if ($redirectTo === 'paperless') {
+                return redirect()
+                    ->route('forms.paperless', $submission->no_tiket)
+                    ->with('success', 'Formulir berhasil dibuat!');
+            } elseif ($redirectTo === 'upload') {
+                return redirect()
+                    ->route('submissions.upload', $submission)
+                    ->with('success', 'Formulir berhasil dibuat! Silakan upload dokumen yang sudah ditandatangani.');
+            } else {
+                return redirect()
+                    ->route('forms.select', $submission->no_tiket)
+                    ->with('success', 'Formulir berhasil dibuat! Silakan pilih jenis form yang ingin digenerate.');
+            }
 
         } catch (\Exception $e) {
             DB::rollBack();
