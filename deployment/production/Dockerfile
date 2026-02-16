@@ -11,8 +11,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (including dev for build tools like vite)
+RUN npm ci
 
 # Copy source files
 COPY resources/ ./resources/
@@ -45,6 +45,7 @@ FROM php:8.2-fpm-alpine
 
 # Install dependencies
 RUN apk add --no-cache \
+    bash \
     nginx \
     supervisor \
     curl \
