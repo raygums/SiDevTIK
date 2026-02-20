@@ -47,6 +47,7 @@ return [
         'app_key' => env('SSO_APP_KEY'),
         'jwt_secret' => env('SSO_JWT_SECRET', 'secret'),
         'base_url' => env('SSO_BASE_URL', 'https://akses.unila.ac.id/api/live/v1/auth'),
+        'logout_url' => env('SSO_LOGOUT_URL', 'https://akses.unila.ac.id/auth/logout'),
     ],
 
 ];

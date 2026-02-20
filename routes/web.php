@@ -33,12 +33,24 @@ Route::prefix('form')->name('forms.')->group(function () {
 Route::get('/login/sso', [SSOController::class, 'redirectToSSO'])->name('sso.login');
 Route::get('/auth/sso/callback', [SSOController::class, 'handleCallback'])->name('sso.callback');
 
+// Logout routes are intentionally OUTSIDE the auth middleware group.
+// WHY: When a session expires, auth middleware would redirect to /login before
+// the controller runs. With CSRF also exempted in bootstrap/app.php, the user
+// can always click "Keluar" regardless of session state.
+Route::post('/logout', [SSOController::class, 'logout'])->name('logout');
+Route::get('/logout', [SSOController::class, 'logout'])->name('logout.get');
+
 // Emergency force logout (jika session bermasalah)
+// Destroys local session AND redirects to IdP logout.
 Route::get('/force-logout', function() {
+    if (Auth::check()) {
+        Auth::user()->forceFill(['remember_token' => null])->saveQuietly();
+    }
     Auth::logout();
-    request()->session()->flush();
     request()->session()->invalidate();
-    return redirect()->route('home')->with('success', 'Session cleared successfully.');
+    request()->session()->regenerateToken();
+    $ssoLogoutUrl = config('services.sso.logout_url', 'https://akses.unila.ac.id/auth/logout');
+    return redirect()->away($ssoLogoutUrl);
 })->name('force.logout');
 
 
@@ -64,8 +76,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     
     // --- Authentication ---
-    Route::post('/logout', [SSOController::class, 'logout'])->name('logout');
-    Route::get('/logout', [SSOController::class, 'logout'])->name('logout.get'); // Fallback GET method
+    // NOTE: logout routes are defined above, outside this group.
 
     // --- Dashboard (setelah login, redirect berdasarkan role) ---
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

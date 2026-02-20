@@ -16,59 +16,83 @@ class SSOController extends Controller
     public function __construct(
         protected AuditLogService $auditLogService
     ) {}
+
     /**
-     * SSO Base URL
+     * SSO API Base URL (for login/token endpoints).
      */
     protected string $ssoBaseUrl = 'https://akses.unila.ac.id/api/live/v1/auth';
 
     /**
-     * Redirect user to SSO login page
+     * SSO Web Logout URL (for destroying the IdP session cookie).
+     *
+     * WHY a separate URL: The SSO API base lives at /api/live/v1/auth
+     * which does NOT have a /logout endpoint (returns 404). The IdP's
+     * web-facing logout lives at /auth/logout. These are different routes
+     * on the SSO server.
+     */
+    protected string $ssoLogoutUrl = 'https://akses.unila.ac.id/auth/logout';
+
+    /**
+     * Redirect user to SSO login page.
+     *
+     * The IdP session is destroyed during logout (redirect to /auth/logout),
+     * so the user will always see a fresh credential form. The `prompt=login`
+     * parameter is still sent as a secondary safeguard in case the IdP session
+     * was not properly destroyed (e.g., user navigated away mid-logout).
      */
     public function redirectToSSO(Request $request)
     {
+        // Pre-flight: destroy any residual LOCAL auth state.
+        // WHY: If a stale session or remember cookie lingers, the auth guard
+        // can silently re-authenticate the old user on the next request.
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user) {
+                $user->forceFill(['remember_token' => null])->saveQuietly();
+            }
+            Auth::logout();
+        }
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         $appKey = config('services.sso.app_key');
-        
-        Log::info('SSO Redirect Initiated', [
-            'app_key' => $appKey ? 'SET ('. strlen($appKey) .' chars)' : 'NOT SET',
-        ]);
-        
+
         if (!$appKey) {
+            Log::warning('SSO Redirect aborted: APP_KEY not configured');
             return redirect()->route('login')
                 ->with('error', 'Konfigurasi SSO belum diatur. Hubungi administrator.');
         }
 
-        // Build callback URL
         $callbackUrl = route('sso.callback');
-        
-        // SSO login URL with app_key and callback
+
         $params = [
-            'app_key' => $appKey,
+            'app_key'      => $appKey,
             'redirect_uri' => $callbackUrl,
+            'prompt'       => 'login',
         ];
-        
-        // Jika ada parameter ?force=1, tambahkan ke SSO URL untuk force re-login
-        if ($request->query('force')) {
-            $params['prompt'] = 'login'; // atau 'force' tergantung SSO server
-        }
-        
+
         $ssoUrl = "{$this->ssoBaseUrl}/login/sso?" . http_build_query($params);
 
-        Log::info('SSO Redirecting to', [
+        Log::info('SSO Redirect', [
             'callback_url' => $callbackUrl,
-            'sso_url' => $ssoUrl,
+            'sso_url'      => $ssoUrl,
         ]);
 
         return redirect()->away($ssoUrl);
     }
 
     /**
-     * Handle SSO callback
+     * Handle SSO callback.
+     *
+     * SECURITY: Before authenticating the new user, any residual auth
+     * state is explicitly cleared. This is defense-in-depth against the
+     * scenario where a remember_me cookie from User A survives and the
+     * callback would otherwise merge User B's SSO identity into User A's
+     * authenticated session.
      */
     public function handleCallback(Request $request)
     {
         Log::info('SSO Callback Received', [
-            'all_params' => $request->all(),
-            'query' => $request->query(),
             'ip' => $request->ip(),
         ]);
 
@@ -128,8 +152,30 @@ class SSOController extends Controller
                 throw new \Exception('Gagal membuat atau menemukan data user.');
             }
 
-            // Login user
-            Auth::login($user, true); // Remember me = true
+            // SECURITY: Clear any residual auth state BEFORE authenticating.
+            // This prevents the edge case where a stale remember_me cookie
+            // causes the new login to inherit the previous user's identity.
+            if (Auth::check()) {
+                Auth::logout();
+            }
+            $request->session()->regenerate();
+
+            // Login user WITHOUT remember_me cookie (second argument = false).
+            //
+            // WHY: For SSO-authenticated users, the IdP is the sole source
+            // of truth. A remember_me cookie creates a SECOND authentication
+            // vector that survives session()->invalidate() during logout.
+            // This is the PRIMARY cause of session bleeding:
+            //   1. User A logs in -> remember_me cookie set (90 days default)
+            //   2. User A logs out -> session destroyed, but cookie persists
+            //   3. User B visits /login/sso -> SessionGuard auto-authenticates
+            //      via the remember cookie BEFORE the redirect to the IdP
+            //   4. User B is now silently logged in as User A
+            //
+            // CONSEQUENCE: Without remember_me, users must re-authenticate
+            // via SSO after session expiry. This is the correct behavior
+            // for federated identity — the IdP owns session lifetime.
+            Auth::login($user);
 
             // Record successful SSO login
             $this->auditLogService->recordLoginLog(
@@ -318,73 +364,72 @@ class SSOController extends Controller
     }
 
     /**
-     * Logout user dari aplikasi
-     * 
-     * Strategy:
-     * 1. Logout dari Laravel Auth (removes authentication)
-     * 2. Flush session data (quick memory operation)
-     * 3. Invalidate & regenerate (database cleanup)
-     * 4. Graceful error handling jika database timeout
-     * 
-     * Note: SSO Unila tidak support redirect_uri di logout endpoint,
-     * jadi kita hanya logout dari aplikasi lokal
+     * Logout user dari aplikasi DAN dari SSO IdP.
+     *
+     * Flow:
+     * 1. Wipe remember_token on DB row (invalidates any surviving remember cookie)
+     * 2. Auth::logout()          -> detach user from guard
+     * 3. session()->invalidate() -> destroy session data
+     * 4. regenerateToken()       -> issue a fresh CSRF token
+     * 5. Return relay view       -> the browser loads IdP logout in a hidden
+     *                              iframe (destroys the IdP session cookie),
+     *                              then JS auto-redirects to our login page.
+     *
+     * WHY an intermediate view instead of redirect()->away():
+     * redirect()->away(idpLogoutUrl) takes the user to the IdP's domain.
+     * The IdP destroys its session then redirects to ITS OWN login page
+     * (akses.unila.ac.id/auth/login). The user is now stranded on the IdP
+     * site with no way back to our application.
+     *
+     * The relay view keeps the user on OUR domain and triggers the IdP
+     * logout in the background via a hidden iframe. The user sees a clean
+     * "Berhasil keluar" message and is automatically redirected to our
+     * login page after a short delay.
+     *
+     * Note: The iframe approach is best-effort. If the IdP sets
+     * X-Frame-Options: DENY, the iframe request is blocked by the browser
+     * but fails silently — the user still lands on our login page, and
+     * prompt=login in redirectToSSO() acts as the secondary safeguard.
      */
     public function logout(Request $request)
     {
-        $user = Auth::user();
-        $userInfo = null;
-        
-        if ($user) {
-            $userInfo = [
-                'user_uuid' => $user->UUID,
-                'username' => $user->usn,
-                'ip' => $request->ip(),
-            ];
-            Log::info('User Logout Initiated', $userInfo);
-        }
+        $userInfo = Auth::check()
+            ? ['user_uuid' => Auth::user()->UUID, 'username' => Auth::user()->usn, 'ip' => $request->ip()]
+            : ['ip' => $request->ip()];
 
         try {
-            // Step 1: Logout dari Auth (remove user from auth)
-            Auth::logout();
-            Log::info('Auth logout successful', $userInfo ?? []);
-            
-            // Step 2: Flush session data (quick, in-memory)
-            session()->flush();
-            Log::info('Session flushed', $userInfo ?? []);
-            
-            // Step 3: Invalidate & regenerate (with timeout protection)
-            try {
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-                Log::info('Session invalidated & token regenerated', $userInfo ?? []);
-            } catch (\Exception $sessionError) {
-                // Database timeout pada invalidate() - non-critical
-                // User sudah ter-logout dari step 1 & 2
-                Log::warning('Session invalidation failed (database timeout, but user already logged out)', [
-                    'error' => $sessionError->getMessage(),
-                    'user_info' => $userInfo,
-                ]);
+            // Step 1: Wipe the remember_token on the database row.
+            // Ensures any surviving browser cookie is cryptographically invalid.
+            $user = Auth::user();
+            if ($user) {
+                $user->forceFill(['remember_token' => null])->saveQuietly();
             }
 
-            Log::info('User Logout Complete', $userInfo ?? []);
+            // Step 2: Detach user from the authentication guard.
+            Auth::logout();
 
-            // Redirect dengan message
-            return redirect()->route('home')
-                ->with('success', 'Anda telah keluar dari aplikasi.');
-                
+            // Step 3: Destroy session data + regenerate session ID.
+            $request->session()->invalidate();
+
+            // Step 4: Regenerate CSRF token on the new session.
+            $request->session()->regenerateToken();
+
+            Log::info('Logout completed', $userInfo);
         } catch (\Exception $e) {
-            // Jika ada error apapun, tetap redirect ke home
-            Log::error('Logout Error (forced redirect to ensure user is logged out)', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+            // Non-critical: local session is destroyed even if this fails.
+            Log::warning('Logout session teardown failed', [
+                'error'     => $e->getMessage(),
                 'user_info' => $userInfo,
             ]);
-            
-            // Force redirect meskipun ada error
-            // User tetap ter-logout karena Auth::logout() sudah dipanggil
-            return redirect()->route('home')
-                ->with('info', 'Anda telah keluar dari aplikasi.');
         }
+
+        // Step 5: Return relay view.
+        // The view loads the IdP logout URL in a hidden iframe to destroy
+        // the SSO session cookie, then redirects the user to our login page.
+        return view('auth.sso-logout', [
+            'ssoLogoutUrl' => config('services.sso.logout_url', $this->ssoLogoutUrl),
+            'loginUrl'     => route('login'),
+        ]);
     }
 
     /**
