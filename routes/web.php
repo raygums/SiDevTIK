@@ -33,6 +33,14 @@ Route::prefix('form')->name('forms.')->group(function () {
 Route::get('/login/sso', [SSOController::class, 'redirectToSSO'])->name('sso.login');
 Route::get('/auth/sso/callback', [SSOController::class, 'handleCallback'])->name('sso.callback');
 
+// Emergency force logout (jika session bermasalah)
+Route::get('/force-logout', function() {
+    Auth::logout();
+    request()->session()->flush();
+    request()->session()->invalidate();
+    return redirect()->route('home')->with('success', 'Session cleared successfully.');
+})->name('force.logout');
+
 
 // ==========================================
 // GUEST ROUTES (Hanya untuk yang belum login)
@@ -57,6 +65,7 @@ Route::middleware('auth')->group(function () {
     
     // --- Authentication ---
     Route::post('/logout', [SSOController::class, 'logout'])->name('logout');
+    Route::get('/logout', [SSOController::class, 'logout'])->name('logout.get'); // Fallback GET method
 
     // --- Dashboard (setelah login, redirect berdasarkan role) ---
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

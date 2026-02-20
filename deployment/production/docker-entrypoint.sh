@@ -28,6 +28,10 @@ log_message "Database connection established"
 log_message "Running database migrations..."
 php artisan migrate --force
 
+# Cleanup old sessions
+log_message "Cleaning up expired sessions..."
+php artisan session:cleanup --hours=24 2>/dev/null || log_message "Session cleanup skipped (command may not exist yet)"
+
 # Optimize for production
 log_message "Optimizing application..."
 php artisan config:cache

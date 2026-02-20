@@ -19,6 +19,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Force HTTPS in production
+        if (app()->environment('production')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+        
+        // Set PostgreSQL timeouts for production
+        if (config('database.default') === 'pgsql') {
+            \Illuminate\Support\Facades\DB::statement("SET lock_timeout = '30s'");
+            \Illuminate\Support\Facades\DB::statement("SET statement_timeout = '60s'");
+        }
     }
 }

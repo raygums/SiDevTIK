@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'active' => \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
+        
+        // Trust all proxies in production (behind Nginx reverse proxy)
+        if (app()->environment('production')) {
+            $middleware->trustProxies(at: '*', headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_ALL);
+        }
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

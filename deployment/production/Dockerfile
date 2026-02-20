@@ -17,8 +17,8 @@ RUN npm ci
 # Copy source files
 COPY resources/ ./resources/
 COPY vite.config.js ./
-COPY tailwind.config.js* ./
-COPY postcss.config.js* ./
+# COPY tailwind.config.js* ./
+# COPY postcss.config.js* ./
 
 # Build assets
 RUN npm run build

@@ -28,8 +28,12 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - CACHE_STORE=${CACHE_STORE:-database}
-      - SESSION_DRIVER=${SESSION_DRIVER:-database}
+      - SESSION_DRIVER=${SESSION_DRIVER:-file}
       - QUEUE_CONNECTION=${QUEUE_CONNECTION:-database}
+      # SSO Configuration
+      - SSO_APP_KEY=${SSO_APP_KEY}
+      - SSO_JWT_SECRET=${SSO_JWT_SECRET}
+      - SSO_BASE_URL=${SSO_BASE_URL}
     volumes:
       - app-storage:/var/www/html/storage/app
       - app-logs:/var/www/html/storage/logs

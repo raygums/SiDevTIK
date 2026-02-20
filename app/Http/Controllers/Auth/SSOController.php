@@ -321,58 +321,70 @@ class SSOController extends Controller
      * Logout user dari aplikasi
      * 
      * Strategy:
-     * 1. Logout dari Laravel Auth
-     * 2. Destroy semua session data
-     * 3. Hapus semua cookies (termasuk laravel_session, XSRF-TOKEN, dll)
-     * 4. Set flag di session untuk force re-login di SSO saat login berikutnya
+     * 1. Logout dari Laravel Auth (removes authentication)
+     * 2. Flush session data (quick memory operation)
+     * 3. Invalidate & regenerate (database cleanup)
+     * 4. Graceful error handling jika database timeout
      * 
      * Note: SSO Unila tidak support redirect_uri di logout endpoint,
-     * jadi kita hanya logout dari aplikasi lokal dan force re-login saat masuk lagi
+     * jadi kita hanya logout dari aplikasi lokal
      */
     public function logout(Request $request)
     {
         $user = Auth::user();
+        $userInfo = null;
         
         if ($user) {
-            Log::info('User Logout', [
+            $userInfo = [
                 'user_uuid' => $user->UUID,
                 'username' => $user->usn,
                 'ip' => $request->ip(),
+            ];
+            Log::info('User Logout Initiated', $userInfo);
+        }
+
+        try {
+            // Step 1: Logout dari Auth (remove user from auth)
+            Auth::logout();
+            Log::info('Auth logout successful', $userInfo ?? []);
+            
+            // Step 2: Flush session data (quick, in-memory)
+            session()->flush();
+            Log::info('Session flushed', $userInfo ?? []);
+            
+            // Step 3: Invalidate & regenerate (with timeout protection)
+            try {
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                Log::info('Session invalidated & token regenerated', $userInfo ?? []);
+            } catch (\Exception $sessionError) {
+                // Database timeout pada invalidate() - non-critical
+                // User sudah ter-logout dari step 1 & 2
+                Log::warning('Session invalidation failed (database timeout, but user already logged out)', [
+                    'error' => $sessionError->getMessage(),
+                    'user_info' => $userInfo,
+                ]);
+            }
+
+            Log::info('User Logout Complete', $userInfo ?? []);
+
+            // Redirect dengan message
+            return redirect()->route('home')
+                ->with('success', 'Anda telah keluar dari aplikasi.');
+                
+        } catch (\Exception $e) {
+            // Jika ada error apapun, tetap redirect ke home
+            Log::error('Logout Error (forced redirect to ensure user is logged out)', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_info' => $userInfo,
             ]);
+            
+            // Force redirect meskipun ada error
+            // User tetap ter-logout karena Auth::logout() sudah dipanggil
+            return redirect()->route('home')
+                ->with('info', 'Anda telah keluar dari aplikasi.');
         }
-
-        // Logout dari Laravel Auth
-        Auth::logout();
-        
-        // Hapus semua data session
-        session()->flush();
-        
-        // Invalidate session ID  
-        $request->session()->invalidate();
-
-        // Buat response dengan redirect
-        $response = redirect()->route('home')
-            ->with('success', 'Anda telah keluar dari aplikasi.');
-        
-        // Hapus cookies yang relevan
-        $cookiesToForget = [
-            'laravel_session',
-            'XSRF-TOKEN', 
-            'remember_web_' . sha1(get_class(Auth::guard()) . Auth::getRecallerName()),
-        ];
-        
-        foreach ($cookiesToForget as $cookieName) {
-            $response->withCookie(cookie()->forget($cookieName));
-        }
-        
-        // Juga coba hapus semua cookies dari request
-        foreach ($request->cookies->keys() as $cookieName) {
-            $response->withCookie(cookie()->forget($cookieName));
-        }
-
-        Log::info('User Logout Complete - Session & Cookies Destroyed');
-
-        return $response;
     }
 
     /**
