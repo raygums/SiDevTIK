@@ -102,7 +102,10 @@ class SubmissionController extends Controller
             'teknis_email' => 'required|email|max:255',
             
             // Unit selection
-            'unit_uuid' => $isPengajuanBaru ? 'required|exists:referensi.unit_kerja,UUID' : 'nullable|exists:referensi.unit_kerja,UUID',
+            'unit_uuid' => [
+                $isPengajuanBaru ? 'required' : 'nullable',
+                \Illuminate\Validation\Rule::exists(\App\Models\Unit::class, 'UUID')
+            ],
             'application_name' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
             'request_type' => 'required|in:domain,hosting,vps',
