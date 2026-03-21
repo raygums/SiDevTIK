@@ -67,70 +67,108 @@
     </div>
 
     {{-- Filter & Search --}}
-    <div class="mb-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div class="border-b border-gray-200 bg-gray-50 px-6 py-4">
-            <h2 class="font-semibold text-gray-900">Filter & Pencarian</h2>
-        </div>
-        <div class="p-6">
-            <form method="GET" action="{{ route('pimpinan.activity-logs') }}">
-                <div class="grid gap-4 md:grid-cols-6">
-                    {{-- Search --}}
-                    <div class="md:col-span-2">
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Cari</label>
-                        <input type="text" name="search" value="{{ $filters['search'] ?? '' }}"
-                               placeholder="No. tiket, domain, nama..."
-                               class="form-input w-full">
+    <form method="GET" action="{{ route('pimpinan.activity-logs') }}" id="filterForm" class="mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex flex-col md:flex-row gap-4">
+            {{-- Search --}}
+            <div class="flex-1">
+                <div class="relative">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
                     </div>
-
-                    {{-- Actor Role --}}
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Pelaku</label>
-                        <select name="actor_role" class="form-select w-full" onchange="this.form.submit()">
-                            <option value="all" {{ ($filters['actor_role'] ?? '') === 'all' ? 'selected' : '' }}>Semua</option>
-                            <option value="Pengguna" {{ ($filters['actor_role'] ?? '') === 'Pengguna' ? 'selected' : '' }}>Pengguna</option>
-                            <option value="Verifikator" {{ ($filters['actor_role'] ?? '') === 'Verifikator' ? 'selected' : '' }}>Verifikator</option>
-                            <option value="Eksekutor" {{ ($filters['actor_role'] ?? '') === 'Eksekutor' ? 'selected' : '' }}>Eksekutor</option>
-                        </select>
-                    </div>
-
-                    {{-- Action Type --}}
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Tipe Aksi</label>
-                        <select name="action_type" class="form-select w-full" onchange="this.form.submit()">
-                            <option value="all" {{ ($filters['action_type'] ?? '') === 'all' ? 'selected' : '' }}>Semua</option>
-                            <option value="submitted" {{ ($filters['action_type'] ?? '') === 'submitted' ? 'selected' : '' }}>Pengajuan Baru</option>
-                            <option value="approved" {{ ($filters['action_type'] ?? '') === 'approved' ? 'selected' : '' }}>Disetujui</option>
-                            <option value="rejected" {{ ($filters['action_type'] ?? '') === 'rejected' ? 'selected' : '' }}>Ditolak</option>
-                        </select>
-                    </div>
-
-                    {{-- Date From --}}
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Dari Tanggal</label>
-                        <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}"
-                               class="form-input w-full">
-                    </div>
-
-                    {{-- Date To --}}
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Sampai Tanggal</label>
-                        <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}"
-                               class="form-input w-full">
-                    </div>
+                    <input type="text" name="search" value="{{ $filters['search'] ?? '' }}"
+                           placeholder="Cari No. tiket, domain, nama..."
+                           class="block w-full rounded-lg border-gray-300 py-2.5 pl-10 pr-3 shadow-sm focus:border-myunila focus:ring-myunila sm:text-sm">
                 </div>
+            </div>
 
-                <div class="mt-4 flex items-center gap-3">
-                    <button type="submit" class="btn-primary">
-                        <x-icon name="magnifying-glass" class="mr-2 h-4 w-4" />
-                        Cari
+            {{-- Filter Component (Alpine.js) --}}
+            <div class="flex items-center gap-2" x-data="{ open: false }" @click.outside="open = false">
+                <div class="relative">
+                    <button 
+                        type="button"
+                        @click="open = !open"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2 sm:w-auto">
+                        <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                        </svg>
+                        <span>Filter</span>
                     </button>
-                    <a href="{{ route('pimpinan.activity-logs') }}" class="btn-secondary">
-                        Reset Filter
-                    </a>
+
+                    {{-- Filter Dropdown --}}
+                    <div 
+                        x-show="open"
+                        x-cloak
+                        x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="transform opacity-0 scale-95"
+                        x-transition:enter-end="transform opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-75"
+                        x-transition:leave-start="transform opacity-100 scale-100"
+                        x-transition:leave-end="transform opacity-0 scale-95"
+                        class="absolute right-0 z-50 mt-2 w-80 origin-top-right rounded-lg border border-gray-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+                        style="display: none;">
+                        
+                        <div class="border-b border-gray-200 px-4 py-3">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-semibold text-gray-900">Filter</h3>
+                                <a href="{{ route('pimpinan.activity-logs') }}" class="text-xs font-medium text-red-600 hover:text-red-700">
+                                    Reset
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="p-4 space-y-4 text-left">
+                            {{-- Actor Role --}}
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Pelaku</label>
+                                <select name="actor_role" class="block w-full rounded-lg border-gray-300 py-2 shadow-sm focus:border-myunila focus:ring-myunila sm:text-sm">
+                                    <option value="all" {{ ($filters['actor_role'] ?? '') === 'all' ? 'selected' : '' }}>Semua</option>
+                                    <option value="Pengguna" {{ ($filters['actor_role'] ?? '') === 'Pengguna' ? 'selected' : '' }}>Pengguna</option>
+                                    <option value="Verifikator" {{ ($filters['actor_role'] ?? '') === 'Verifikator' ? 'selected' : '' }}>Verifikator</option>
+                                    <option value="Eksekutor" {{ ($filters['actor_role'] ?? '') === 'Eksekutor' ? 'selected' : '' }}>Eksekutor</option>
+                                </select>
+                            </div>
+
+                            {{-- Action Type --}}
+                            <div>
+                                <label class="mb-2 block text-sm font-medium text-gray-700">Tipe Aksi</label>
+                                <select name="action_type" class="block w-full rounded-lg border-gray-300 py-2 shadow-sm focus:border-myunila focus:ring-myunila sm:text-sm">
+                                    <option value="all" {{ ($filters['action_type'] ?? '') === 'all' ? 'selected' : '' }}>Semua</option>
+                                    <option value="submitted" {{ ($filters['action_type'] ?? '') === 'submitted' ? 'selected' : '' }}>Pengajuan Baru</option>
+                                    <option value="approved" {{ ($filters['action_type'] ?? '') === 'approved' ? 'selected' : '' }}>Disetujui</option>
+                                    <option value="rejected" {{ ($filters['action_type'] ?? '') === 'rejected' ? 'selected' : '' }}>Ditolak</option>
+                                </select>
+                            </div>
+
+                            {{-- Date From & To --}}
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">Dari Tanggal</label>
+                                    <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}"
+                                           class="block w-full rounded-lg border-gray-300 py-2 shadow-sm focus:border-myunila focus:ring-myunila sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="mb-2 block text-sm font-medium text-gray-700">Sampai Tanggal</label>
+                                    <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}"
+                                           class="block w-full rounded-lg border-gray-300 py-2 shadow-sm focus:border-myunila focus:ring-myunila sm:text-sm">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full inline-flex justify-center items-center gap-2 rounded-lg bg-myunila px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-myunila-600 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2">
+                                Terapkan Filter
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </form>
+
+                {{-- Search Button --}}
+                <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-myunila px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-myunila-600 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2 sm:w-auto">
+                    <span>Cari</span>
+                </button>
+            </div>
         </div>
-    </div>
+    </form>
 
     {{-- Activity Logs List --}}
     <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
