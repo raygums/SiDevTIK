@@ -42,11 +42,11 @@ class StatusPengajuan extends Model
     {
         return match(strtolower($this->nm_status)) {
             'draft' => 'gray',
-            'diajukan' => 'blue',
-            'diverifikasi' => 'yellow',
-            'diproses' => 'purple',
+            'diajukan', 'menunggu verifikasi' => 'blue',
+            'disetujui verifikator', 'menunggu eksekusi' => 'yellow',
+            'sedang dikerjakan' => 'purple',
             'selesai' => 'green',
-            'ditolak' => 'red',
+            'ditolak verifikator', 'ditolak eksekutor' => 'red',
             default => 'gray',
         };
     }

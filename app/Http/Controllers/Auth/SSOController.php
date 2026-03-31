@@ -127,6 +127,9 @@ class SSOController extends Controller
             // Login user
             Auth::login($user, true); // Remember me = true
 
+            // Regenerate session to prevent session fixation
+            $request->session()->regenerate();
+
             // Record successful SSO login
             $this->auditLogService->recordLoginLog(
                 userUuid: $user->UUID,
@@ -168,7 +171,9 @@ class SSOController extends Controller
             ]);
             
             return redirect()->route('login')
-                ->with('error', 'Terjadi kesalahan saat proses login: ' . $e->getMessage());
+                ->with('error', config('app.debug')
+                    ? 'Terjadi kesalahan saat proses login: ' . $e->getMessage()
+                    : 'Terjadi kesalahan saat proses login. Silakan coba lagi atau hubungi administrator.');
         }
     }
 

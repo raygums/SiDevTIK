@@ -6,19 +6,42 @@
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     
     {{-- Header --}}
+    @php
+        $activeScope = $filters['status_scope'] ?? 'all';
+        $scopeLabels = [
+            'all' => 'Semua Status',
+            'approved_today' => 'Disetujui Hari Ini',
+            'rejected_today' => 'Ditolak Hari Ini',
+            'waiting_execution' => 'Menunggu Eksekusi',
+            'in_progress' => 'Sedang Dikerjakan',
+            'completed_today' => 'Selesai Hari Ini (Eksekutor)',
+            'rejected_execution_today' => 'Ditolak Hari Ini (Eksekutor)',
+        ];
+        $scopeBadgeClass = match ($activeScope) {
+            'approved_today', 'completed_today' => 'bg-success-light text-success',
+            'rejected_today', 'rejected_execution_today' => 'bg-danger-light text-danger',
+            'in_progress' => 'bg-info-light text-info',
+            'waiting_execution' => 'bg-myunila-50 text-myunila',
+            default => 'bg-gray-100 text-gray-700',
+        };
+    @endphp
     <div class="mb-8">
         <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">
             Riwayat Verifikasi
         </h1>
-        <p class="mt-2 text-gray-600">
-            Pengajuan yang sudah Anda verifikasi.
-        </p>
+        <div class="mt-2 flex flex-wrap items-center gap-2 text-gray-600">
+            <p>Pengajuan yang sudah melalui verifikasi, termasuk progres eksekusi oleh eksekutor.</p>
+            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold {{ $scopeBadgeClass }}">
+                Scope: {{ $scopeLabels[$activeScope] ?? 'Semua Status' }}
+            </span>
+        </div>
     </div>
 
     {{-- Filters & Search --}}
     <div class="mb-6 rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div class="p-6">
             <form method="GET" action="{{ route('verifikator.history') }}" id="filterForm">
+                <input type="hidden" name="status_scope" value="{{ $filters['status_scope'] ?? 'all' }}">
                 
                 <div class="flex flex-col gap-3 sm:flex-row">
                     {{-- Search Input --}}
@@ -59,7 +82,7 @@
                                     <h3 class="text-sm font-semibold text-gray-900">Filter</h3>
                                     <button 
                                         type="button"
-                                        onclick="window.location.href='{{ route('verifikator.history') }}'"
+                                        onclick="window.location.href='{{ route('verifikator.history', ['status_scope' => $filters['status_scope'] ?? 'all']) }}'"
                                         class="text-xs font-medium text-red-600 hover:text-red-700">
                                         Reset
                                     </button>
@@ -150,6 +173,7 @@
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Layanan</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Domain</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Aktor Terakhir</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Diubah Oleh</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Tanggal Update</th>
                     </tr>
@@ -186,6 +210,13 @@
                                 @endif">
                                 {{ $statusName }}
                             </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ $submission->latestLog?->creator?->nm ?? '-' }}</div>
+                            <div class="text-xs text-gray-500">{{ $submission->latestLog?->creator?->peran?->nm_peran ?? '-' }}</div>
+                            @if($submission->latestLog?->catatan_log)
+                            <div class="mt-1 max-w-xs truncate text-xs text-gray-500">{{ $submission->latestLog?->catatan_log }}</div>
+                            @endif
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm text-gray-900">{{ $submission->updater?->nm ?? '-' }}</div>

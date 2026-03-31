@@ -201,7 +201,7 @@ class PimpinanService
                 'pimpinan_name' => auth()->user()->nm,
                 'user_uuid' => $userUuid,
                 'user_name' => $user->nm,
-                'user_role' => $user->peran->nm_peran ?? '-',
+                'user_role' => $user->peran?->nm_peran ?? '-',
                 'old_status' => $oldStatus ? 'Active' : 'Inactive',
                 'new_status' => $newStatus ? 'Active' : 'Inactive',
             ]);
@@ -234,7 +234,7 @@ class PimpinanService
                 throw new \Exception('Tidak dapat mengubah role sendiri');
             }
 
-            $oldRole = $user->peran->nm_peran ?? '-';
+            $oldRole = $user->peran?->nm_peran ?? '-';
             
             $user->update(['peran_uuid' => $newRoleUuid]);
             $user->refresh();
@@ -245,7 +245,7 @@ class PimpinanService
                 'user_uuid' => $userUuid,
                 'user_name' => $user->nm,
                 'old_role' => $oldRole,
-                'new_role' => $user->peran->nm_peran ?? '-',
+                'new_role' => $user->peran?->nm_peran ?? '-',
             ]);
 
             DB::commit();

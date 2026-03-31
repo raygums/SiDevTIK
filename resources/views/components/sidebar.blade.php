@@ -2,7 +2,7 @@
 
 @php
     $user = Auth::user();
-    $role = $user->peran->nm_peran ?? 'Pengguna';
+    $role = $user->peran?->nm_peran ?? 'Pengguna';
     
     // Tentukan menu berdasarkan role
     $menus = [];

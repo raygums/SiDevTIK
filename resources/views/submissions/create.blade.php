@@ -655,6 +655,23 @@
                                     </div>
                                 </div>
                                 @if($type !== 'vps')
+                                    <select
+                                        name="unit_uuid"
+                                        id="unit_uuid"
+                                        class="form-input max-w-[180px] @error('unit_uuid') form-input-error @enderror"
+                                        required
+                                    >
+                                        <option value="">Pilih sub unit</option>
+                                        @foreach($units as $unit)
+                                            <option value="{{ $unit->UUID }}" data-kode-unit="{{ $unit->subdomain_code }}" {{ old('unit_uuid') == $unit->UUID ? 'selected' : '' }}>
+                                                {{ $unit->subdomain_code }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <input type="hidden" name="unit_uuid" value="{{ $units->first()?->UUID ?? '' }}">
+                                @endif
+                                @if($type !== 'vps')
                                     <span class="whitespace-nowrap text-lg font-semibold text-myunila">.unila.ac.id</span>
                                 @endif
                             </div>
@@ -665,6 +682,9 @@
                                 <span class="font-medium">Ketentuan:</span> Minimal 2 karakter, maksimal 12 karakter. Hanya huruf kecil, angka, dan tanda hubung (-).
                             </p>
                             @error('requested_domain')
+                                <p class="mt-1 text-sm text-error">{{ $message }}</p>
+                            @enderror
+                            @error('unit_uuid')
                                 <p class="mt-1 text-sm text-error">{{ $message }}</p>
                             @enderror
                         </div>
@@ -770,35 +790,11 @@
                             </div>
                         @endif
 
-                        {{-- Password field (semua tipe) --}}
-                        <div class="{{ $type === 'hosting' ? '' : 'md:col-span-2' }}">
-                            <label for="admin_password" class="mb-1 block text-sm font-medium text-gray-700">
-                                Admin Password (Hint) <span class="text-error">*</span>
-                            </label>
-                            <input 
-                                type="text" 
-                                name="admin_password" 
-                                id="admin_password"
-                                value="{{ old('admin_password') }}"
-                                placeholder="Kata kunci password (6-8 karakter)"
-                                minlength="6"
-                                maxlength="8"
-                                required
-                                class="form-input max-w-xs @error('admin_password') form-input-error @enderror"
-                            >
-                            <p class="mt-2 text-sm text-gray-500">
-                                <span class="font-medium">Ketentuan:</span> Minimal 6 karakter, maksimal 8 karakter. Password final akan digenerate oleh tim TIK.
-                            </p>
-                            @error('admin_password')
-                                <p class="mt-1 text-sm text-error">{{ $message }}</p>
-                            @enderror
-                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- Hidden fields for DB compatibility --}}
-            <input type="hidden" name="unit_id" value="{{ $categories->first()?->units->first()?->id ?? '' }}">
             <input type="hidden" name="application_name" id="hidden_application_name" value="">
             <input type="hidden" name="description" id="hidden_description" value="">
 
@@ -965,7 +961,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sectionLayananBaru = document.getElementById('section_layanan_baru');
     const requestedDomainWrapper = document.getElementById('requested_domain_wrapper');
     const requestedDomain = document.getElementById('requested_domain');
-    const adminPassword = document.getElementById('admin_password');
+    const unitSelect = document.getElementById('unit_uuid');
     const keterlangaLabel = document.getElementById('keterangan_label');
     const keteranganHint = document.getElementById('keterangan_hint');
     
@@ -1029,7 +1025,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show full section for new submissions
             sectionLayananBaru.classList.remove('hidden');
             requestedDomain.setAttribute('required', 'required');
-            adminPassword.setAttribute('required', 'required');
+            if (unitSelect) unitSelect.setAttribute('required', 'required');
             
             // Set required for VPS fields
             if (vpsCpu) vpsCpu.setAttribute('required', 'required');
@@ -1043,7 +1039,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sectionLayananBaru.classList.remove('hidden');
             requestedDomainWrapper.classList.add('hidden');
             requestedDomain.removeAttribute('required');
-            adminPassword.removeAttribute('required');
+            if (unitSelect) unitSelect.removeAttribute('required');
             
             // Keep VPS/Hosting specs visible for upgrade
             if (vpsCpu) vpsCpu.setAttribute('required', 'required');
@@ -1056,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Hide section completely for perpanjangan, perubahan_data, penonaktifan, laporan_masalah
             sectionLayananBaru.classList.add('hidden');
             requestedDomain.removeAttribute('required');
-            adminPassword.removeAttribute('required');
+            if (unitSelect) unitSelect.removeAttribute('required');
             
             // Remove required from all VPS/Hosting fields
             if (vpsCpu) vpsCpu.removeAttribute('required');
@@ -1102,6 +1098,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Format domain input to lowercase
     requestedDomain?.addEventListener('input', function() {
         this.value = this.value.toLowerCase().replace(/[^a-z0-9\-]/g, '');
+        checkDomainAvailability();
+    });
+
+    unitSelect?.addEventListener('change', function() {
         checkDomainAvailability();
     });
     
@@ -1279,11 +1279,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show checking state
         iconContainer.classList.remove('hidden');
         checkingIcon.classList.remove('hidden');
+
+        const selectedOption = unitSelect?.options[unitSelect.selectedIndex];
+        const unitCode = selectedOption?.dataset?.kodeUnit || '';
         
         // Debounce API call
         domainCheckTimeout = setTimeout(async () => {
             try {
-                const response = await fetch(`/api/check-domain?domain=${encodeURIComponent(domainInput)}`);
+                const response = await fetch(`/api/check-domain?domain=${encodeURIComponent(domainInput)}&unit_code=${encodeURIComponent(unitCode)}`);
                 const data = await response.json();
                 
                 checkingIcon.classList.add('hidden');

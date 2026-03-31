@@ -215,7 +215,7 @@
                         <dt class="text-sm font-medium text-gray-500">Role</dt>
                         <dd class="mt-1">
                             <span class="inline-flex items-center rounded-full bg-myunila-100 px-3 py-1 text-sm font-medium text-myunila">
-                                {{ Auth::user()->peran->nm_peran ?? 'Pengguna' }}
+                                {{ Auth::user()->peran?->nm_peran ?? 'Pengguna' }}
                             </span>
                         </dd>
                     </div>

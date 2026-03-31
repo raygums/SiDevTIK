@@ -8,10 +8,10 @@
     {{-- Header --}}
     <div class="mb-8">
         <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">
-            Daftar Tugas
+            {{ $pageTitle ?? 'Daftar Tugas' }}
         </h1>
         <p class="mt-2 text-gray-600">
-            Pengajuan yang sudah disetujui verifikator dan siap dikerjakan.
+            {{ $pageDescription ?? 'Pengajuan yang sudah disetujui verifikator dan siap dikerjakan.' }}
         </p>
     </div>
 
@@ -30,7 +30,7 @@
 
     {{-- Stats Cards --}}
     <div class="mb-8 grid gap-6 sm:grid-cols-4">
-        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md">
+        <a href="{{ route('eksekutor.index', array_merge(request()->except('page', 'scope'), ['scope' => 'pending'])) }}" class="block overflow-hidden rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-md {{ ($filters['scope'] ?? 'pending') === 'pending' ? 'border-myunila ring-1 ring-myunila/30' : 'border-gray-200' }}">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500">Menunggu</p>
@@ -40,9 +40,9 @@
                     <x-icon name="clock" class="h-8 w-8 text-warning" />
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md">
+        <a href="{{ route('eksekutor.index', array_merge(request()->except('page', 'scope'), ['scope' => 'in_progress'])) }}" class="block overflow-hidden rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-md {{ ($filters['scope'] ?? 'pending') === 'in_progress' ? 'border-myunila ring-1 ring-myunila/30' : 'border-gray-200' }}">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500">Sedang Dikerjakan</p>
@@ -52,9 +52,9 @@
                     <x-icon name="cog" class="h-8 w-8 text-info" />
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md">
+        <a href="{{ route('eksekutor.index', array_merge(request()->except('page', 'scope'), ['scope' => 'completed_today'])) }}" class="block overflow-hidden rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-md {{ ($filters['scope'] ?? 'pending') === 'completed_today' ? 'border-myunila ring-1 ring-myunila/30' : 'border-gray-200' }}">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500">Selesai Hari Ini</p>
@@ -64,9 +64,9 @@
                     <x-icon name="check-circle" class="h-8 w-8 text-success" />
                 </div>
             </div>
-        </div>
+        </a>
 
-        <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md">
+        <a href="{{ route('eksekutor.index', array_merge(request()->except('page', 'scope'), ['scope' => 'rejected_today'])) }}" class="block overflow-hidden rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-md {{ ($filters['scope'] ?? 'pending') === 'rejected_today' ? 'border-myunila ring-1 ring-myunila/30' : 'border-gray-200' }}">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-500">Ditolak Hari Ini</p>
@@ -74,16 +74,16 @@
                 </div>
                 <div class="rounded-xl bg-red-50 p-3">
                     <x-icon name="x-circle" class="h-8 w-8 text-red-600" />
-                        </svg>
-                    </div>
                 </div>
             </div>
-        </div>
+        </a>
+    </div>
 
-        {{-- Filters & Search --}}
-        <div class="mb-6 rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div class="p-6">
-                <form method="GET" action="{{ route('eksekutor.index') }}" id="filterForm">
+    {{-- Filters & Search --}}
+    <div class="mb-6 rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div class="p-6">
+            <form method="GET" action="{{ route('eksekutor.index') }}" id="filterForm">
+                <input type="hidden" name="scope" value="{{ $filters['scope'] ?? 'pending' }}">
                     
                     <div class="flex flex-col gap-3 sm:flex-row">
                         {{-- Search Input --}}
@@ -124,7 +124,7 @@
                                         <h3 class="text-sm font-semibold text-gray-900">Filter</h3>
                                         <button 
                                             type="button"
-                                            onclick="window.location.href='{{ route('eksekutor.index') }}'"
+                                            onclick="window.location.href='{{ route('eksekutor.index', ['scope' => $filters['scope'] ?? 'pending']) }}'"
                                             class="text-xs font-medium text-red-600 hover:text-red-700">
                                             Reset
                                         </button>
@@ -297,7 +297,6 @@
                 </div>
             </div>
         </div>
-
-    </div>
+        
 </div>
 @endsection

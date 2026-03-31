@@ -49,4 +49,10 @@ return [
         'base_url' => env('SSO_BASE_URL', 'https://akses.unila.ac.id/api/live/v1/auth'),
     ],
 
+    'unit_sync' => [
+        'endpoint' => env('UNIT_SYNC_API_URL'),
+        'token' => env('UNIT_SYNC_API_TOKEN'),
+        'timeout' => env('UNIT_SYNC_API_TIMEOUT', 20),
+    ],
+
 ];

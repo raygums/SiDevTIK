@@ -2,11 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\Peran;
 use App\Models\User;
 use App\Models\SubmissionLog;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -22,6 +25,8 @@ use Illuminate\Support\Facades\Log;
  */
 class AdminService
 {
+    private const ASSIGNABLE_ROLE_NAMES = ['Pengguna', 'Verifikator', 'Eksekutor', 'Admin', 'Administrator'];
+
     /**
      * Get filtered users untuk verifikasi akun
      * 
@@ -32,12 +37,6 @@ class AdminService
     public function getUsersForVerification(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         $query = User::query()->with('peran');
-
-        // IMPORTANT: Admin hanya bisa mengelola user dengan role "Pengguna"
-        // Role lain (Admin, Verifikator, Eksekutor, Pimpinan) hanya bisa dikelola oleh Pimpinan
-        $query->whereHas('peran', function($q) {
-            $q->where('nm_peran', 'Pengguna');
-        });
 
         // Filter: Tipe Akun (SSO vs Lokal)
         if (isset($filters['tipe_akun']) && $filters['tipe_akun'] !== 'all') {
@@ -192,20 +191,17 @@ class AdminService
      */
     public function getUserStatistics(): array
     {
-        // Admin hanya lihat statistik user dengan role "Pengguna"
-        $penggunaQuery = User::whereHas('peran', function($q) {
-            $q->where('nm_peran', 'Pengguna');
-        });
+        $usersQuery = User::query();
 
         return [
-            'total' => (clone $penggunaQuery)->count(),
-            'aktif' => (clone $penggunaQuery)->where('a_aktif', true)->count(),
-            'nonaktif' => (clone $penggunaQuery)->where('a_aktif', false)->count(),
-            'sso' => (clone $penggunaQuery)->whereNotNull('sso_id')->count(),
-            'lokal' => (clone $penggunaQuery)->whereNull('sso_id')->count(),
-            'mahasiswa' => (clone $penggunaQuery)->whereNotNull('id_pd')->count(),
-            'dosen_tendik' => (clone $penggunaQuery)->whereNotNull('id_sdm')->count(),
-            'pending_verification' => (clone $penggunaQuery)
+            'total' => (clone $usersQuery)->count(),
+            'aktif' => (clone $usersQuery)->where('a_aktif', true)->count(),
+            'nonaktif' => (clone $usersQuery)->where('a_aktif', false)->count(),
+            'sso' => (clone $usersQuery)->whereNotNull('sso_id')->count(),
+            'lokal' => (clone $usersQuery)->whereNull('sso_id')->count(),
+            'mahasiswa' => (clone $usersQuery)->whereNotNull('id_pd')->count(),
+            'dosen_tendik' => (clone $usersQuery)->whereNotNull('id_sdm')->count(),
+            'pending_verification' => (clone $usersQuery)
                 ->where('a_aktif', false)
                 ->whereNotNull('sso_id')
                 ->count(),
@@ -221,9 +217,6 @@ class AdminService
     public function getRecentRegistrations(int $limit = 10)
     {
         return User::with('peran')
-            ->whereHas('peran', function($q) {
-                $q->where('nm_peran', 'Pengguna');
-            })
             ->latest('create_at')
             ->take($limit)
             ->get();
@@ -262,5 +255,141 @@ class AdminService
             ->orderBy('create_at', 'desc')
             ->paginate($perPage)
             ->withQueryString();
+    }
+
+    /**
+     * Get assignable roles for admin dropdown.
+     */
+    public function getAssignableRoles(): Collection
+    {
+        return Peran::query()
+            ->where('a_aktif', true)
+            ->whereIn('nm_peran', self::ASSIGNABLE_ROLE_NAMES)
+            ->orderBy('nm_peran')
+            ->get(['UUID', 'nm_peran']);
+    }
+
+    /**
+     * Change user role.
+     */
+    public function changeUserRole(string $userUuid, string $roleUuid): array
+    {
+        try {
+            DB::beginTransaction();
+
+            $user = User::with('peran')->where('UUID', $userUuid)->firstOrFail();
+            $newRole = Peran::where('UUID', $roleUuid)->firstOrFail();
+
+            if (! in_array($newRole->nm_peran, self::ASSIGNABLE_ROLE_NAMES, true)) {
+                DB::rollBack();
+                return [
+                    'success' => false,
+                    'message' => 'Role yang dipilih tidak dapat dikelola dari panel admin.',
+                ];
+            }
+
+            if ($user->peran_uuid === $newRole->UUID) {
+                DB::rollBack();
+                return [
+                    'success' => true,
+                    'message' => 'Role pengguna sudah sesuai.',
+                ];
+            }
+
+            $oldRoleName = $user->peran?->nm_peran ?? '-';
+
+            $user->update([
+                'peran_uuid' => $newRole->UUID,
+                'id_updater' => auth()->id(),
+                'last_update' => now(),
+            ]);
+
+            Log::info('Admin Change User Role', [
+                'admin_uuid' => auth()->id(),
+                'user_uuid' => $user->UUID,
+                'user_name' => $user->nm,
+                'old_role' => $oldRoleName,
+                'new_role' => $newRole->nm_peran,
+            ]);
+
+            DB::commit();
+
+            return [
+                'success' => true,
+                'message' => "Role pengguna berhasil diubah menjadi {$newRole->nm_peran}.",
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Failed to change user role', [
+                'user_uuid' => $userUuid,
+                'role_uuid' => $roleUuid,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Gagal mengubah role pengguna.',
+            ];
+        }
+    }
+
+    /**
+     * Create local account from admin panel.
+     */
+    public function createLocalUser(array $payload): array
+    {
+        try {
+            DB::beginTransaction();
+
+            $role = Peran::where('UUID', $payload['peran_uuid'])->firstOrFail();
+
+            if (! in_array($role->nm_peran, self::ASSIGNABLE_ROLE_NAMES, true)) {
+                DB::rollBack();
+                return [
+                    'success' => false,
+                    'message' => 'Role yang dipilih tidak dapat dibuat dari panel admin.',
+                ];
+            }
+
+            $user = User::create([
+                'nm' => $payload['nm'],
+                'usn' => strtolower($payload['usn']),
+                'email' => strtolower($payload['email']),
+                'kata_sandi' => Hash::make($payload['kata_sandi']),
+                'peran_uuid' => $role->UUID,
+                'a_aktif' => (bool) ($payload['a_aktif'] ?? true),
+                'id_creator' => auth()->id(),
+                'id_updater' => auth()->id(),
+                'create_at' => now(),
+                'last_update' => now(),
+            ]);
+
+            Log::info('Admin Create Local User', [
+                'admin_uuid' => auth()->id(),
+                'user_uuid' => $user->UUID,
+                'username' => $user->usn,
+                'role' => $role->nm_peran,
+            ]);
+
+            DB::commit();
+
+            return [
+                'success' => true,
+                'message' => 'Akun baru berhasil dibuat.',
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Failed to create local user', [
+                'username' => $payload['usn'] ?? null,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Gagal membuat akun baru.',
+            ];
+        }
     }
 }

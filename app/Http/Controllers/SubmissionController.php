@@ -8,11 +8,11 @@ use App\Models\Submission;
 use App\Models\SubmissionDetail;
 use App\Models\SubmissionLog;
 use App\Models\Unit;
-use App\Models\UnitCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SubmissionController extends Controller
 {
@@ -46,13 +46,20 @@ class SubmissionController extends Controller
             $type = 'domain';
         }
 
-        // Get units grouped by category
-        $categories = UnitCategory::with('units')->get();
+        // Get active units for domain/sub-unit selection
+        $units = Unit::query()
+            ->where('a_aktif', true)
+            ->orderByRaw('COALESCE(kode_unit, nm_lmbg) ASC')
+            ->get()
+            ->map(function ($unit) {
+                $unit->subdomain_code = strtolower((string) ($unit->kode_unit ?: Str::slug($unit->nm_lmbg, '-')));
+                return $unit;
+            });
         
         // Get current user data
         $user = Auth::user();
 
-        return view('submissions.create', compact('type', 'categories', 'user'));
+        return view('submissions.create', compact('type', 'units', 'user'));
     }
 
     /**
@@ -94,8 +101,11 @@ class SubmissionController extends Controller
             'teknis_alamat_rumah' => 'nullable|string|max:255',
             'teknis_email' => 'required|email|max:255',
             
-            // Hidden fields for DB compatibility
-            'unit_id' => 'nullable',
+            // Unit selection
+            'unit_uuid' => [
+                $isPengajuanBaru ? 'required' : 'nullable',
+                \Illuminate\Validation\Rule::exists(\App\Models\Unit::class, 'UUID')
+            ],
             'application_name' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
             'request_type' => 'required|in:domain,hosting,vps',
@@ -110,10 +120,8 @@ class SubmissionController extends Controller
         // Add rules for pengajuan baru or upgrade/downgrade
         if ($isPengajuanBaru) {
             $rules['requested_domain'] = 'required|string|min:2|max:12|regex:/^[a-z0-9\-]+$/';
-            $rules['admin_password'] = 'required|string|min:6|max:8';
         } else {
             $rules['requested_domain'] = 'nullable|string|min:2|max:12|regex:/^[a-z0-9\-]+$/';
-            $rules['admin_password'] = 'nullable|string|min:6|max:8';
         }
         
         // VPS specific rules
@@ -156,13 +164,12 @@ class SubmissionController extends Controller
             'teknis_nik.required' => 'NIK/Passport penanggung jawab teknis wajib diisi.',
             'teknis_telepon.required' => 'Nomor telepon penanggung jawab teknis wajib diisi.',
             'teknis_email.required' => 'Email penanggung jawab teknis wajib diisi.',
+            'unit_uuid.required' => 'Sub unit wajib dipilih.',
+            'unit_uuid.exists' => 'Sub unit tidak valid.',
             'requested_domain.required' => 'Nama sub domain wajib diisi.',
             'requested_domain.min' => 'Nama sub domain minimal 2 karakter.',
             'requested_domain.max' => 'Nama sub domain maksimal 12 karakter.',
             'requested_domain.regex' => 'Nama sub domain hanya boleh huruf kecil, angka, dan tanda hubung.',
-            'admin_password.required' => 'Admin password (hint) wajib diisi.',
-            'admin_password.min' => 'Admin password minimal 6 karakter.',
-            'admin_password.max' => 'Admin password maksimal 8 karakter.',
             'existing_domain.required' => 'Domain/Hosting/VPS existing wajib diisi.',
             'existing_notes.required' => 'Keterangan permohonan wajib diisi.',
             'vps_cpu.required' => 'Jumlah CPU wajib dipilih.',
@@ -193,8 +200,17 @@ class SubmissionController extends Controller
                 ['nm_status' => 'Draft'],
             );
             
-            // Get first unit if no unit selected
-            $unitKerja = Unit::first();
+            $unitKerja = isset($validated['unit_uuid'])
+                ? Unit::where('UUID', $validated['unit_uuid'])->first()
+                : null;
+
+            if (! $unitKerja) {
+                $unitKerja = Unit::query()->where('a_aktif', true)->orderByRaw('COALESCE(kode_unit, nm_lmbg) ASC')->first();
+            }
+
+            if (! $unitKerja) {
+                throw new \Exception('Data unit kerja belum tersedia.');
+            }
 
             // Create submission (pengajuan)
             $submission = Submission::create([
@@ -212,7 +228,11 @@ class SubmissionController extends Controller
             
             // Determine domain name based on tipe_pengajuan
             $domainName = $isPengajuanBaru 
-                ? $this->formatDomain($validated['requested_domain'], $validated['request_type'])
+                ? $this->formatDomain(
+                    $validated['requested_domain'],
+                    $validated['request_type'],
+                    $unitKerja->kode_unit
+                )
                 : $validated['existing_domain'];
 
             // Create submission detail (rincian_pengajuan)
@@ -265,7 +285,9 @@ class SubmissionController extends Controller
             DB::rollBack();
             return back()
                 ->withInput()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+                ->with('error', config('app.debug')
+                    ? 'Terjadi kesalahan: ' . $e->getMessage()
+                    : 'Terjadi kesalahan. Silakan coba lagi atau hubungi administrator.');
         }
     }
 
@@ -297,7 +319,9 @@ class SubmissionController extends Controller
                 'email' => $validated['teknis_email'],
                 'phone' => $validated['teknis_telepon'],
             ],
-            'password_hint' => $validated['admin_password'] ?? null,
+            'unit' => [
+                'uuid' => $validated['unit_uuid'] ?? null,
+            ],
         ];
         
         // Add existing service info for non-new submissions
@@ -366,6 +390,39 @@ class SubmissionController extends Controller
     }
 
     /**
+     * Serve private uploaded file with authorization check.
+     * File disimpan di private disk (bukan public), tidak bisa diakses via URL langsung.
+     * Hanya owner pengajuan, admin, verifikator, dan eksekutor yang boleh akses.
+     */
+    public function serveFile(Submission $submission, string $type)
+    {
+        $this->authorizeAccess($submission);
+
+        $detail = $submission->rincian;
+
+        if (!$detail || !$detail->file_lampiran) {
+            abort(404, 'File tidak ditemukan.');
+        }
+
+        $files = is_array($detail->file_lampiran)
+            ? $detail->file_lampiran
+            : json_decode($detail->file_lampiran, true);
+
+        $allowedTypes = ['signed_form', 'identity'];
+        if (!in_array($type, $allowedTypes, true)) {
+            abort(404, 'Tipe file tidak valid.');
+        }
+
+        $path = $files[$type] ?? null;
+
+        if (!$path || !Storage::disk('local')->exists($path)) {
+            abort(404, 'File tidak ditemukan di server.');
+        }
+
+        return Storage::disk('local')->response($path);
+    }
+
+    /**
      * Store uploaded signed form
      */
     public function storeUpload(Request $request, Submission $submission)
@@ -382,14 +439,16 @@ class SubmissionController extends Controller
         ]);
 
         try {
+            DB::beginTransaction();
+
             $user = Auth::user();
             
-            // Store files
+            // Store files di private disk (bukan public) agar tidak bisa diakses langsung via URL
             $signedFormPath = $request->file('signed_form')
-                ->store("submissions/{$submission->UUID}", 'public');
+                ->store("submissions/{$submission->UUID}", 'local');
             
             $identityPath = $request->file('identity_attachment')
-                ->store("submissions/{$submission->UUID}", 'public');
+                ->store("submissions/{$submission->UUID}", 'local');
 
             // Get or create submitted status
             $statusDiajukan = StatusPengajuan::firstOrCreate(
@@ -422,12 +481,17 @@ class SubmissionController extends Controller
                 'id_creator' => $user->UUID,
             ]);
 
+            DB::commit();
+
             return redirect()
                 ->route('submissions.show', $submission)
                 ->with('success', 'Pengajuan berhasil dikirim! Tim TIK akan memverifikasi dokumen Anda.');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan saat upload: ' . $e->getMessage());
+            DB::rollBack();
+            return back()->with('error', config('app.debug')
+                    ? 'Terjadi kesalahan saat upload: ' . $e->getMessage()
+                    : 'Terjadi kesalahan saat upload. Silakan coba lagi atau hubungi administrator.');
         }
     }
 
@@ -446,7 +510,7 @@ class SubmissionController extends Controller
     /**
      * Format domain name based on request type
      */
-    private function formatDomain(?string $domain, string $requestType = 'domain'): ?string
+    private function formatDomain(?string $domain, string $requestType = 'domain', ?string $unitCode = null): ?string
     {
         if (!$domain) return null;
         
@@ -456,8 +520,14 @@ class SubmissionController extends Controller
         // Clean up
         $domain = strtolower(preg_replace('/[^a-zA-Z0-9\-]/', '', $domain));
         
-        // For domain type, append .unila.ac.id
+        // For domain and hosting, append [unit].unila.ac.id when unit code is available
         if ($requestType === 'domain' || $requestType === 'hosting') {
+            $cleanUnitCode = strtolower(preg_replace('/[^a-zA-Z0-9\-]/', '', (string) $unitCode));
+
+            if (!empty($cleanUnitCode)) {
+                return $domain . '.' . $cleanUnitCode . '.unila.ac.id';
+            }
+
             return $domain . '.unila.ac.id';
         }
         
@@ -504,6 +574,8 @@ class SubmissionController extends Controller
         }
 
         try {
+            DB::beginTransaction();
+
             $user = Auth::user();
             
             // Get or create submitted status
@@ -528,12 +600,17 @@ class SubmissionController extends Controller
                 'id_creator' => $user->UUID,
             ]);
 
+            DB::commit();
+
             return redirect()
                 ->route('submissions.index')
                 ->with('success', 'Pengajuan berhasil dikirim ke Verifikator!');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            DB::rollBack();
+            return back()->with('error', config('app.debug')
+                ? 'Terjadi kesalahan: ' . $e->getMessage()
+                : 'Terjadi kesalahan. Silakan coba lagi atau hubungi administrator.');
         }
     }
 
@@ -542,7 +619,8 @@ class SubmissionController extends Controller
      */
     public function checkDomainAvailability(Request $request)
     {
-        $domain = $request->query('domain');
+        $domain = strtolower((string) $request->query('domain'));
+        $unitCode = strtolower((string) $request->query('unit_code', ''));
         
         if (empty($domain) || strlen($domain) < 2) {
             return response()->json([
@@ -551,10 +629,15 @@ class SubmissionController extends Controller
             ]);
         }
 
-        // Check if domain already exists in submissions
-        $exists = SubmissionDetail::where('nm_domain', 'ILIKE', $domain . '%')
-            ->orWhere('nm_domain', 'ILIKE', $domain . '.unila.ac.id')
-            ->exists();
+        // Check if domain already exists in submissions (exact match)
+        $fullDomain = !empty($unitCode)
+            ? $domain . '.' . preg_replace('/[^a-z0-9\-]/', '', $unitCode) . '.unila.ac.id'
+            : $domain . '.unila.ac.id';
+
+        $exists = SubmissionDetail::where(function($q) use ($domain, $fullDomain) {
+            $q->where('nm_domain', 'ILIKE', $fullDomain)
+              ->orWhere('nm_domain', 'ILIKE', $domain);
+        })->exists();
 
         return response()->json([
             'available' => !$exists,

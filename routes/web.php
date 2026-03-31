@@ -18,8 +18,8 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
-// --- Generate Form Routes (Public untuk akses mudah) ---
-Route::prefix('form')->name('forms.')->group(function () {
+// --- Generate Form Routes (Memerlukan auth untuk melindungi data PII) ---
+Route::middleware('auth')->prefix('form')->name('forms.')->group(function () {
     Route::get('/{ticketNumber}', [FormGeneratorController::class, 'selectForm'])->name('select');
     Route::get('/{ticketNumber}/paperless', [FormGeneratorController::class, 'showPaperless'])->name('paperless');
     Route::get('/{ticketNumber}/hardcopy/preview', [FormGeneratorController::class, 'previewHardcopy'])->name('hardcopy.preview');
@@ -91,6 +91,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [SubmissionController::class, 'index'])->name('index');
         Route::get('/{submission}', [SubmissionController::class, 'show'])->name('show');
         
+        // Serve private (non-public) uploaded files securely
+        Route::get('/{submission}/file/{type}', [SubmissionController::class, 'serveFile'])->name('file');
+
         // Actions (Upload, Download, Print)
         Route::get('/{submission}/download-form', [SubmissionController::class, 'downloadForm'])->name('download-form');
         Route::get('/{submission}/print-form', [SubmissionController::class, 'printForm'])->name('print-form');
@@ -108,9 +111,12 @@ Route::middleware('auth')->group(function () {
         
         // User Verification & Management
         Route::get('/users/verification', [\App\Http\Controllers\Admin\AdminController::class, 'userVerification'])->name('users.verification');
+        Route::post('/users/create', [\App\Http\Controllers\Admin\AdminController::class, 'createUser'])->name('users.create');
         Route::post('/users/{uuid}/toggle-status', [\App\Http\Controllers\Admin\AdminController::class, 'toggleUserStatus'])->name('users.toggle-status');
+        Route::post('/users/{uuid}/change-role', [\App\Http\Controllers\Admin\AdminController::class, 'changeUserRole'])->name('users.change-role');
         Route::post('/users/bulk-activate', [\App\Http\Controllers\Admin\AdminController::class, 'bulkActivate'])->name('users.bulk-activate');
         Route::get('/users/never-logged-in', [\App\Http\Controllers\Admin\AdminController::class, 'usersNeverLoggedIn'])->name('users.never-logged-in');
+        Route::post('/units/sync', [\App\Http\Controllers\Admin\AdminController::class, 'syncUnits'])->name('units.sync');
         
         // Audit Logs (Activity: Login & Submission)
         Route::get('/audit/aktivitas', [\App\Http\Controllers\Admin\AuditLogController::class, 'loginLogs'])->name('audit.aktivitas');

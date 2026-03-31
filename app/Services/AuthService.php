@@ -14,7 +14,7 @@ class AuthService
     {
         $user = User::where('email', $email)->first();
 
-        if (! $user || ! Hash::check($password, $user->password)) {
+        if (! $user || ! Hash::check($password, $user->getAuthPassword())) {
             throw ValidationException::withMessages([
                 'email' => [trans('auth.failed')],
             ]);

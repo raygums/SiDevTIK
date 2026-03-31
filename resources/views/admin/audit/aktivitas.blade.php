@@ -57,7 +57,7 @@
                         </div>
                         <div>
                             <h3 class="text-xl font-bold">{{ $user->nm }}</h3>
-                            <p class="text-sm text-myunila-100">{{ $user->peran->nm_peran ?? 'Pengguna' }}</p>
+                            <p class="text-sm text-myunila-100">{{ $user->peran?->nm_peran ?? 'Pengguna' }}</p>
                         </div>
                     </div>
                 </div>
@@ -576,7 +576,7 @@
                         </td>
                         <td class="px-6 py-4">
                             <span class="inline-flex items-center rounded-full bg-myunila-100 px-2.5 py-0.5 text-xs font-medium text-myunila">
-                                {{ $user->peran->nm_peran ?? 'Pengguna' }}
+                                {{ $user->peran?->nm_peran ?? 'Pengguna' }}
                             </span>
                         </td>
                         <td class="px-6 py-4">

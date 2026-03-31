@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Submission;
+use App\Models\SubmissionLog;
 use App\Models\User;
 use App\Models\StatusPengajuan;
 use App\Models\JenisLayanan;
@@ -17,7 +18,7 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $roleName = strtolower($user->peran->nm_peran ?? 'pengguna');
+        $roleName = strtolower($user->peran?->nm_peran ?? 'pengguna');
 
         // Pimpinan (Super Admin) mendapat dashboard tersendiri
         if (str_contains($roleName, 'pimpinan')) {
@@ -118,25 +119,56 @@ class DashboardController extends Controller
      */
     private function verifikatorDashboard()
     {
+        $pendingStatuses = StatusPengajuan::whereIn('nm_status', ['Diajukan', 'Menunggu Verifikasi'])->pluck('UUID');
+        $waitingExecutionStatuses = StatusPengajuan::whereIn('nm_status', ['Disetujui Verifikator', 'Menunggu Eksekusi'])->pluck('UUID');
+        $inProgressStatus = StatusPengajuan::where('nm_status', 'Sedang Dikerjakan')->first();
+        $doneStatus = StatusPengajuan::where('nm_status', 'Selesai')->first();
+        $rejectedExecutionStatus = StatusPengajuan::where('nm_status', 'Ditolak Eksekutor')->first();
+
         // Stats verifikasi
         $stats = [
-            'menunggu' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Diajukan'))->count(),
+            'menunggu' => Submission::whereIn('status_uuid', $pendingStatuses)->count(),
             'disetujui_hari_ini' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Disetujui Verifikator'))
                 ->whereDate('last_update', today())
                 ->count(),
             'ditolak_hari_ini' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Ditolak Verifikator'))
                 ->whereDate('last_update', today())
                 ->count(),
+            'menunggu_eksekusi' => Submission::whereIn('status_uuid', $waitingExecutionStatuses)->count(),
+            'sedang_dikerjakan' => $inProgressStatus
+                ? Submission::where('status_uuid', $inProgressStatus->UUID)->count()
+                : 0,
+            'selesai_eksekutor_hari_ini' => $doneStatus
+                ? SubmissionLog::where('status_baru_uuid', $doneStatus->UUID)->whereDate('create_at', today())->count()
+                : 0,
+            'ditolak_eksekutor_hari_ini' => $rejectedExecutionStatus
+                ? SubmissionLog::where('status_baru_uuid', $rejectedExecutionStatus->UUID)->whereDate('create_at', today())->count()
+                : 0,
         ];
 
         // Pengajuan yang perlu diverifikasi
-        $pendingSubmissions = Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Diajukan'))
+        $pendingSubmissions = Submission::whereIn('status_uuid', $pendingStatuses)
             ->with(['pengguna', 'unitKerja', 'jenisLayanan', 'status', 'rincian'])
             ->latest('tgl_pengajuan')
             ->take(5)
             ->get();
 
-        return view('verifikator.dashboard', compact('stats', 'pendingSubmissions'));
+        // Aktivitas lintas role agar verifikator bisa memonitor eksekusi dan catatannya
+        $crossRoleActivities = SubmissionLog::with(['pengajuan', 'statusBaru', 'creator.peran'])
+            ->whereHas('statusBaru', function ($q) {
+                $q->whereIn('nm_status', [
+                    'Disetujui Verifikator',
+                    'Ditolak Verifikator',
+                    'Sedang Dikerjakan',
+                    'Selesai',
+                    'Ditolak Eksekutor',
+                ]);
+            })
+            ->orderByDesc('create_at')
+            ->take(8)
+            ->get();
+
+        return view('verifikator.dashboard', compact('stats', 'pendingSubmissions', 'crossRoleActivities'));
     }
 
     /**
@@ -152,17 +184,27 @@ class DashboardController extends Controller
      */
     private function eksekutorDashboard()
     {
+        $pendingStatuses = StatusPengajuan::whereIn('nm_status', ['Disetujui Verifikator', 'Menunggu Eksekusi'])->pluck('UUID');
+        $inProgressStatus = StatusPengajuan::where('nm_status', 'Sedang Dikerjakan')->first();
+        $doneStatus = StatusPengajuan::where('nm_status', 'Selesai')->first();
+        $rejectedExecutionStatus = StatusPengajuan::where('nm_status', 'Ditolak Eksekutor')->first();
+
         // Stats eksekusi
         $stats = [
-            'tugas_baru' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Disetujui Verifikator'))->count(),
-            'sedang_dikerjakan' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Sedang Dikerjakan'))->count(),
-            'selesai_hari_ini' => Submission::whereHas('status', fn($q) => $q->where('nm_status', 'Selesai'))
-                ->whereDate('last_update', today())
-                ->count(),
+            'tugas_baru' => Submission::whereIn('status_uuid', $pendingStatuses)->count(),
+            'sedang_dikerjakan' => $inProgressStatus
+                ? Submission::where('status_uuid', $inProgressStatus->UUID)->count()
+                : 0,
+            'selesai_hari_ini' => $doneStatus
+                ? SubmissionLog::where('status_baru_uuid', $doneStatus->UUID)->whereDate('create_at', today())->count()
+                : 0,
+            'ditolak_hari_ini' => $rejectedExecutionStatus
+                ? SubmissionLog::where('status_baru_uuid', $rejectedExecutionStatus->UUID)->whereDate('create_at', today())->count()
+                : 0,
         ];
 
         // Tugas yang perlu dikerjakan
-        $tasks = Submission::whereHas('status', fn($q) => $q->whereIn('nm_status', ['Disetujui Verifikator', 'Sedang Dikerjakan']))
+        $tasks = Submission::whereIn('status_uuid', $pendingStatuses)
             ->with(['pengguna', 'unitKerja', 'jenisLayanan', 'status'])
             ->latest('tgl_pengajuan')
             ->take(5)

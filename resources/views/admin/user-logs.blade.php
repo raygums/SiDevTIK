@@ -38,7 +38,7 @@
                     <div class="mt-4 flex flex-wrap items-center gap-2">
                         <span class="inline-flex items-center gap-1 rounded-full bg-myunila-100 px-3 py-1 text-xs font-medium text-myunila">
                             <x-icon name="shield-check" class="h-3 w-3" />
-                            {{ $user->peran->nm_peran ?? 'Pengguna' }}
+                            {{ $user->peran?->nm_peran ?? 'Pengguna' }}
                         </span>
                         
                         @if($user->a_aktif)

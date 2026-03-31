@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\AdminService;
+use App\Services\UnitSyncService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -25,13 +27,15 @@ class AdminController extends Controller
      * AdminService instance
      */
     protected AdminService $adminService;
+    protected UnitSyncService $unitSyncService;
 
     /**
      * Constructor - Dependency Injection
      */
-    public function __construct(AdminService $adminService)
+    public function __construct(AdminService $adminService, UnitSyncService $unitSyncService)
     {
         $this->adminService = $adminService;
+        $this->unitSyncService = $unitSyncService;
     }
 
     /**
@@ -56,8 +60,9 @@ class AdminController extends Controller
 
         $users = $this->adminService->getUsersForVerification($filters, $perPage);
         $stats = $this->adminService->getUserStatistics();
+        $roles = $this->adminService->getAssignableRoles();
 
-        return view('admin.user-verification', compact('users', 'stats', 'filters'));
+        return view('admin.user-verification', compact('users', 'stats', 'filters', 'roles'));
     }
 
     /**
@@ -117,5 +122,64 @@ class AdminController extends Controller
         $users = $this->adminService->getUsersNeverLoggedIn(15);
 
         return view('admin.users-never-logged-in', compact('users'));
+    }
+
+    /**
+     * Change role user from admin panel.
+     */
+    public function changeUserRole(Request $request, string $uuid): RedirectResponse
+    {
+        $request->validate([
+            'role_uuid' => ['required', Rule::exists(\App\Models\Peran::class, 'UUID')],
+        ]);
+
+        $result = $this->adminService->changeUserRole($uuid, $request->input('role_uuid'));
+
+        return redirect()->back()->with($result['success'] ? 'success' : 'error', $result['message']);
+    }
+
+    /**
+     * Create local account by admin.
+     */
+    public function createUser(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'nm' => 'required|string|max:125',
+            'usn' => [
+                'required',
+                'string',
+                'max:100',
+                'regex:/^[a-z0-9._]+$/',
+                Rule::unique(\App\Models\User::class, 'usn'),
+            ],
+            'email' => [
+                'required',
+                'email:rfc,dns',
+                'max:125',
+                Rule::unique(\App\Models\User::class, 'email'),
+            ],
+            'kata_sandi' => 'required|string|min:8|max:100',
+            'peran_uuid' => ['required', Rule::exists(\App\Models\Peran::class, 'UUID')],
+            'a_aktif' => 'nullable|boolean',
+        ], [
+            'usn.regex' => 'Username hanya boleh huruf kecil, angka, titik, dan underscore.',
+            'kata_sandi.min' => 'Password minimal 8 karakter.',
+        ]);
+
+        $validated['a_aktif'] = $request->boolean('a_aktif', true);
+
+        $result = $this->adminService->createLocalUser($validated);
+
+        return redirect()->back()->with($result['success'] ? 'success' : 'error', $result['message']);
+    }
+
+    /**
+     * Sync units from external API.
+     */
+    public function syncUnits(): RedirectResponse
+    {
+        $result = $this->unitSyncService->syncFromApi();
+
+        return redirect()->back()->with($result['success'] ? 'success' : 'error', $result['message']);
     }
 }

@@ -18,15 +18,10 @@ use Illuminate\Support\Facades\Route;
 // Domain availability check
 Route::get('/check-domain', [SubmissionController::class, 'checkDomainAvailability']);
 
-// Fetch submission data by ticket number for auto-fill
-Route::get('/submission-by-ticket/{ticketNumber}', [SubmissionController::class, 'getSubmissionByTicket']);
-
-// Contoh route sederhana (opsional)
-Route::get('/ping', function () {
-    return response()->json(['message' => 'API is working']);
-});
-
 Route::middleware('auth:sanctum')->group(function () {
+    // Fetch submission data by ticket number for auto-fill (requires auth to protect PII)
+    Route::get('/submission-by-ticket/{ticketNumber}', [SubmissionController::class, 'getSubmissionByTicket']);
+
     Route::get('/user', function (Request $request) {
         return $request->user();
     });

@@ -86,6 +86,15 @@ class Submission extends Model
         return $this->hasMany(SubmissionLog::class, 'pengajuan_uuid', 'UUID');
     }
 
+    public function latestLog(): HasOne
+    {
+        $relation = $this->hasOne(SubmissionLog::class, 'pengajuan_uuid', 'UUID');
+        // Override primary key momentarily to avoid MAX(UUID) query error in PostgreSQL
+        $relation->getRelated()->setKeyName('create_at');
+        
+        return $relation->latestOfMany('create_at');
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id_creator', 'UUID');

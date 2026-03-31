@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -58,6 +60,29 @@ class AuthController extends Controller
             'password.required' => 'Password wajib diisi.',
         ]);
 
+        // =========================================================
+        // RATE LIMITING: Maksimal 5 percobaan per IP per menit
+        // Mencegah serangan brute-force pada login lokal
+        // =========================================================
+        $throttleKey = 'login:' . Str::lower($credentials['username']) . '|' . $request->ip();
+
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+
+            $this->auditLogService->recordLoginLog(
+                userUuid: null,
+                status: 'GAGAL_NOT_FOUND',
+                request: $request,
+                keterangan: "Rate limit exceeded untuk username '{$credentials['username']}'"
+            );
+
+            return back()
+                ->withInput($request->only('username'))
+                ->withErrors([
+                    'username' => "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik.",
+                ]);
+        }
+
         // Cari user berdasarkan username atau email
         $user = User::where('usn', $credentials['username'])
             ->orWhere('email', $credentials['username'])
@@ -65,6 +90,8 @@ class AuthController extends Controller
 
         // Validasi user exists
         if (!$user) {
+            RateLimiter::hit($throttleKey, 60); // decay 60 detik
+
             // Record failed login: User tidak ditemukan
             $this->auditLogService->recordLoginLog(
                 userUuid: null,
@@ -82,6 +109,8 @@ class AuthController extends Controller
 
         // Validasi password benar
         if (!Hash::check($credentials['password'], $user->kata_sandi)) {
+            RateLimiter::hit($throttleKey, 60); // decay 60 detik
+
             // Record failed login: Password salah
             $this->auditLogService->recordLoginLog(
                 userUuid: $user->UUID,
@@ -99,6 +128,8 @@ class AuthController extends Controller
 
         // Cek apakah user aktif
         if (!$user->a_aktif) {
+            RateLimiter::hit($throttleKey, 60); // decay 60 detik
+
             // Record failed login: Akun suspended
             $this->auditLogService->recordLoginLog(
                 userUuid: $user->UUID,
@@ -113,6 +144,9 @@ class AuthController extends Controller
                     'username' => 'Akun Anda tidak aktif. Silakan hubungi administrator.',
                 ]);
         }
+
+        // Login berhasil - hapus rate limit counter
+        RateLimiter::clear($throttleKey);
 
         // Update last login information
         $user->update([

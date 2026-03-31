@@ -69,7 +69,7 @@ class UserService
             if (!empty($data['file_ktp_ktm'])) {
                 $file = $data['file_ktp_ktm'];
                 $filename = $userUuid . '_' . time() . '.' . $file->getClientOriginalExtension();
-                $fileKtpKtmPath = $file->storeAs('verifikasi', $filename, 'public');
+                $fileKtpKtmPath = $file->storeAs('verifikasi', $filename, 'local');
             }
 
             // 4. Prepare data untuk insert

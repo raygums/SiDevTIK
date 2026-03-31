@@ -248,7 +248,7 @@
                 {{-- Generated Forms --}}
                 <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
                     <div class="border-b border-gray-200 bg-myunila-50 px-6 py-4">
-                        <h2 class="font-semibold text-gray-900">Formulir Pengajuan</h2>
+                        <h2 class="font-semibold text-gray-900">Review Dokumen Pengajuan</h2>
                     </div>
                     <div class="p-6">
                         <div class="grid gap-4 sm:grid-cols-2">
@@ -263,6 +263,10 @@
                                     <div class="flex-1">
                                         <p class="font-medium text-gray-900 group-hover:text-myunila">Form Paperless</p>
                                         <p class="text-xs text-gray-500">Versi digital tanpa tanda tangan</p>
+                                        <p class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-myunila">
+                                            <x-icon name="eye" class="h-4 w-4" />
+                                            Lihat Dokumen
+                                        </p>
                                     </div>
                                     <svg class="h-5 w-5 text-gray-400 group-hover:text-myunila" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
@@ -281,6 +285,10 @@
                                     <div class="flex-1">
                                         <p class="font-medium text-gray-900 group-hover:text-myunila">Form Hardcopy</p>
                                         <p class="text-xs text-gray-500">Versi cetak untuk tanda tangan manual</p>
+                                        <p class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-myunila">
+                                            <x-icon name="eye" class="h-4 w-4" />
+                                            Lihat Dokumen
+                                        </p>
                                     </div>
                                     <svg class="h-5 w-5 text-gray-400 group-hover:text-myunila" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
@@ -294,7 +302,7 @@
                 {{-- Documents --}}
                 <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
                     <div class="border-b border-gray-200 bg-myunila-50 px-6 py-4">
-                        <h2 class="font-semibold text-gray-900">Dokumen Upload</h2>
+                        <h2 class="font-semibold text-gray-900">Hasil Dokumen Pengajuan</h2>
                     </div>
                     <div class="p-6">
                         @if(strtolower($submission->status?->nm_status ?? '') === 'draft')

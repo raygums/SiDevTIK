@@ -24,6 +24,9 @@ class Unit extends Model
         'kode_unit',
         'kategori_uuid',
         'a_aktif',
+        'last_sync',
+        'id_creator',
+        'id_updater',
     ];
 
     protected $casts = [

@@ -11,13 +11,7 @@
             Verifikasi Akun Pengguna
         </h1>
         <p class="mt-2 text-gray-600">
-            Kelola dan verifikasi status aktivasi akun pengguna dengan role <span class="font-semibold text-myunila">Pengguna</span>.
-        </p>
-        <p class="mt-1 text-sm text-gray-500">
-            <svg class="inline h-4 w-4 text-info" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-            </svg>
-            Role Admin, Verifikator, Eksekutor, dan Pimpinan hanya dapat dikelola oleh Pimpinan.
+            Kelola aktivasi akun, ubah role pengguna, tambah akun lokal baru, dan sinkronisasi data unit/subdomain dari API eksternal.
         </p>
     </div>
 
@@ -33,6 +27,85 @@
         <x-alert type="error" :message="session('error')" />
     </div>
     @endif
+
+    @if($errors->any())
+    <div class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
+        <p class="text-sm font-semibold text-red-700">Terjadi kesalahan validasi:</p>
+        <ul class="mt-2 list-inside list-disc text-sm text-red-600">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
+    <div class="mb-8 grid gap-6 lg:grid-cols-2">
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div class="mb-4 flex items-start justify-between gap-3">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Tambah Akun Baru</h2>
+                    <p class="text-sm text-gray-500">Buat akun lokal dengan username, password, dan role yang ditentukan admin.</p>
+                </div>
+            </div>
+            <form method="POST" action="{{ route('admin.users.create') }}" class="space-y-4">
+                @csrf
+                <div>
+                    <label for="new_nm" class="mb-1 block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                    <input id="new_nm" name="nm" type="text" class="form-input" value="{{ old('nm') }}" required>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="new_usn" class="mb-1 block text-sm font-medium text-gray-700">Username</label>
+                        <input id="new_usn" name="usn" type="text" class="form-input" value="{{ old('usn') }}" required>
+                    </div>
+                    <div>
+                        <label for="new_email" class="mb-1 block text-sm font-medium text-gray-700">Email</label>
+                        <input id="new_email" name="email" type="email" class="form-input" value="{{ old('email') }}" required>
+                    </div>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="new_kata_sandi" class="mb-1 block text-sm font-medium text-gray-700">Password</label>
+                        <input id="new_kata_sandi" name="kata_sandi" type="password" class="form-input" minlength="8" required>
+                    </div>
+                    <div>
+                        <label for="new_peran_uuid" class="mb-1 block text-sm font-medium text-gray-700">Role</label>
+                        <select id="new_peran_uuid" name="peran_uuid" class="form-input" required>
+                            <option value="">Pilih role</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->UUID }}" {{ old('peran_uuid') == $role->UUID ? 'selected' : '' }}>{{ $role->nm_peran }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                    <input type="checkbox" name="a_aktif" value="1" class="h-4 w-4 rounded border-gray-300 text-myunila focus:ring-myunila" checked>
+                    Langsung aktifkan akun
+                </label>
+                <div>
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-myunila px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-myunila-dark">
+                        <x-icon name="plus" class="h-4 w-4" />
+                        Buat Akun
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-semibold text-gray-900">Sinkronisasi Unit/Subdomain</h2>
+            <p class="mt-2 text-sm text-gray-500">Klik sinkronisasi untuk mengambil daftar unit terbaru dari API eksternal tanpa input manual satu per satu.</p>
+            <div class="mt-5">
+                <form method="POST" action="{{ route('admin.units.sync') }}" onsubmit="return confirm('Lanjut sinkronisasi data unit dari API eksternal?');">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-info px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+                        <x-icon name="cog-6-tooth" class="h-4 w-4" />
+                        Sinkronisasi Unit
+                    </button>
+                </form>
+            </div>
+            <p class="mt-3 text-xs text-gray-500">Pastikan konfigurasi UNIT_SYNC_API_URL (dan token jika diperlukan) sudah diatur di environment.</p>
+        </div>
+    </div>
 
     {{-- Statistics Cards --}}
     <div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -275,9 +348,15 @@
                         </td>
 
                         <td class="px-6 py-4">
-                            <span class="inline-flex items-center rounded-full bg-myunila-100 px-2.5 py-0.5 text-xs font-medium text-myunila">
-                                {{ $user->peran->nm_peran ?? 'Pengguna' }}
-                            </span>
+                            <form method="POST" action="{{ route('admin.users.change-role', $user->UUID) }}" class="flex items-center gap-2">
+                                @csrf
+                                <select name="role_uuid" class="rounded-lg border-gray-300 py-1.5 text-xs focus:border-myunila focus:ring-myunila">
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role->UUID }}" {{ $user->peran_uuid === $role->UUID ? 'selected' : '' }}>{{ $role->nm_peran }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="rounded-md bg-myunila-100 px-2 py-1 text-xs font-medium text-myunila hover:bg-myunila-200">Simpan</button>
+                            </form>
                         </td>
 
                         <td class="px-6 py-4">

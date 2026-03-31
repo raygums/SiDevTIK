@@ -25,7 +25,7 @@
                     </div>
                 </div>
                 <div class="mt-4">
-                    <a href="{{ route('eksekutor.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                    <a href="{{ route('eksekutor.index', ['scope' => 'pending']) }}" class="text-sm font-medium text-blue-600 hover:text-blue-500">
                         Lihat daftar tugas →
                     </a>
                 </div>
@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div class="mt-4">
-                    <a href="{{ route('eksekutor.index') }}" class="text-sm font-medium text-orange-600 hover:text-orange-500">
+                    <a href="{{ route('eksekutor.index', ['scope' => 'in_progress']) }}" class="text-sm font-medium text-orange-600 hover:text-orange-500">
                         Lanjutkan pekerjaan →
                     </a>
                 </div>
@@ -61,8 +61,8 @@
                     </div>
                 </div>
                 <div class="mt-4">
-                    <a href="{{ route('eksekutor.my-history') }}" class="text-sm font-medium text-green-600 hover:text-green-500">
-                        Lihat riwayat →
+                    <a href="{{ route('eksekutor.index', ['scope' => 'completed_today']) }}" class="text-sm font-medium text-green-600 hover:text-green-500">
+                        Lihat yang selesai hari ini →
                     </a>
                 </div>
             </div>

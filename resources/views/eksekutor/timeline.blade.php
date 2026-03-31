@@ -152,7 +152,7 @@
                                 <span class="font-medium text-gray-900">{{ $log->creator?->nm ?? 'System' }}</span>
                                 @if($log->creator?->peran)
                                 <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                                    {{ $log->creator->peran->nm_peran }}
+                                    {{ $log->creator?->peran?->nm_peran ?? 'Unknown' }}
                                 </span>
                                 @endif
                             </div>

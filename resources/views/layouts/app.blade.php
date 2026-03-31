@@ -50,7 +50,7 @@
                         <div class="hidden items-center gap-3 sm:flex">
                             <div class="text-right">
                                 <p class="text-sm font-medium text-gray-900">{{ Auth::user()->nm ?? Auth::user()->name }}</p>
-                                <p class="text-xs text-gray-500">{{ Auth::user()->peran->nm_peran ?? 'Pengguna' }}</p>
+                                <p class="text-xs text-gray-500">{{ Auth::user()->peran?->nm_peran ?? 'Pengguna' }}</p>
                             </div>
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-ocean text-sm font-bold text-white">
                                 {{ strtoupper(substr(Auth::user()->nm ?? Auth::user()->name ?? 'U', 0, 1)) }}

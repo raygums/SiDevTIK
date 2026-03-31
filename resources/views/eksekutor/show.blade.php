@@ -168,6 +168,30 @@
             </div>
             @endif
 
+            {{-- Transparansi Eksekutor --}}
+            @if($executionLog)
+            <div>
+                <h3 class="mb-3 font-semibold text-gray-900">Aktor Eksekusi Terakhir</h3>
+                <div class="rounded-lg border-l-4 border-indigo-500 bg-indigo-50 p-4">
+                    <div class="flex items-start gap-3">
+                        <x-icon name="user" class="h-5 w-5 text-indigo-600 flex-shrink-0 mt-0.5" />
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ $executionLog->creator?->nm ?? 'Eksekutor' }}
+                                <span class="font-normal text-gray-600">({{ $executionLog->statusBaru?->nm_status ?? '-' }})</span>
+                            </p>
+                            <p class="mt-1 text-xs text-gray-500">
+                                {{ $executionLog->create_at?->format('d M Y, H:i') }}
+                            </p>
+                            @if($executionLog->catatan_log)
+                            <p class="mt-2 rounded bg-white/70 p-2 text-sm text-gray-700">{{ $executionLog->catatan_log }}</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             {{-- Riwayat Status Timeline --}}
             @if($logs->isNotEmpty())
             <div>
