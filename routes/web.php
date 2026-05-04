@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FormGeneratorController;
 use App\Http\Controllers\SubmissionController;
@@ -63,9 +64,19 @@ Route::middleware('auth')->group(function () {
 
     // --- Admin Routes ---
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/users', function () {
-            return "Halaman Manajemen User (Admin Only)";
-        })->name('users');
+
+        // Manajemen Pengguna
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/',                                      [UserManagementController::class, 'index'])->name('index');
+            Route::post('/create-account',                       [UserManagementController::class, 'createAccount'])->name('create-account');
+            Route::patch('/{user}/toggle',                       [UserManagementController::class, 'toggleActivation'])->name('toggle');
+            Route::patch('/{user}/role',                         [UserManagementController::class, 'updateRole'])->name('update-role');
+
+            // Import CSV Domain/Subdomain
+            Route::post('/import-csv',                           [UserManagementController::class, 'importCsv'])->name('import-csv');
+            Route::get('/csv-template',                          [UserManagementController::class, 'downloadTemplate'])->name('csv-template');
+        });
+
     });
 
 });

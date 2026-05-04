@@ -83,4 +83,12 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Peran::class, 'peran_uuid', 'UUID');
     }
+
+    /**
+     * Route model binding pakai kolom UUID.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'UUID';
+    }
 }
