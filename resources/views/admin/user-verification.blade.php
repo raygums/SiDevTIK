@@ -145,22 +145,18 @@
     </div>
 
     {{-- Daftar Unit / Subdomain --}}
-    <div class="mb-8 rounded-2xl border border-gray-200 bg-white shadow-sm" x-data="{ open: false }">
-        <button @click="open = !open" class="flex w-full items-center justify-between px-6 py-4 text-left focus:outline-none">
+    <div class="mb-8 rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <button type="button" onclick="document.getElementById('unit-list-container').classList.toggle('hidden'); document.getElementById('unit-list-icon').classList.toggle('rotate-180');" class="flex w-full cursor-pointer items-center justify-between px-6 py-4 text-left focus:outline-none hover:bg-gray-50 rounded-2xl transition">
             <div>
                 <h2 class="text-lg font-semibold text-gray-900">Daftar Unit / Subdomain</h2>
                 <p class="mt-1 text-sm text-gray-500">Lihat {{ count($units) }} unit kerja yang sudah terdaftar di sistem dari hasil import.</p>
             </div>
-            <svg class="h-5 w-5 text-gray-400 transition-transform duration-200" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg id="unit-list-icon" class="h-5 w-5 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
         </button>
         
-        <div x-show="open" 
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0 translate-y-[-10px]"
-             x-transition:enter-end="opacity-100 translate-y-0"
-             class="border-t border-gray-200 px-6 py-4" style="display: none;">
+        <div id="unit-list-container" class="hidden border-t border-gray-200 px-6 py-4">
             <div class="max-h-96 overflow-y-auto rounded-lg border border-gray-200">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="sticky top-0 bg-gray-50 shadow-sm">
