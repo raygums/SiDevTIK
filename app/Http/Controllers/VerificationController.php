@@ -417,6 +417,66 @@ class VerificationController extends Controller
     }
 
     /**
+     * Pending pengajuan (Menunggu klarifikasi dari pemohon)
+     */
+    public function pending(Request $request, Submission $submission): RedirectResponse
+    {
+        $request->validate([
+            'alasan_pending' => 'required|string|min:10|max:1000',
+        ], [
+            'alasan_pending.required' => 'Alasan pending wajib diisi.',
+            'alasan_pending.min' => 'Alasan pending minimal 10 karakter.',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Validate current status allows pending
+            $allowedStatuses = ['Diajukan', 'Menunggu Verifikasi'];
+            if (!in_array($submission->status?->nm_status, $allowedStatuses, true)) {
+                return back()->with('error', 'Pengajuan ini tidak dalam status yang dapat di-pending.');
+            }
+
+            // Cari status "Pending Verifikasi"
+            $newStatus = StatusPengajuan::where('nm_status', 'Pending Verifikasi')->first();
+            
+            if (!$newStatus) {
+                throw new \Exception('Status "Pending Verifikasi" tidak ditemukan di database.');
+            }
+
+            // Capture old status before update
+            $oldStatusUuid = $submission->status_uuid;
+
+            // Update status pengajuan
+            $submission->update([
+                'status_uuid' => $newStatus->UUID,
+                'id_updater' => Auth::id(),
+            ]);
+
+            // Buat log dengan alasan pending
+            SubmissionLog::create([
+                'pengajuan_uuid' => $submission->UUID,
+                'status_lama_uuid' => $oldStatusUuid,
+                'status_baru_uuid' => $newStatus->UUID,
+                'catatan_log' => 'PENDING: ' . $request->input('alasan_pending'),
+                'id_creator' => Auth::id(),
+            ]);
+
+            DB::commit();
+
+            return redirect()
+                ->route('verifikator.index')
+                ->with('success', 'Pengajuan dipending. Pemohon akan menerima notifikasi untuk memberikan klarifikasi.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', config('app.debug')
+                ? 'Terjadi kesalahan (pending): ' . $e->getMessage()
+                : 'Terjadi kesalahan. Silakan coba lagi atau hubungi administrator.');
+        }
+    }
+
+    /**
      * Helper: Hitung yang disetujui hari ini
      */
     private function getApprovedTodayCount(string $role): int

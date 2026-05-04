@@ -222,7 +222,7 @@
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h3 class="mb-4 font-semibold text-gray-900">Keputusan Verifikasi</h3>
             
-            <div class="grid gap-6 sm:grid-cols-2">
+            <div class="grid gap-6 sm:grid-cols-3">
                 {{-- Approve Card --}}
                 <div class="decision-card rounded-xl border-2 border-gray-200 bg-white p-4 cursor-pointer transition-all hover:shadow-md" data-type="approve">
                     <div class="mb-4 flex items-center gap-3" onclick="selectDecision('approve')">
@@ -244,6 +244,34 @@
                         </div>
                         <button type="submit" class="w-full rounded-lg bg-success px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-success/90 hover:shadow-md">
                             Setujui & Teruskan
+                        </button>
+                    </form>
+                </div>
+
+                {{-- Pending Card --}}
+                <div class="decision-card rounded-xl border-2 border-gray-200 bg-white p-4 cursor-pointer transition-all hover:shadow-md" data-type="pending">
+                    <div class="mb-4 flex items-center gap-3" onclick="selectDecision('pending')">
+                        <div class="card-icon flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-gray-500 transition-colors">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="card-title font-semibold text-gray-700 transition-colors">Pending Klarifikasi</p>
+                            <p class="text-xs text-gray-500">Tunggu penjelasan pemohon</p>
+                        </div>
+                    </div>
+                    <form action="{{ route('verifikator.pending', $submission) }}" method="POST" class="card-form" style="display: none;" onclick="event.stopPropagation()">
+                        @csrf
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Alasan Pending <span class="text-error">*</span></label>
+                            <textarea name="alasan_pending" rows="4" required class="block w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition focus:border-warning focus:ring-warning resize-none @error('alasan_pending') border-error @enderror" placeholder="Jelaskan apa yang perlu diklarifikasi..."></textarea>
+                            @error('alasan_pending')
+                            <p class="mt-1 text-xs text-error">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <button type="submit" class="w-full rounded-lg bg-warning px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-warning/90 hover:shadow-md">
+                            Minta Klarifikasi
                         </button>
                     </form>
                 </div>
@@ -298,15 +326,15 @@ function selectDecision(type) {
             if (isSelected) {
                 // Deselect
                 card.classList.remove('selected');
-                card.classList.remove(type === 'approve' ? 'border-success' : 'border-error');
-                card.classList.remove(type === 'approve' ? 'bg-success-light/50' : 'bg-error-light/50');
+                card.classList.remove(type === 'approve' ? 'border-success' : type === 'pending' ? 'border-warning' : 'border-error');
+                card.classList.remove(type === 'approve' ? 'bg-success-light/50' : type === 'pending' ? 'bg-warning-light/50' : 'bg-error-light/50');
                 card.classList.add('border-gray-200', 'bg-white');
                 
-                cardIcon.classList.remove(type === 'approve' ? 'bg-success' : 'bg-error');
+                cardIcon.classList.remove(type === 'approve' ? 'bg-success' : type === 'pending' ? 'bg-warning' : 'bg-error');
                 cardIcon.classList.remove('text-white');
                 cardIcon.classList.add('bg-gray-200', 'text-gray-500');
                 
-                cardTitle.classList.remove(type === 'approve' ? 'text-success' : 'text-error');
+                cardTitle.classList.remove(type === 'approve' ? 'text-success' : type === 'pending' ? 'text-warning' : 'text-error');
                 cardTitle.classList.add('text-gray-700');
                 
                 cardForm.style.display = 'none';
@@ -314,29 +342,29 @@ function selectDecision(type) {
                 // Select
                 card.classList.add('selected');
                 card.classList.remove('border-gray-200', 'bg-white');
-                card.classList.add(type === 'approve' ? 'border-success' : 'border-error');
-                card.classList.add(type === 'approve' ? 'bg-success-light/50' : 'bg-error-light/50');
+                card.classList.add(type === 'approve' ? 'border-success' : type === 'pending' ? 'border-warning' : 'border-error');
+                card.classList.add(type === 'approve' ? 'bg-success-light/50' : type === 'pending' ? 'bg-warning-light/50' : 'bg-error-light/50');
                 
                 cardIcon.classList.remove('bg-gray-200', 'text-gray-500');
-                cardIcon.classList.add(type === 'approve' ? 'bg-success' : 'bg-error');
+                cardIcon.classList.add(type === 'approve' ? 'bg-success' : type === 'pending' ? 'bg-warning' : 'bg-error');
                 cardIcon.classList.add('text-white');
                 
                 cardTitle.classList.remove('text-gray-700');
-                cardTitle.classList.add(type === 'approve' ? 'text-success' : 'text-error');
+                cardTitle.classList.add(type === 'approve' ? 'text-success' : type === 'pending' ? 'text-warning' : 'text-error');
                 
                 cardForm.style.display = 'block';
             }
         } else {
             // Deselect other card
             card.classList.remove('selected');
-            card.classList.remove('border-success', 'border-error');
-            card.classList.remove('bg-success-light/50', 'bg-error-light/50');
+            card.classList.remove('border-success', 'border-error', 'border-warning');
+            card.classList.remove('bg-success-light/50', 'bg-error-light/50', 'bg-warning-light/50');
             card.classList.add('border-gray-200', 'bg-white');
             
-            cardIcon.classList.remove('bg-success', 'bg-error', 'text-white');
+            cardIcon.classList.remove('bg-success', 'bg-error', 'bg-warning', 'text-white');
             cardIcon.classList.add('bg-gray-200', 'text-gray-500');
             
-            cardTitle.classList.remove('text-success', 'text-error');
+            cardTitle.classList.remove('text-success', 'text-error', 'text-warning');
             cardTitle.classList.add('text-gray-700');
             
             cardForm.style.display = 'none';

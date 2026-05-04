@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             'Draft',                    // Belum disubmit
             'Diajukan',                 // Sudah submit, menunggu verifikasi
             'Menunggu Verifikasi',      // Antrian verifikator
+            'Pending Verifikasi',       // Menunggu klarifikasi/keterangan tambahan dari pemohon
             'Disetujui Verifikator',    // Lolos verifikasi, masuk ke eksekutor
             'Ditolak Verifikator',      // Ditolak oleh verifikator
             'Menunggu Eksekusi',        // Antrian eksekutor

@@ -109,6 +109,13 @@ Route::middleware('auth')->group(function () {
         // Dashboard Admin
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         
+        // Notifications
+        Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/notifications/{notification}', [\App\Http\Controllers\Admin\NotificationController::class, 'show'])->name('notifications.show');
+        Route::post('/notifications/{notification}/mark-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+        Route::post('/notifications/mark-all-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+        Route::delete('/notifications/{notification}', [\App\Http\Controllers\Admin\NotificationController::class, 'destroy'])->name('notifications.destroy');
+        
         // User Verification & Management
         Route::get('/users/verification', [\App\Http\Controllers\Admin\AdminController::class, 'userVerification'])->name('users.verification');
         Route::post('/users/create', [\App\Http\Controllers\Admin\AdminController::class, 'createUser'])->name('users.create');
@@ -143,6 +150,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{submission}', [VerificationController::class, 'show'])->name('show');
         Route::post('/{submission}/approve', [VerificationController::class, 'approve'])->name('approve');
         Route::post('/{submission}/reject', [VerificationController::class, 'reject'])->name('reject');
+        Route::post('/{submission}/pending', [VerificationController::class, 'pending'])->name('pending');
     });
 
     // --- Eksekutor Routes ---
@@ -173,6 +181,14 @@ Route::middleware('auth')->group(function () {
         // Activity Logs
         Route::get('/activity-logs', [\App\Http\Controllers\Pimpinan\PimpinanController::class, 'activityLogs'])->name('activity-logs');
         Route::get('/activity-logs/{uuid}', [\App\Http\Controllers\Pimpinan\PimpinanController::class, 'activityDetail'])->name('activity-detail');
+    });
+
+    // --- User Notifications Routes (untuk semua auth users) ---
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+        Route::get('/{notification}', [\App\Http\Controllers\NotificationController::class, 'show'])->name('show');
+        Route::post('/{notification}/mark-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-read');
+        Route::post('/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
     });
 
 });
