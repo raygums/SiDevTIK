@@ -42,6 +42,11 @@
                 'icon' => 'user-check',
             ],
             [
+                'title' => 'Manajemen Unit & Domain',
+                'route' => 'admin.units.index',
+                'icon' => 'server',
+            ],
+            [
                 'title' => 'Log Aktivitas',
                 'route' => 'admin.audit.aktivitas',
                 'icon' => 'clock',

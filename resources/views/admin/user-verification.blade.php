@@ -39,7 +39,7 @@
     </div>
     @endif
 
-    <div class="mb-8 grid gap-6 lg:grid-cols-2">
+    <div class="mb-8 max-w-3xl mx-auto">
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <div class="mb-4 flex items-start justify-between gap-3">
                 <div>
@@ -91,108 +91,7 @@
             </form>
         </div>
 
-        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div class="mb-4 flex items-start justify-between gap-3">
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-900">Import Unit/Subdomain dari CSV</h2>
-                    <p class="text-sm text-gray-500">Upload file CSV untuk mengimpor daftar unit kerja ke sistem.
-                        <a href="{{ route('admin.units.csv-template') }}" class="font-medium text-myunila underline hover:opacity-80">Download template CSV</a>
-                    </p>
-                </div>
-            </div>
 
-            <form method="POST" action="{{ route('admin.units.sync') }}" enctype="multipart/form-data" class="space-y-4" id="form-csv-unit">
-                @csrf
-
-                {{-- Drop Zone --}}
-                <div id="csv-drop-zone"
-                    class="relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-7 text-center transition hover:border-myunila hover:bg-myunila-50"
-                    onclick="document.getElementById('csv_file').click()">
-                    <x-icon name="document-arrow-up" class="mb-2 h-9 w-9 text-gray-400" />
-                    <p class="text-sm font-medium text-gray-600" id="csv-drop-label">Klik atau drag & drop file CSV di sini</p>
-                    <p class="mt-1 text-xs text-gray-400">Format: .csv &nbsp;|&nbsp; Maks. 5 MB</p>
-                    <input type="file" id="csv_file" name="csv_file" accept=".csv,.txt" class="hidden"
-                        onchange="updateCsvLabel(this)">
-                </div>
-
-                {{-- Mode --}}
-                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
-                    <span class="text-sm font-medium text-gray-700">Mode:</span>
-                    <label class="flex cursor-pointer items-center gap-2">
-                        <input type="radio" name="mode" value="upsert" checked class="h-4 w-4 text-myunila focus:ring-myunila">
-                        <span class="text-sm text-gray-700"><span class="font-medium">Upsert</span> <span class="text-gray-400">— tambah & perbarui</span></span>
-                    </label>
-                    <label class="flex cursor-pointer items-center gap-2">
-                        <input type="radio" name="mode" value="insert" class="h-4 w-4 text-myunila focus:ring-myunila">
-                        <span class="text-sm text-gray-700"><span class="font-medium">Insert Only</span> <span class="text-gray-400">— lewati yang sudah ada</span></span>
-                    </label>
-                </div>
-
-                {{-- Panduan kolom --}}
-                <div class="rounded-lg bg-amber-50 px-4 py-3 text-xs text-amber-800">
-                    <span class="font-semibold">📋 Kolom CSV:</span>
-                    <code class="ml-1 font-mono">nm_lmbg, kode_unit, nm_kategori, a_aktif</code>
-                    <span class="ml-2 text-amber-600">(nm_lmbg wajib)</span>
-                </div>
-
-                <button type="submit"
-                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-myunila to-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow transition hover:opacity-90">
-                    <x-icon name="arrow-up-tray" class="h-4 w-4" />
-                    Import CSV
-                </button>
-            </form>
-        </div>
-    </div>
-
-    {{-- Daftar Unit / Subdomain --}}
-    <div class="mb-8 rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <button type="button" onclick="document.getElementById('unit-list-container').classList.toggle('hidden'); document.getElementById('unit-list-icon').classList.toggle('rotate-180');" class="flex w-full cursor-pointer items-center justify-between px-6 py-4 text-left focus:outline-none hover:bg-gray-50 rounded-2xl transition">
-            <div>
-                <h2 class="text-lg font-semibold text-gray-900">Daftar Unit / Subdomain</h2>
-                <p class="mt-1 text-sm text-gray-500">Lihat {{ count($units) }} unit kerja yang sudah terdaftar di sistem dari hasil import.</p>
-            </div>
-            <svg id="unit-list-icon" class="h-5 w-5 text-gray-400 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-        </button>
-        
-        <div id="unit-list-container" class="hidden border-t border-gray-200 px-6 py-4">
-            <div class="max-h-96 overflow-y-auto rounded-lg border border-gray-200">
-                <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="sticky top-0 bg-gray-50 shadow-sm">
-                        <tr>
-                            <th class="px-4 py-3 text-left font-medium text-gray-500">No</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-500">Nama Lembaga</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-500">Kode Unit / Subdomain</th>
-                            <th class="px-4 py-3 text-left font-medium text-gray-500">Kategori</th>
-                            <th class="px-4 py-3 text-center font-medium text-gray-500">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 bg-white">
-                        @forelse($units as $index => $unit)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 text-gray-500">{{ $index + 1 }}</td>
-                            <td class="px-4 py-3 font-medium text-gray-900">{{ $unit->nm_lmbg }}</td>
-                            <td class="px-4 py-3 font-mono text-xs text-blue-600">{{ $unit->kode_unit ?: '-' }}</td>
-                            <td class="px-4 py-3 text-gray-500">{{ $unit->category?->nm_kategori ?? 'Umum' }}</td>
-                            <td class="px-4 py-3 text-center">
-                                @if($unit->a_aktif)
-                                    <span class="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-800">Aktif</span>
-                                @else
-                                    <span class="inline-flex rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">Nonaktif</span>
-                                @endif
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-gray-500">Belum ada data unit. Silakan import CSV.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 
     {{-- Statistics Cards --}}
     <div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

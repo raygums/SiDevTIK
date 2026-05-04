@@ -116,6 +116,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/{uuid}/change-role', [\App\Http\Controllers\Admin\AdminController::class, 'changeUserRole'])->name('users.change-role');
         Route::post('/users/bulk-activate', [\App\Http\Controllers\Admin\AdminController::class, 'bulkActivate'])->name('users.bulk-activate');
         Route::get('/users/never-logged-in', [\App\Http\Controllers\Admin\AdminController::class, 'usersNeverLoggedIn'])->name('users.never-logged-in');
+        
+        // Unit & Domain Management
+        Route::get('/units', [\App\Http\Controllers\Admin\UnitController::class, 'index'])->name('units.index');
+        Route::post('/units', [\App\Http\Controllers\Admin\UnitController::class, 'store'])->name('units.store');
+        Route::put('/units/{unit}', [\App\Http\Controllers\Admin\UnitController::class, 'update'])->name('units.update');
+        Route::delete('/units/{unit}', [\App\Http\Controllers\Admin\UnitController::class, 'destroy'])->name('units.destroy');
         Route::post('/units/sync', [\App\Http\Controllers\Admin\AdminController::class, 'syncUnits'])->name('units.sync');
         Route::get('/units/csv-template', [\App\Http\Controllers\Admin\AdminController::class, 'downloadCsvTemplate'])->name('units.csv-template');
         
