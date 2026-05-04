@@ -39,7 +39,7 @@
     </div>
     @endif
 
-    <div class="mb-8 max-w-3xl mx-auto">
+    <div class="mb-8 grid gap-6 lg:grid-cols-2">
         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <div class="mb-4 flex items-start justify-between gap-3">
                 <div>
@@ -90,6 +90,59 @@
                 </div>
             </form>
         </div>
+
+        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div class="mb-4 flex items-start justify-between gap-3">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Import Unit/Subdomain dari CSV</h2>
+                    <p class="text-sm text-gray-500">Upload file CSV untuk mengimpor daftar unit kerja ke sistem.
+                        <a href="{{ route('admin.units.csv-template') }}" class="font-medium text-myunila underline hover:opacity-80">Download template CSV</a>
+                    </p>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ route('admin.units.sync') }}" enctype="multipart/form-data" class="space-y-4" id="form-csv-unit">
+                @csrf
+
+                {{-- Drop Zone --}}
+                <div id="csv-drop-zone"
+                    class="relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-7 text-center transition hover:border-myunila hover:bg-myunila-50"
+                    onclick="document.getElementById('csv_file').click()">
+                    <x-icon name="document-arrow-up" class="mb-2 h-9 w-9 text-gray-400" />
+                    <p class="text-sm font-medium text-gray-600" id="csv-drop-label">Klik atau drag & drop file CSV di sini</p>
+                    <p class="mt-1 text-xs text-gray-400">Format: .csv &nbsp;|&nbsp; Maks. 5 MB</p>
+                    <input type="file" id="csv_file" name="csv_file" accept=".csv,.txt" class="hidden"
+                        onchange="updateCsvLabel(this)">
+                </div>
+
+                {{-- Mode --}}
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+                    <span class="text-sm font-medium text-gray-700">Mode:</span>
+                    <label class="flex cursor-pointer items-center gap-2">
+                        <input type="radio" name="mode" value="upsert" checked class="h-4 w-4 text-myunila focus:ring-myunila">
+                        <span class="text-sm text-gray-700"><span class="font-medium">Upsert</span> <span class="text-gray-400">— tambah & perbarui</span></span>
+                    </label>
+                    <label class="flex cursor-pointer items-center gap-2">
+                        <input type="radio" name="mode" value="insert" class="h-4 w-4 text-myunila focus:ring-myunila">
+                        <span class="text-sm text-gray-700"><span class="font-medium">Insert Only</span> <span class="text-gray-400">— lewati yang sudah ada</span></span>
+                    </label>
+                </div>
+
+                {{-- Panduan kolom --}}
+                <div class="rounded-lg bg-amber-50 px-4 py-3 text-xs text-amber-800">
+                    <span class="font-semibold">📋 Kolom CSV:</span>
+                    <code class="ml-1 font-mono">nm_lmbg, kode_unit, nm_kategori, a_aktif</code>
+                    <span class="ml-2 text-amber-600">(nm_lmbg wajib)</span>
+                </div>
+
+                <button type="submit"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-myunila to-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow transition hover:opacity-90">
+                    <x-icon name="arrow-up-tray" class="h-4 w-4" />
+                    Import CSV
+                </button>
+            </form>
+        </div>
+    </div>
 
 
 
