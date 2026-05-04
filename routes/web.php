@@ -117,6 +117,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/bulk-activate', [\App\Http\Controllers\Admin\AdminController::class, 'bulkActivate'])->name('users.bulk-activate');
         Route::get('/users/never-logged-in', [\App\Http\Controllers\Admin\AdminController::class, 'usersNeverLoggedIn'])->name('users.never-logged-in');
         Route::post('/units/sync', [\App\Http\Controllers\Admin\AdminController::class, 'syncUnits'])->name('units.sync');
+        Route::get('/units/csv-template', [\App\Http\Controllers\Admin\AdminController::class, 'downloadCsvTemplate'])->name('units.csv-template');
         
         // Audit Logs (Activity: Login & Submission)
         Route::get('/audit/aktivitas', [\App\Http\Controllers\Admin\AuditLogController::class, 'loginLogs'])->name('audit.aktivitas');

@@ -174,12 +174,54 @@ class AdminController extends Controller
     }
 
     /**
-     * Sync units from external API.
+     * Import units dari file CSV.
+     *
+     * Route: POST /admin/units/sync
+     * Middleware: auth, role:admin
      */
-    public function syncUnits(): RedirectResponse
+    public function syncUnits(Request $request): RedirectResponse
     {
-        $result = $this->unitSyncService->syncFromApi();
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:5120',
+            'mode'     => 'nullable|in:upsert,insert',
+        ], [
+            'csv_file.required' => 'Pilih file CSV terlebih dahulu.',
+            'csv_file.mimes'    => 'File harus berformat CSV (.csv).',
+            'csv_file.max'      => 'Ukuran file maksimal 5 MB.',
+        ]);
+
+        $filePath = $request->file('csv_file')->getRealPath();
+        $mode     = $request->input('mode', 'upsert');
+
+        $result = $this->unitSyncService->syncFromCsv($filePath, $mode);
 
         return redirect()->back()->with($result['success'] ? 'success' : 'error', $result['message']);
+    }
+
+    /**
+     * Download template CSV untuk import unit.
+     *
+     * Route: GET /admin/units/csv-template
+     */
+    public function downloadCsvTemplate()
+    {
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="template_import_unit.csv"',
+        ];
+
+        $callback = function () {
+            $h = fopen('php://output', 'w');
+            fputs($h, "\xEF\xBB\xBF"); // BOM agar Excel baca UTF-8 dengan benar
+            fputcsv($h, ['nm_lmbg', 'kode_unit', 'nm_kategori', 'a_aktif']);
+            fputcsv($h, ['Fakultas Teknik', 'FT', 'Fakultas', '1']);
+            fputcsv($h, ['Teknik Informatika', 'TI', 'Jurusan/Prodi', '1']);
+            fputcsv($h, ['Lembaga Penelitian', 'LP', 'Lembaga', '1']);
+            fputcsv($h, ['UPA Teknologi Informasi', 'TIK', 'UPA', '1']);
+            fputcsv($h, ['Rektorat', 'RKT', 'Biro/Rektorat', '1']);
+            fclose($h);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }
