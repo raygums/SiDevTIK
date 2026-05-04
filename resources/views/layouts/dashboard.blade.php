@@ -47,11 +47,18 @@
             </header>
 
             {{-- Main Content --}}
-            <main class="flex-1 overflow-y-auto bg-gray-50">
+            <main class="relative flex-1 overflow-y-auto bg-gray-50">
                 @yield('content')
             </main>
 
         </div>
+    </div>
+
+    {{-- Filter/Modal Backdrop (untuk semua modals) --}}
+    <div 
+        id="modal-backdrop"
+        class="fixed inset-0 z-40 hidden bg-black/50 transition-opacity duration-200"
+        @click="document.querySelectorAll('[data-modal]').forEach(el => el.setAttribute('data-open', 'false'))">
     </div>
 
     {{-- Mobile Sidebar Overlay --}}

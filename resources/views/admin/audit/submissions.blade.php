@@ -110,10 +110,10 @@
                     </div>
 
                     {{-- Filter Button --}}
-                    <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                    <div class="relative" x-data="{ open: false }" @click.outside="open = false; document.getElementById('modal-backdrop').classList.add('hidden')">
                         <button 
                             type="button"
-                            @click="open = !open"
+                            @click="open = !open; open ? document.getElementById('modal-backdrop').classList.remove('hidden') : document.getElementById('modal-backdrop').classList.add('hidden')"
                             class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2 sm:w-auto">
                             <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
@@ -131,9 +131,9 @@
                             x-transition:leave="transition ease-in duration-75"
                             x-transition:leave-start="transform opacity-100 scale-100"
                             x-transition:leave-end="transform opacity-0 scale-95"
-                            class="absolute right-0 z-50 mt-2 w-96 origin-top-right rounded-lg border border-gray-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                            class="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-96 max-h-screen overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-2xl ring-1 ring-black ring-opacity-5 sm:top-auto sm:left-auto sm:right-0 sm:translate-x-0 sm:translate-y-0">
                             
-                            <div class="border-b border-gray-200 px-4 py-3">
+                            <div class="border-b border-gray-200 sticky top-0 bg-white px-4 py-3">
                                 <div class="flex items-center justify-between">
                                     <h3 class="text-sm font-semibold text-gray-900">Filter</h3>
                                     <a 

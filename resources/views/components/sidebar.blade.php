@@ -37,6 +37,11 @@
                 'icon' => 'home',
             ],
             [
+                'title' => 'Notifikasi',
+                'route' => 'admin.notifications.index',
+                'icon' => 'bell',
+            ],
+            [
                 'title' => 'Manajemen Pengguna',
                 'route' => 'admin.users.verification',
                 'icon' => 'user-check',
@@ -118,6 +123,11 @@
                 'title' => 'Dashboard',
                 'route' => 'dashboard',
                 'icon' => 'home',
+            ],
+            [
+                'title' => 'Notifikasi',
+                'route' => 'notifications.index',
+                'icon' => 'bell',
             ],
             [
                 'title' => 'Buat Pengajuan',
