@@ -1288,20 +1288,32 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const response = await fetch(`/api/check-domain?domain=${encodeURIComponent(domainInput)}&unit_code=${encodeURIComponent(unitCode)}`);
                 const data = await response.json();
-                
+
                 checkingIcon.classList.add('hidden');
-                
+
                 if (data.available) {
-                    // Domain available
+                    // Domain tersedia — tampilkan preview full domain
                     availableIcon.classList.remove('hidden');
-                    messageContainer.innerHTML = '<span class="text-success font-medium">✓ Domain tersedia</span>';
+                    const preview = data.full_domain
+                        ? `<span class="text-success font-medium">✓ Domain tersedia</span>
+                           <span class="ml-2 font-mono text-xs bg-green-50 border border-green-200 rounded px-2 py-0.5 text-success">${data.full_domain}</span>`
+                        : `<span class="text-success font-medium">✓ Domain tersedia</span>`;
+                    messageContainer.innerHTML = preview;
                     messageContainer.classList.remove('hidden');
                     requestedDomain.classList.remove('border-error', 'focus:border-error', 'focus:ring-error');
                     requestedDomain.classList.add('border-success', 'focus:border-success', 'focus:ring-success');
                 } else {
-                    // Domain taken
+                    // Domain tidak tersedia — beri tahu alasannya
                     takenIcon.classList.remove('hidden');
-                    messageContainer.innerHTML = '<span class="text-error font-medium">✗ Domain sudah digunakan</span>';
+
+                    let msg = '✗ ' + (data.message || 'Domain sudah digunakan');
+                    if (data.taken_by === 'unit') {
+                        msg = `✗ Nama ini sudah terdaftar sebagai kode unit di sistem. Silakan pilih nama lain.`;
+                    } else if (data.taken_by === 'submission') {
+                        msg = `✗ Domain sudah digunakan dalam pengajuan yang sedang aktif.`;
+                    }
+
+                    messageContainer.innerHTML = `<span class="text-error font-medium">${msg}</span>`;
                     messageContainer.classList.remove('hidden');
                     requestedDomain.classList.remove('border-success', 'focus:border-success', 'focus:ring-success');
                     requestedDomain.classList.add('border-error', 'focus:border-error', 'focus:ring-error');

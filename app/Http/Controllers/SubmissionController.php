@@ -619,32 +619,75 @@ class SubmissionController extends Controller
      */
     public function checkDomainAvailability(Request $request)
     {
-        $domain = strtolower((string) $request->query('domain'));
-        $unitCode = strtolower((string) $request->query('unit_code', ''));
-        
+        $domain   = strtolower(trim((string) $request->query('domain')));
+        $unitCode = strtolower(trim((string) $request->query('unit_code', '')));
+
         if (empty($domain) || strlen($domain) < 2) {
             return response()->json([
                 'available' => false,
-                'message' => 'Domain minimal 2 karakter'
+                'message'   => 'Domain minimal 2 karakter',
             ]);
         }
 
-        // Check if domain already exists in submissions (exact match)
-        $fullDomain = !empty($unitCode)
-            ? $domain . '.' . preg_replace('/[^a-z0-9\-]/', '', $unitCode) . '.unila.ac.id'
-            : $domain . '.unila.ac.id';
+        // Bersihkan karakter tidak valid
+        $cleanDomain   = preg_replace('/[^a-z0-9\-]/', '', $domain);
+        $cleanUnitCode = preg_replace('/[^a-z0-9\-]/', '', $unitCode);
 
-        $exists = SubmissionDetail::where(function($q) use ($domain, $fullDomain) {
-            $q->where('nm_domain', 'ILIKE', $fullDomain)
-              ->orWhere('nm_domain', 'ILIKE', $domain);
-        })->exists();
+        // Bentuk full domain untuk dicek
+        $fullDomain = !empty($cleanUnitCode)
+            ? "{$cleanDomain}.{$cleanUnitCode}.unila.ac.id"
+            : "{$cleanDomain}.unila.ac.id";
+
+        // --- Cek 1: Apakah kode_unit di tabel referensi.unit_kerja sudah pakai nama ini ---
+        // kode_unit yang ada di CSV = subdomain yang sudah "terdaftar" di sistem
+        $usedAsUnitCode = Unit::where(function ($q) use ($cleanDomain) {
+                $q->whereRaw('LOWER(kode_unit) = ?', [$cleanDomain])
+                  ->orWhereRaw('LOWER(nm_lmbg) = ?', [$cleanDomain]);
+            })
+            ->where('a_aktif', true)
+            ->exists();
+
+        if ($usedAsUnitCode) {
+            return response()->json([
+                'available' => false,
+                'domain'    => $domain,
+                'taken_by'  => 'unit',
+                'message'   => 'Nama domain sudah terdaftar sebagai unit kerja di sistem',
+            ]);
+        }
+
+        // --- Cek 2: Apakah sudah ada di pengajuan aktif (bukan ditolak/dibatalkan) ---
+        $rejectedStatuses = ['Ditolak', 'Dibatalkan', 'Expired'];
+
+        $existsInSubmission = SubmissionDetail::where(function ($q) use ($cleanDomain, $fullDomain) {
+                $q->whereRaw('LOWER(nm_domain) = ?', [$fullDomain])
+                  ->orWhereRaw('LOWER(nm_domain) = ?', [$cleanDomain . '.unila.ac.id'])
+                  ->orWhereRaw('LOWER(nm_domain) = ?', [$cleanDomain]);
+            })
+            ->whereHas('pengajuan', function ($q) use ($rejectedStatuses) {
+                $q->whereHas('status', function ($sq) use ($rejectedStatuses) {
+                    $sq->whereNotIn('nm_status', $rejectedStatuses);
+                });
+            })
+            ->exists();
+
+        if ($existsInSubmission) {
+            return response()->json([
+                'available' => false,
+                'domain'    => $domain,
+                'taken_by'  => 'submission',
+                'message'   => 'Domain sudah digunakan dalam pengajuan aktif',
+            ]);
+        }
 
         return response()->json([
-            'available' => !$exists,
-            'domain' => $domain,
-            'message' => $exists ? 'Domain sudah digunakan' : 'Domain tersedia'
+            'available' => true,
+            'domain'    => $domain,
+            'full_domain' => $fullDomain,
+            'message'   => 'Domain tersedia',
         ]);
     }
+
 
     /**
      * Get submission data by ticket number for auto-fill (API endpoint)
