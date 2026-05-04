@@ -58,7 +58,7 @@
     <div 
         id="modal-backdrop"
         class="fixed inset-0 z-40 hidden bg-black/50 transition-opacity duration-200"
-        @click="document.querySelectorAll('[data-modal]').forEach(el => el.setAttribute('data-open', 'false'))">
+        onclick="document.getElementById('modal-backdrop').classList.add('hidden')">
     </div>
 
     {{-- Mobile Sidebar Overlay --}}
