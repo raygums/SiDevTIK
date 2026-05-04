@@ -144,6 +144,60 @@
         </div>
     </div>
 
+    {{-- Daftar Unit / Subdomain --}}
+    <div class="mb-8 rounded-2xl border border-gray-200 bg-white shadow-sm" x-data="{ open: false }">
+        <button @click="open = !open" class="flex w-full items-center justify-between px-6 py-4 text-left focus:outline-none">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900">Daftar Unit / Subdomain</h2>
+                <p class="mt-1 text-sm text-gray-500">Lihat {{ count($units) }} unit kerja yang sudah terdaftar di sistem dari hasil import.</p>
+            </div>
+            <svg class="h-5 w-5 text-gray-400 transition-transform duration-200" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        
+        <div x-show="open" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 translate-y-[-10px]"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             class="border-t border-gray-200 px-6 py-4" style="display: none;">
+            <div class="max-h-96 overflow-y-auto rounded-lg border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="sticky top-0 bg-gray-50 shadow-sm">
+                        <tr>
+                            <th class="px-4 py-3 text-left font-medium text-gray-500">No</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-500">Nama Lembaga</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-500">Kode Unit / Subdomain</th>
+                            <th class="px-4 py-3 text-left font-medium text-gray-500">Kategori</th>
+                            <th class="px-4 py-3 text-center font-medium text-gray-500">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                        @forelse($units as $index => $unit)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 text-gray-500">{{ $index + 1 }}</td>
+                            <td class="px-4 py-3 font-medium text-gray-900">{{ $unit->nm_lmbg }}</td>
+                            <td class="px-4 py-3 font-mono text-xs text-blue-600">{{ $unit->kode_unit ?: '-' }}</td>
+                            <td class="px-4 py-3 text-gray-500">{{ $unit->category?->nm_kategori ?? 'Umum' }}</td>
+                            <td class="px-4 py-3 text-center">
+                                @if($unit->a_aktif)
+                                    <span class="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-800">Aktif</span>
+                                @else
+                                    <span class="inline-flex rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">Nonaktif</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="px-4 py-8 text-center text-gray-500">Belum ada data unit. Silakan import CSV.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     {{-- Statistics Cards --}}
     <div class="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md">

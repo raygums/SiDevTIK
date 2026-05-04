@@ -62,7 +62,10 @@ class AdminController extends Controller
         $stats = $this->adminService->getUserStatistics();
         $roles = $this->adminService->getAssignableRoles();
 
-        return view('admin.user-verification', compact('users', 'stats', 'filters', 'roles'));
+        // Ambil data unit (yang di-import dari CSV) untuk ditampilkan
+        $units = \App\Models\Unit::with('category')->orderBy('nm_lmbg', 'asc')->get();
+
+        return view('admin.user-verification', compact('users', 'stats', 'filters', 'roles', 'units'));
     }
 
     /**
