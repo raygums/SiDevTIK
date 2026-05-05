@@ -220,78 +220,65 @@
                     </div>
                     
                     {{-- Filter Button --}}
-                    <div x-data="{ open: false }" @click.outside="open = false; document.getElementById('modal-backdrop').classList.add('hidden')">
+                    <!-- 1. Pastikan container utama memiliki class 'relative' dan state Alpine.js -->
+                    <div x-data="{ openFilter: false }" class="relative inline-block text-left mb-4">
+
+                        <!-- 2. Tombol Trigger Filter -->
                         <button 
-                            type="button"
-                            @click="open = !open; open ? document.getElementById('modal-backdrop').classList.remove('hidden') : document.getElementById('modal-backdrop').classList.add('hidden')"
-                            class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2 sm:w-auto">
-                            <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                            </svg>
-                            <span>Filter</span>
+                            @click="openFilter = !openFilter" 
+                            type="button" 
+                            class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                            Filter
                         </button>
 
-                        {{-- Filter Dropdown --}}
+                        <!-- 3. Dropdown Menu Filter -->
+                        <!-- x-show mengatur visibilitas, @click.outside menutup saat user klik di luar area modal -->
                         <div 
-                            x-show="open"
-                            x-cloak
-                            @click.stop
+                            x-show="openFilter" 
+                            @click.outside="openFilter = false"
+                            style="display: none;"
                             x-transition:enter="transition ease-out duration-100"
                             x-transition:enter-start="transform opacity-0 scale-95"
                             x-transition:enter-end="transform opacity-100 scale-100"
                             x-transition:leave="transition ease-in duration-75"
                             x-transition:leave-start="transform opacity-100 scale-100"
                             x-transition:leave-end="transform opacity-0 scale-95"
-                            class="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-80 max-h-screen overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-2xl ring-1 ring-black ring-opacity-5">
-                            
-                            <div class="border-b border-gray-200 px-4 py-3">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-sm font-semibold text-gray-900">Filter</h3>
-                                    <button 
-                                        type="button"
-                                        @click="document.getElementById('status').value='all'; document.getElementById('tipe_akun').value='all'; document.getElementById('filterForm').submit();"
-                                        class="text-xs font-medium text-red-600 hover:text-red-700">
-                                        Reset
-                                    </button>
+                            class="absolute left-0 sm:right-0 sm:left-auto z-50 mt-2 w-72 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none p-4"
+                        >
+                            <!-- Form Filter Aktual -->
+                            <form action="{{ route('admin.user.verification') }}" method="GET">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="font-medium text-gray-900">Filter</span>
+                                    <!-- Tombol Reset -->
+                                    <a href="{{ route('admin.user.verification') }}" class="text-sm text-red-600 hover:text-red-900 font-medium">Reset</a>
                                 </div>
-                            </div>
 
-                            <div class="p-4 space-y-4">
-                                {{-- Status Filter --}}
-                                <div>
-                                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                                    <select 
-                                        id="status"
-                                        name="status" 
-                                        class="block w-full rounded-lg border-gray-300 py-2 shadow-sm transition focus:border-myunila focus:ring-myunila sm:text-sm">
-                                        <option value="all" {{ ($filters['status'] ?? 'all') === 'all' ? 'selected' : '' }}>Semua</option>
-                                        <option value="aktif" {{ ($filters['status'] ?? '') === 'aktif' ? 'selected' : '' }}>Aktif</option>
-                                        <option value="tidak_aktif" {{ ($filters['status'] ?? '') === 'tidak_aktif' ? 'selected' : '' }}>Belum Aktif</option>
+                                <!-- Input Status -->
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700">Status</label>
+                                    <select name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                        <option value="">Semua</option>
+                                        <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                        <option value="nonaktif" {{ request('status') == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                                     </select>
                                 </div>
 
-                                {{-- Tipe Akun Filter --}}
-                                <div>
-                                    <label for="tipe_akun" class="block text-sm font-medium text-gray-700 mb-2">Tipe Akun</label>
-                                    <select 
-                                        id="tipe_akun"
-                                        name="tipe_akun" 
-                                        class="block w-full rounded-lg border-gray-300 py-2 shadow-sm transition focus:border-myunila focus:ring-myunila sm:text-sm">
-                                        <option value="all" {{ ($filters['tipe_akun'] ?? 'all') === 'all' ? 'selected' : '' }}>Semua</option>
-                                        <option value="sso" {{ ($filters['tipe_akun'] ?? '') === 'sso' ? 'selected' : '' }}>SSO</option>
-                                        <option value="lokal" {{ ($filters['tipe_akun'] ?? '') === 'lokal' ? 'selected' : '' }}>Lokal</option>
+                                <!-- Input Tipe Akun -->
+                                <div class="mb-6">
+                                    <label class="block text-sm font-medium text-gray-700">Tipe Akun</label>
+                                    <select name="tipe_akun" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                        <option value="">Semua</option>
+                                        <option value="mahasiswa" {{ request('tipe_akun') == 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
+                                        <option value="dosen" {{ request('tipe_akun') == 'dosen' ? 'selected' : '' }}>Dosen/Pegawai</option>
                                     </select>
                                 </div>
 
-                                {{-- Apply Button --}}
-                                <div class="flex gap-2 pt-2 border-t border-gray-100 mt-4">
-                                    <button 
-                                        type="submit"
-                                        class="flex-1 rounded-lg bg-myunila px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-myunila-dark focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2">
-                                        Terapkan Filter
-                                    </button>
-                                </div>
-                            </div>
+                                <!-- Tombol Submit -->
+                                <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    Terapkan Filter
+                                </button>
+                            </form>
                         </div>
                     </div>
 
