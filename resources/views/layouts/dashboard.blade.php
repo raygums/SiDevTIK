@@ -15,6 +15,8 @@
     <style>
         [x-cloak] { display: none !important; }
     </style>
+
+    @stack('styles')
 </head>
 <body class="bg-gray-50 text-slate-800 antialiased font-sans">
 

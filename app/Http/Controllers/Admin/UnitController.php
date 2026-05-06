@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Unit;
+use App\Models\UnitCategory;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class UnitController extends Controller
@@ -37,10 +39,10 @@ class UnitController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nm_lmbg' => 'required|string|max:255',
-            'kode_unit' => 'nullable|string|max:50',
-            'kategori_uuid' => 'nullable|exists:referensi.kategori_unit,UUID',
-            'a_aktif' => 'boolean'
+            'nm_lmbg'      => 'required|string|max:255',
+            'kode_unit'    => 'nullable|string|max:50',
+            'kategori_uuid' => ['required', Rule::exists(UnitCategory::class, 'UUID')],
+            'a_aktif'      => 'boolean',
         ]);
 
         $validated['a_aktif'] = $request->has('a_aktif');
@@ -57,10 +59,10 @@ class UnitController extends Controller
     public function update(Request $request, Unit $unit)
     {
         $validated = $request->validate([
-            'nm_lmbg' => 'required|string|max:255',
-            'kode_unit' => 'nullable|string|max:50',
-            'kategori_uuid' => 'nullable|exists:referensi.kategori_unit,UUID',
-            'a_aktif' => 'boolean'
+            'nm_lmbg'      => 'required|string|max:255',
+            'kode_unit'    => 'nullable|string|max:50',
+            'kategori_uuid' => ['required', Rule::exists(UnitCategory::class, 'UUID')],
+            'a_aktif'      => 'boolean',
         ]);
 
         $validated['a_aktif'] = $request->has('a_aktif');

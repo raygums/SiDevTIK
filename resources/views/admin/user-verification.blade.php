@@ -247,11 +247,11 @@
                             class="absolute left-0 sm:right-0 sm:left-auto z-50 mt-2 w-72 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none p-4"
                         >
                             <!-- Form Filter Aktual -->
-                            <form action="{{ route('admin.user.verification') }}" method="GET">
+                            <form action="{{ route('admin.users.verification') }}" method="GET">
                                 <div class="flex justify-between items-center mb-4">
                                     <span class="font-medium text-gray-900">Filter</span>
                                     <!-- Tombol Reset -->
-                                    <a href="{{ route('admin.user.verification') }}" class="text-sm text-red-600 hover:text-red-900 font-medium">Reset</a>
+                                    <a href="{{ route('admin.users.verification') }}" class="text-sm text-red-600 hover:text-red-900 font-medium">Reset</a>
                                 </div>
 
                                 <!-- Input Status -->
