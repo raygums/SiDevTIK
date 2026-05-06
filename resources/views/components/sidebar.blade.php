@@ -206,11 +206,30 @@
                 <p class="truncate text-xs text-gray-500">{{ $role }}</p>
             </div>
         </div>
-        
-        <a href="{{ route('logout.get') }}" 
+
+        {{-- Ganti Password (hanya untuk admin, verifikator, eksekutor) --}}
+        @php
+            $userRole = strtolower(Auth::user()?->peran?->nm_peran ?? '');
+        @endphp
+        @if(in_array($userRole, ['admin', 'administrator', 'verifikator', 'eksekutor']))
+        <a href="{{ route('password.change') }}"
+           class="mb-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition
+               {{ request()->routeIs('password.change')
+                   ? 'bg-myunila-50 text-myunila'
+                   : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+            <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+            </svg>
+            <span>Ganti Password</span>
+        </a>
+        @endif
+
+        <a href="{{ route('logout.get') }}"
            class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50">
             <x-icon name="logout" class="h-5 w-5" />
             <span>Keluar</span>
         </a>
     </div>
 </div>
+

@@ -81,6 +81,10 @@ Route::middleware('auth')->group(function () {
     // --- Dashboard (setelah login, redirect berdasarkan role) ---
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // --- Ganti Password (Semua role: admin, verifikator, eksekutor) ---
+    Route::get('/profil/ganti-password', [\App\Http\Controllers\ChangePasswordController::class, 'show'])->name('password.change');
+    Route::put('/profil/ganti-password', [\App\Http\Controllers\ChangePasswordController::class, 'update'])->name('password.update');
+
     // --- Fitur Pengajuan (Membutuhkan akun aktif) ---
     Route::middleware('active')->prefix('pengajuan')->name('submissions.')->group(function () {
         // Form & Store
