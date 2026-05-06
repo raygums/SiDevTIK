@@ -77,19 +77,19 @@
                     <div class="mt-4 grid gap-4 sm:grid-cols-4">
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">OS</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['VPS']['os'] ?? '-' }}</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['vps']['os'] ?? '-' }}</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">CPU</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['VPS']['cpu'] ?? '-' }} Core</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['vps']['cpu'] ?? '-' }} Core</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">RAM</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['VPS']['ram'] ?? '-' }} GB</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['vps']['ram'] ?? '-' }} GB</p>
                         </div>
                         <div class="rounded-lg bg-gray-50 p-3">
                             <p class="text-xs text-gray-500">Storage</p>
-                            <p class="font-medium text-gray-900">{{ $keterangan['VPS']['storage'] ?? '-' }} GB</p>
+                            <p class="font-medium text-gray-900">{{ $keterangan['vps']['storage'] ?? '-' }} GB</p>
                         </div>
                     </div>
                     @elseif($serviceType === 'hosting')

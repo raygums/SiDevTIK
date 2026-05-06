@@ -219,68 +219,40 @@
                             class="block w-full rounded-lg border-gray-300 py-2.5 pl-10 pr-3 shadow-sm transition focus:border-myunila focus:ring-myunila sm:text-sm">
                     </div>
                     
-                    {{-- Filter Button --}}
-                    <!-- 1. Pastikan container utama memiliki class 'relative' dan state Alpine.js -->
-                    <div x-data="{ openFilter: false }" class="relative inline-block text-left mb-4">
+                    {{-- Filter Button (Popup) --}}
+                    @php
+                        $activeFilters = collect([
+                            request('status'),
+                            request('tipe_akun'),
+                        ])->filter()->count();
+                    @endphp
+                    <x-filter-popup
+                        form-id="filterForm"
+                        modal-id="filterModalUsers"
+                        title="Filter Pengguna"
+                        reset-url="{{ route('admin.users.verification') }}"
+                        :badge="$activeFilters">
 
-                        <!-- 2. Tombol Trigger Filter -->
-                        <button 
-                            @click="openFilter = !openFilter" 
-                            type="button" 
-                            class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-                            Filter
-                        </button>
-
-                        <!-- 3. Dropdown Menu Filter -->
-                        <!-- x-show mengatur visibilitas, @click.outside menutup saat user klik di luar area modal -->
-                        <div 
-                            x-show="openFilter" 
-                            @click.outside="openFilter = false"
-                            style="display: none;"
-                            x-transition:enter="transition ease-out duration-100"
-                            x-transition:enter-start="transform opacity-0 scale-95"
-                            x-transition:enter-end="transform opacity-100 scale-100"
-                            x-transition:leave="transition ease-in duration-75"
-                            x-transition:leave-start="transform opacity-100 scale-100"
-                            x-transition:leave-end="transform opacity-0 scale-95"
-                            class="absolute left-0 sm:right-0 sm:left-auto z-50 mt-2 w-72 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none p-4"
-                        >
-                            <!-- Form Filter Aktual -->
-                            <form action="{{ route('admin.users.verification') }}" method="GET">
-                                <div class="flex justify-between items-center mb-4">
-                                    <span class="font-medium text-gray-900">Filter</span>
-                                    <!-- Tombol Reset -->
-                                    <a href="{{ route('admin.users.verification') }}" class="text-sm text-red-600 hover:text-red-900 font-medium">Reset</a>
-                                </div>
-
-                                <!-- Input Status -->
-                                <div class="mb-4">
-                                    <label class="block text-sm font-medium text-gray-700">Status</label>
-                                    <select name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                                        <option value="">Semua</option>
-                                        <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
-                                        <option value="nonaktif" {{ request('status') == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
-                                    </select>
-                                </div>
-
-                                <!-- Input Tipe Akun -->
-                                <div class="mb-6">
-                                    <label class="block text-sm font-medium text-gray-700">Tipe Akun</label>
-                                    <select name="tipe_akun" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                                        <option value="">Semua</option>
-                                        <option value="mahasiswa" {{ request('tipe_akun') == 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
-                                        <option value="dosen" {{ request('tipe_akun') == 'dosen' ? 'selected' : '' }}>Dosen/Pegawai</option>
-                                    </select>
-                                </div>
-
-                                <!-- Tombol Submit -->
-                                <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                    Terapkan Filter
-                                </button>
-                            </form>
+                        {{-- Status Akun --}}
+                        <div class="fp-field">
+                            <label for="fp-status-usr">Status Akun</label>
+                            <select name="status" id="fp-status-usr" form="filterForm">
+                                <option value="">Semua</option>
+                                <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                <option value="nonaktif" {{ request('status') == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                            </select>
                         </div>
-                    </div>
+
+                        {{-- Tipe Akun --}}
+                        <div class="fp-field">
+                            <label for="fp-tipe-usr">Tipe Akun</label>
+                            <select name="tipe_akun" id="fp-tipe-usr" form="filterForm">
+                                <option value="">Semua</option>
+                                <option value="mahasiswa" {{ request('tipe_akun') == 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
+                                <option value="dosen" {{ request('tipe_akun') == 'dosen' ? 'selected' : '' }}>Dosen/Pegawai</option>
+                            </select>
+                        </div>
+                    </x-filter-popup>
 
                     {{-- Search Button --}}
                     <button 
