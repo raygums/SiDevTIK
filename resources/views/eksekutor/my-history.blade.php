@@ -34,106 +34,61 @@
                             class="block w-full rounded-lg border-gray-300 py-2.5 pl-10 pr-3 shadow-sm transition focus:border-myunila focus:ring-myunila sm:text-sm">
                     </div>
                     
-                    {{-- Filter Button --}}
-                    <div x-data="{ open: false }" @click.outside="open = false; document.getElementById('modal-backdrop').classList.add('hidden')">
-                        <button 
-                            type="button"
-                            @click="open = !open; open ? document.getElementById('modal-backdrop').classList.remove('hidden') : document.getElementById('modal-backdrop').classList.add('hidden')"
-                            class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2 sm:w-auto">
-                            <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                            </svg>
-                            <span>Filter</span>
-                        </button>
+                    {{-- Filter Button (Popup) --}}
+                    @php
+                        $activeFilters = collect([
+                            $filters['layanan'] ?? 'all',
+                            $filters['status'] ?? 'all',
+                            request('tanggal_dari'),
+                            request('tanggal_sampai'),
+                        ])->filter(fn($v) => $v && $v !== 'all')->count();
+                    @endphp
+                    <x-filter-popup
+                        form-id="filterForm"
+                        modal-id="filterModalMyHistory"
+                        title="Filter Log Pekerjaan"
+                        reset-url="{{ route('eksekutor.my-history') }}"
+                        :badge="$activeFilters">
 
-                        {{-- Filter Dropdown --}}
-                        <div 
-                            x-show="open"
-                            x-cloak
-                            @click.stop
-                            x-transition:enter="transition ease-out duration-100"
-                            x-transition:enter-start="transform opacity-0 scale-95"
-                            x-transition:enter-end="transform opacity-100 scale-100"
-                            x-transition:leave="transition ease-in duration-75"
-                            x-transition:leave-start="transform opacity-100 scale-100"
-                            x-transition:leave-end="transform opacity-0 scale-95"
-                            class="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-80 max-h-screen overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-2xl ring-1 ring-black ring-opacity-5">
-                            
-                            <div class="border-b border-gray-200 px-4 py-3">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-sm font-semibold text-gray-900">Filter</h3>
-                                    <button 
-                                        type="button"
-                                        onclick="window.location.href='{{ route('eksekutor.my-history') }}'"
-                                        class="text-xs font-medium text-red-600 hover:text-red-700">
-                                        Reset
-                                    </button>
+                        {{-- Jenis Layanan --}}
+                        <div class="fp-field">
+                            <label for="fp-layanan-mh">Jenis Layanan</label>
+                            <select name="layanan" id="fp-layanan-mh" form="filterForm">
+                                <option value="all" {{ ($filters['layanan'] ?? 'all') === 'all' ? 'selected' : '' }}>Semua Layanan</option>
+                                <option value="domain" {{ ($filters['layanan'] ?? '') === 'domain' ? 'selected' : '' }}>Domain</option>
+                                <option value="hosting" {{ ($filters['layanan'] ?? '') === 'hosting' ? 'selected' : '' }}>Hosting</option>
+                                <option value="vps" {{ ($filters['layanan'] ?? '') === 'vps' ? 'selected' : '' }}>VPS</option>
+                            </select>
+                        </div>
+
+                        {{-- Status --}}
+                        <div class="fp-field">
+                            <label for="fp-status-mh">Status</label>
+                            <select name="status" id="fp-status-mh" form="filterForm">
+                                <option value="all" {{ ($filters['status'] ?? 'all') === 'all' ? 'selected' : '' }}>Semua Status</option>
+                                <option value="sedang_dikerjakan" {{ ($filters['status'] ?? '') === 'sedang_dikerjakan' ? 'selected' : '' }}>Sedang Dikerjakan</option>
+                                <option value="selesai" {{ ($filters['status'] ?? '') === 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                <option value="ditolak" {{ ($filters['status'] ?? '') === 'ditolak' ? 'selected' : '' }}>Ditolak</option>
+                            </select>
+                        </div>
+
+                        {{-- Periode Tanggal --}}
+                        <div class="fp-field">
+                            <label>Periode Tanggal</label>
+                            <div class="fp-date-row">
+                                <div class="fp-date-col">
+                                    <label for="fp-dari-mh">Dari</label>
+                                    <input type="date" name="tanggal_dari" id="fp-dari-mh" form="filterForm"
+                                           value="{{ request('tanggal_dari') }}">
                                 </div>
-                            </div>
-
-                            <div class="p-4 space-y-4">
-                                {{-- Layanan Filter --}}
-                                <div>
-                                    <label for="layanan" class="block text-sm font-medium text-gray-700 mb-2">Jenis Layanan</label>
-                                    <select 
-                                        id="layanan"
-                                        name="layanan" 
-                                        class="block w-full rounded-lg border-gray-300 py-2 shadow-sm transition focus:border-myunila focus:ring-myunila sm:text-sm">
-                                        <option value="all" {{ ($filters['layanan'] ?? 'all') === 'all' ? 'selected' : '' }}>Semua Layanan</option>
-                                        <option value="domain" {{ ($filters['layanan'] ?? '') === 'domain' ? 'selected' : '' }}>Domain</option>
-                                        <option value="hosting" {{ ($filters['layanan'] ?? '') === 'hosting' ? 'selected' : '' }}>Hosting</option>
-                                        <option value="vps" {{ ($filters['layanan'] ?? '') === 'vps' ? 'selected' : '' }}>VPS</option>
-                                    </select>
-                                </div>
-
-                                {{-- Status Filter --}}
-                                <div>
-                                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                                    <select 
-                                        id="status"
-                                        name="status" 
-                                        class="block w-full rounded-lg border-gray-300 py-2 shadow-sm transition focus:border-myunila focus:ring-myunila sm:text-sm">
-                                        <option value="all" {{ ($filters['status'] ?? 'all') === 'all' ? 'selected' : '' }}>Semua Status</option>
-                                        <option value="sedang_dikerjakan" {{ ($filters['status'] ?? '') === 'sedang_dikerjakan' ? 'selected' : '' }}>Sedang Dikerjakan</option>
-                                        <option value="selesai" {{ ($filters['status'] ?? '') === 'selesai' ? 'selected' : '' }}>Selesai</option>
-                                        <option value="ditolak" {{ ($filters['status'] ?? '') === 'ditolak' ? 'selected' : '' }}>Ditolak</option>
-                                    </select>
-                                </div>
-
-                                {{-- Periode Tanggal Filter --}}
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Periode Tanggal</label>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <div>
-                                            <input 
-                                                type="date" 
-                                                name="tanggal_dari"
-                                                value="{{ request('tanggal_dari') }}"
-                                                placeholder="Dari"
-                                                class="block w-full rounded-lg border-gray-300 py-2 px-3 text-sm shadow-sm transition focus:border-myunila focus:ring-myunila">
-                                        </div>
-                                        <div>
-                                            <input 
-                                                type="date" 
-                                                name="tanggal_sampai"
-                                                value="{{ request('tanggal_sampai') }}"
-                                                placeholder="Sampai"
-                                                class="block w-full rounded-lg border-gray-300 py-2 px-3 text-sm shadow-sm transition focus:border-myunila focus:ring-myunila">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Apply Button --}}
-                                <div class="flex gap-2 pt-2 border-t border-gray-100">
-                                    <button 
-                                        type="submit"
-                                        class="flex-1 rounded-lg bg-myunila px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-myunila-dark">
-                                        Terapkan Filter
-                                    </button>
+                                <div class="fp-date-col">
+                                    <label for="fp-sampai-mh">Sampai</label>
+                                    <input type="date" name="tanggal_sampai" id="fp-sampai-mh" form="filterForm"
+                                           value="{{ request('tanggal_sampai') }}">
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </x-filter-popup>
 
                     {{-- Search Button --}}
                     <button 
