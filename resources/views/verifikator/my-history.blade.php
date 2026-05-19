@@ -35,10 +35,10 @@
                     </div>
                     
                     {{-- Filter Button --}}
-                    <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                    <div x-data="{ open: false }" @click.outside="open = false; document.getElementById('modal-backdrop').classList.add('hidden')">
                         <button 
                             type="button"
-                            @click="open = !open"
+                            @click="open = !open; open ? document.getElementById('modal-backdrop').classList.remove('hidden') : document.getElementById('modal-backdrop').classList.add('hidden')"
                             class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2 sm:w-auto">
                             <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
@@ -46,7 +46,7 @@
                             <span>Filter</span>
                         </button>
 
-                        {{-- Filter Dropdown --}}
+                        {{-- Filter Dropdown / Modal --}}
                         <div 
                             x-show="open"
                             x-cloak
@@ -57,21 +57,30 @@
                             x-transition:leave="transition ease-in duration-75"
                             x-transition:leave-start="transform opacity-100 scale-100"
                             x-transition:leave-end="transform opacity-0 scale-95"
-                            class="absolute right-0 top-full mt-2 z-50 w-[320px] sm:w-96 max-h-[85vh] overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5 origin-top-right">
+                            class="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white shadow-2xl ring-1 ring-black/5">
                             
-                            <div class="border-b border-gray-200 px-4 py-3">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-sm font-semibold text-gray-900">Filter</h3>
+                            {{-- Modal Header --}}
+                            <div class="flex items-center justify-between bg-myunila px-6 py-4 rounded-t-xl">
+                                <div class="flex items-center gap-2 text-white">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                                    </svg>
+                                    <h3 class="text-base font-bold">Filter Histori</h3>
+                                </div>
+                                <div class="flex items-center gap-3">
                                     <button 
                                         type="button"
                                         onclick="window.location.href='{{ route('verifikator.my-history') }}'"
-                                        class="text-xs font-medium text-red-600 hover:text-red-700">
+                                        class="rounded-md border border-white/30 bg-transparent px-3 py-1 text-sm font-medium text-white transition hover:bg-white/10">
                                         Reset
+                                    </button>
+                                    <button @click="open = false; document.getElementById('modal-backdrop').classList.add('hidden')" type="button" class="rounded-md bg-white/10 p-1 text-white hover:bg-white/20 transition">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
                                 </div>
                             </div>
 
-                            <div class="p-4 space-y-4">
+                            <div class="p-6 space-y-5">
                                 {{-- Layanan Filter --}}
                                 <div>
                                     <label for="layanan" class="block text-sm font-medium text-gray-700 mb-2">Jenis Layanan</label>
@@ -110,10 +119,11 @@
                                 </div>
 
                                 {{-- Apply Button --}}
-                                <div class="flex gap-2 pt-2 border-t border-gray-100">
+                                <div class="mt-6 pt-4 border-t border-gray-100">
                                     <button 
                                         type="submit"
-                                        class="flex-1 rounded-lg bg-myunila px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-myunila-dark">
+                                        class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-myunila px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-myunila/90 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                         Terapkan Filter
                                     </button>
                                 </div>
