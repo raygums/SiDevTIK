@@ -58,10 +58,10 @@
                     </div>
                     
                     {{-- Filter Button --}}
-                    <div x-data="{ open: false }" @click.outside="open = false; document.getElementById('modal-backdrop').classList.add('hidden')">
+                    <div class="relative" x-data="{ open: false }" @click.outside="open = false">
                         <button 
                             type="button"
-                            @click="open = !open; open ? document.getElementById('modal-backdrop').classList.remove('hidden') : document.getElementById('modal-backdrop').classList.add('hidden')"
+                            @click="open = !open"
                             class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2 sm:w-auto">
                             <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
@@ -69,7 +69,7 @@
                             <span>Filter</span>
                         </button>
 
-                        {{-- Filter Dropdown / Modal --}}
+                        {{-- Filter Dropdown --}}
                         <div 
                             x-show="open"
                             x-cloak
@@ -80,73 +80,74 @@
                             x-transition:leave="transition ease-in duration-75"
                             x-transition:leave-start="transform opacity-100 scale-100"
                             x-transition:leave-end="transform opacity-0 scale-95"
-                            class="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white shadow-2xl ring-1 ring-black/5">
+                            class="absolute right-0 top-full mt-2 z-50 w-[320px] sm:w-96 max-h-[85vh] overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5 origin-top-right">
                             
-                            {{-- Modal Header --}}
-                            <div class="flex items-center justify-between bg-myunila px-6 py-4 rounded-t-xl">
-                                <div class="flex items-center gap-2 text-white">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-                                    </svg>
-                                    <h3 class="text-base font-bold">Filter Histori</h3>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <button 
-                                        type="button"
-                                        onclick="window.location.href='{{ route('verifikator.history', ['status_scope' => $filters['status_scope'] ?? 'all']) }}'"
-                                        class="rounded-md border border-white/30 bg-transparent px-3 py-1 text-sm font-medium text-white transition hover:bg-white/10">
+                            <div class="border-b border-gray-200 px-4 py-3">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-sm font-semibold text-gray-900">Filter</h3>
+                                    <a 
+                                        href="{{ route('admin.audit.aktivitas') }}"
+                                        class="text-xs font-medium text-red-600 hover:text-red-700">
                                         Reset
-                                    </button>
-                                    <button @click="open = false; document.getElementById('modal-backdrop').classList.add('hidden')" type="button" class="rounded-md bg-white/10 p-1 text-white hover:bg-white/20 transition">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
 
-                            <div class="p-6 space-y-5">
-                                {{-- Layanan Filter --}}
+                            <div class="p-4 space-y-4">
+                                {{-- Log Type Filter --}}
                                 <div>
-                                    <label for="layanan" class="block text-sm font-medium text-gray-700 mb-2">Jenis Layanan</label>
-                                    <select 
-                                        id="layanan"
-                                        name="layanan" 
-                                        class="block w-full rounded-lg border-gray-300 py-2 shadow-sm transition focus:border-myunila focus:ring-myunila sm:text-sm">
-                                        <option value="all" {{ ($filters['layanan'] ?? 'all') === 'all' ? 'selected' : '' }}>Semua Layanan</option>
-                                        <option value="domain" {{ ($filters['layanan'] ?? '') === 'domain' ? 'selected' : '' }}>Domain</option>
-                                        <option value="hosting" {{ ($filters['layanan'] ?? '') === 'hosting' ? 'selected' : '' }}>Hosting</option>
-                                        <option value="VPS" {{ ($filters['layanan'] ?? '') === 'VPS' ? 'selected' : '' }}>VPS</option>
+                                    <label for="log_type" class="block text-sm font-medium text-gray-700 mb-2">Tipe Log</label>
+                                    <select name="log_type" 
+                                            id="log_type"
+                                            class="block w-full rounded-lg border-gray-300 py-2 shadow-sm focus:border-myunila focus:ring-myunila sm:text-sm">
+                                        <option value="all" {{ ($filters['log_type'] ?? 'all') === 'all' ? 'selected' : '' }}>Semua Aktivitas</option>
+                                        <option value="login" {{ ($filters['log_type'] ?? '') === 'login' ? 'selected' : '' }}>Login Saja</option>
+                                        <option value="submission" {{ ($filters['log_type'] ?? '') === 'submission' ? 'selected' : '' }}>Pengajuan Saja</option>
                                     </select>
                                 </div>
 
-                                {{-- Periode Tanggal Filter --}}
+                                {{-- Status Filter --}}
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Periode Tanggal</label>
+                                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status Login</label>
+                                    <select name="status" 
+                                            id="status"
+                                            class="block w-full rounded-lg border-gray-300 py-2 shadow-sm focus:border-myunila focus:ring-myunila sm:text-sm">
+                                        <option value="">Semua Status</option>
+                                        <option value="BERHASIL" {{ ($filters['status'] ?? '') === 'BERHASIL' ? 'selected' : '' }}>Berhasil</option>
+                                        <option value="GAGAL_PASSWORD" {{ ($filters['status'] ?? '') === 'GAGAL_PASSWORD' ? 'selected' : '' }}>Gagal - Password</option>
+                                        <option value="GAGAL_SUSPEND" {{ ($filters['status'] ?? '') === 'GAGAL_SUSPEND' ? 'selected' : '' }}>Gagal - Suspend</option>
+                                        <option value="GAGAL_SSO" {{ ($filters['status'] ?? '') === 'GAGAL_SSO' ? 'selected' : '' }}>Gagal - SSO</option>
+                                    </select>
+                                </div>
+
+                                {{-- Date Range Filter --}}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Rentang Tanggal</label>
                                     <div class="grid grid-cols-2 gap-2">
                                         <div>
-                                            <input 
-                                                type="date" 
-                                                name="tanggal_dari"
-                                                value="{{ request('tanggal_dari') }}"
-                                                placeholder="Dari"
-                                                class="block w-full rounded-lg border-gray-300 py-2 px-3 text-sm shadow-sm transition focus:border-myunila focus:ring-myunila">
+                                            <label for="date_from" class="block text-xs text-gray-500 mb-1">Dari</label>
+                                            <input type="date" 
+                                                   name="date_from" 
+                                                   id="date_from"
+                                                   value="{{ $filters['date_from'] ?? '' }}"
+                                                   class="block w-full rounded-lg border-gray-300 py-2 text-sm shadow-sm focus:border-myunila focus:ring-myunila">
                                         </div>
                                         <div>
-                                            <input 
-                                                type="date" 
-                                                name="tanggal_sampai"
-                                                value="{{ request('tanggal_sampai') }}"
-                                                placeholder="Sampai"
-                                                class="block w-full rounded-lg border-gray-300 py-2 px-3 text-sm shadow-sm transition focus:border-myunila focus:ring-myunila">
+                                            <label for="date_to" class="block text-xs text-gray-500 mb-1">Sampai</label>
+                                            <input type="date" 
+                                                   name="date_to" 
+                                                   id="date_to"
+                                                   value="{{ $filters['date_to'] ?? '' }}"
+                                                   class="block w-full rounded-lg border-gray-300 py-2 text-sm shadow-sm focus:border-myunila focus:ring-myunila">
                                         </div>
                                     </div>
                                 </div>
 
                                 {{-- Apply Button --}}
-                                <div class="mt-6 pt-4 border-t border-gray-100">
+                                <div class="flex gap-2 pt-2 border-t border-gray-100 mt-4">
                                     <button 
                                         type="submit"
-                                        class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-myunila px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-myunila/90 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2">
-                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        class="flex-1 rounded-lg bg-myunila px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-myunila-600 focus:outline-none focus:ring-2 focus:ring-myunila focus:ring-offset-2">
                                         Terapkan Filter
                                     </button>
                                 </div>
