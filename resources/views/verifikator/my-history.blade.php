@@ -77,7 +77,6 @@
                             </div>
                         </div>
                     </x-filter-popup>
-                    </x-filter-popup>
 
                     {{-- Search Button --}}
                     <button 
