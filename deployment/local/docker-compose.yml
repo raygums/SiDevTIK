@@ -14,13 +14,14 @@ services:
     restart: unless-stopped
     ports:
       - "${APP_PORT:-8090}:8000"
-      - "5173:5173"
+      - "${VITE_PORT:-5173}:${VITE_PORT:-5173}"
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
       - APP_URL=http://localhost:${APP_PORT:-8090}
       - APP_TIMEZONE=Asia/Jakarta
       - TZ=Asia/Jakarta
+      - VITE_PORT=${VITE_PORT:-5173}
       - DB_CONNECTION=pgsql
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT:-5432}
